@@ -26,20 +26,50 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'phone' => fake()->unique()->numerify('09########'),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'role' => fake()->randomElement(['super_admin', 'admin', 'customer', 'delivery']),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Set the user role to super_admin.
      */
-    public function unverified(): static
+    public function superAdmin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'super_admin',
+        ]);
+    }
+
+    /**
+     * Set the user role to admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Set the user role to customer.
+     */
+    public function customer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'customer',
+        ]);
+    }
+
+    /**
+     * Set the user role to delivery.
+     */
+    public function delivery(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'delivery',
         ]);
     }
 }
