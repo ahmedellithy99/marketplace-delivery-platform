@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Customer;
 
 use App\Exceptions\ProductUnavailableException;
 use App\Models\Cart;

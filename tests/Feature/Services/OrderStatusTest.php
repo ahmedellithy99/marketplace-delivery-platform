@@ -4,7 +4,7 @@ namespace Tests\Feature\Services;
 
 use App\Exceptions\InvalidStatusTransitionException;
 use App\Models\Order;
-use App\Services\OrderService;
+use App\Services\Admin\OrderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;

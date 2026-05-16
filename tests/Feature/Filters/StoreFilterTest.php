@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Filters;
 
-use App\Filters\StoreFilter;
+use App\Filters\Public\StoreFilter;
 use App\Models\Store;
 use App\Models\StoreType;
 use Illuminate\Foundation\Testing\RefreshDatabase;

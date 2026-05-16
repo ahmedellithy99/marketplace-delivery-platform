@@ -4,7 +4,7 @@ namespace Tests\Feature\Services;
 
 use App\Exceptions\CircularHierarchyException;
 use App\Models\Category;
-use App\Services\CategoryService;
+use App\Services\Admin\CategoryService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

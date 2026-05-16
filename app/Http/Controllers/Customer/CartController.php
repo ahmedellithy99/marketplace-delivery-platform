@@ -8,7 +8,7 @@ use App\Http\Requests\Customer\CartItemUpdateRequest;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Services\CartService;
+use App\Services\Customer\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

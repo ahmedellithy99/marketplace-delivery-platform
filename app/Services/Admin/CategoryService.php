@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Admin;
 
 use App\Exceptions\CircularHierarchyException;
-use App\Filters\CategoryFilter;
+use App\Filters\Admin\CategoryFilter;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;

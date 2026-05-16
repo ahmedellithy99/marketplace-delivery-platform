@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreStoreRequest;
 use App\Http\Requests\Admin\StoreUpdateRequest;
 use App\Models\Store;
-use App\Services\StoreService;
+use App\Services\Admin\StoreService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

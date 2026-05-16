@@ -1,35 +1,20 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Customer;
 
-use App\Exceptions\DuplicateDeliveryException;
-use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\ProductUnavailableException;
-use App\Filters\OrderFilter;
-use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\Customer\CartService;
+use App\Services\DeliveryFeeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class OrderService
 {
-    /**
-     * Allowed status transitions.
-     * 'cancelled' is reachable from any active status (admin only).
-     */
-    private const ALLOWED_TRANSITIONS = [
-        'pending' => ['accepted', 'cancelled'],
-        'accepted' => ['preparing', 'cancelled'],
-        'preparing' => ['on_the_way', 'cancelled'],
-        'on_the_way' => ['delivered', 'cancelled'],
-        'delivered' => [],
-        'cancelled' => [],
-    ];
     public function __construct(
         private CartService $cartService,
         private DeliveryFeeService $deliveryFeeService,
@@ -149,108 +134,5 @@ class OrderService
         } while (Order::where('order_number', $orderNumber)->exists());
 
         return $orderNumber;
-    }
-
-    /**
-     * Transition an order to a new status.
-     *
-     * @param Order $order The order to transition
-     * @param string $newStatus The target status
-     * @return Order The refreshed order
-     *
-     * @throws InvalidStatusTransitionException If the transition is not allowed
-     */
-    public function transitionStatus(Order $order, string $newStatus): Order
-    {
-        $currentStatus = $order->status;
-        $allowedTargets = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
-
-        if (!in_array($newStatus, $allowedTargets, true)) {
-            throw new InvalidStatusTransitionException($currentStatus, $newStatus);
-        }
-
-        $order->update(['status' => $newStatus]);
-
-        return $order->refresh();
-    }
-
-    /**
-     * Accept a pending order by setting the delivery fee and recalculating total.
-     *
-     * @param Order $order The order to accept
-     * @param float $deliveryFee The actual delivery fee
-     * @return Order The refreshed order
-     *
-     * @throws InvalidStatusTransitionException If order is not in 'pending' status
-     * @throws ValidationException If delivery_fee is missing or zero
-     */
-    public function acceptOrder(Order $order, float $deliveryFee): Order
-    {
-        if ($order->status !== 'pending') {
-            throw new InvalidStatusTransitionException($order->status, 'accepted');
-        }
-
-        if ($deliveryFee <= 0) {
-            throw ValidationException::withMessages([
-                'delivery_fee' => ['The delivery fee is required and must be greater than zero.'],
-            ]);
-        }
-
-        $order->update([
-            'delivery_fee' => $deliveryFee,
-            'total' => (float) $order->subtotal + $deliveryFee,
-        ]);
-
-        return $this->transitionStatus($order->refresh(), 'accepted');
-    }
-
-    /**
-     * Cancel an order from any active status.
-     *
-     * @param Order $order The order to cancel
-     * @return Order The refreshed order
-     *
-     * @throws InvalidStatusTransitionException If order is already delivered or cancelled
-     */
-    public function cancelOrder(Order $order): Order
-    {
-        return $this->transitionStatus($order, 'cancelled');
-    }
-
-    /**
-     * Get paginated orders for admin listing with filters.
-     */
-    public function getAdminOrders(Request $request, int $perPage = 15): LengthAwarePaginator
-    {
-        return Order::with('user')
-            ->filter(new OrderFilter($request))
-            ->orderByDesc('created_at')
-            ->paginate($perPage)
-            ->appends($request->query());
-    }
-
-    /**
-     * Assign a delivery man to an order.
-     *
-     * @param Order $order The order to assign delivery to
-     * @param User $deliveryMan The delivery man to assign
-     * @param User $admin The admin performing the assignment
-     * @return Delivery The created delivery record
-     *
-     * @throws DuplicateDeliveryException If order already has an active delivery
-     */
-    public function assignDelivery(Order $order, User $deliveryMan, User $admin): Delivery
-    {
-        // Check if order already has an active delivery
-        if ($order->delivery()->exists()) {
-            throw new DuplicateDeliveryException($order->order_number);
-        }
-
-        return Delivery::create([
-            'order_id' => $order->id,
-            'delivery_man_id' => $deliveryMan->id,
-            'assigned_by' => $admin->id,
-            'assigned_at' => now(),
-        ]);
     }
 }

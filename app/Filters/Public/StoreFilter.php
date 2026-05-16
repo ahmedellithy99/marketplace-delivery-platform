@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filters;
+namespace App\Filters\Public;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Filters\BaseFilter;
 
 class StoreFilter extends BaseFilter
 {

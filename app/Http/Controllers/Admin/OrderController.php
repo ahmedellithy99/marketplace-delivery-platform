@@ -7,7 +7,7 @@ use App\Http\Requests\Admin\OrderAcceptRequest;
 use App\Http\Requests\Admin\OrderAssignDeliveryRequest;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\OrderService;
+use App\Services\Admin\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

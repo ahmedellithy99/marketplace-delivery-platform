@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Admin;
 
-use App\Filters\StoreFilter;
+use App\Filters\Public\StoreFilter;
 use App\Models\Store;
 use App\Models\StoreType;
 use Illuminate\Http\Request;

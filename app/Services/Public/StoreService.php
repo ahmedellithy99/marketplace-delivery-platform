@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Public;
 
-use App\Filters\ProductFilter;
-use App\Filters\StoreFilter;
+use App\Filters\Public\ProductFilter;
+use App\Filters\Public\StoreFilter;
 use App\Models\Product;
 use App\Models\Store;
 use Carbon\Carbon;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class PublicStoreService
+class StoreService
 {
     /**
      * Get featured stores for the home page.

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Filters;
+namespace App\Filters\Admin;
+
+use App\Filters\BaseFilter;
 
 class OrderFilter extends BaseFilter
 {

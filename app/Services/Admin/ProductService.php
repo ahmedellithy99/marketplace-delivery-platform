@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Admin;
 
-use App\Filters\ProductFilter;
+use App\Filters\Public\ProductFilter;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;

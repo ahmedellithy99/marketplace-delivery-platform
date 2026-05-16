@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Store;
-use App\Services\PublicStoreService;
+use App\Services\Public\StoreService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,13 +12,13 @@ use Inertia\Response;
 class StoreController extends Controller
 {
     public function __construct(
-        protected PublicStoreService $publicStoreService
+        protected StoreService $storeService
     ) {}
 
     public function index(Request $request): Response
     {
         return Inertia::render('Stores/Index', [
-            'stores' => $this->publicStoreService->getStores($request),
+            'stores' => $this->storeService->getStores($request),
             'filters' => $request->only(['search', 'type', 'sort']),
         ]);
     }
@@ -26,7 +26,7 @@ class StoreController extends Controller
     public function show(Store $store): Response
     {
         return Inertia::render('Stores/Show', [
-            'store' => $this->publicStoreService->getStoreDetails($store),
+            'store' => $this->storeService->getStoreDetails($store),
         ]);
     }
 }

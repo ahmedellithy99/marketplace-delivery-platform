@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Filters;
+namespace App\Filters\Public;
 
+use App\Filters\BaseFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class ProductFilter extends BaseFilter
