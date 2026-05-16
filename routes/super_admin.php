@@ -18,6 +18,7 @@ Route::resource('stores', StoreController::class)
         'index' => 'super_admin.stores.index',
         'create' => 'super_admin.stores.create',
         'store' => 'super_admin.stores.store',
+        'show' => 'super_admin.stores.show',
         'edit' => 'super_admin.stores.edit',
         'update' => 'super_admin.stores.update',
         'destroy' => 'super_admin.stores.destroy',

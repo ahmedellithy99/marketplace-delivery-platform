@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Public\ProductController;
+use App\Http\Controllers\Public\StoreController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public routes (no auth required)
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
+Route::get('/stores/{store:slug}', [StoreController::class, 'show'])->name('stores.show');
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
