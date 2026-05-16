@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,9 +43,11 @@ Route::put('/products/{product}/variants/{variant}', [ProductController::class, 
 Route::delete('/products/{product}/variants/{variant}', [ProductController::class, 'destroyVariant'])
     ->name('admin.products.variants.destroy');
 
-Route::get('/orders', function () {
-    return response('Admin orders');
-})->name('admin.orders.index');
+Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
+Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
+Route::post('/orders/{order}/accept', [OrderController::class, 'accept'])->name('admin.orders.accept');
+Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('admin.orders.cancel');
+Route::post('/orders/{order}/assign-delivery', [OrderController::class, 'assignDelivery'])->name('admin.orders.assign-delivery');
 
 Route::get('/deliveries', function () {
     return response('Admin deliveries');

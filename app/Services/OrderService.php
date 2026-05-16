@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\DuplicateDeliveryException;
 use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\ProductUnavailableException;
+use App\Filters\OrderFilter;
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -212,5 +215,42 @@ class OrderService
     public function cancelOrder(Order $order): Order
     {
         return $this->transitionStatus($order, 'cancelled');
+    }
+
+    /**
+     * Get paginated orders for admin listing with filters.
+     */
+    public function getAdminOrders(Request $request, int $perPage = 15): LengthAwarePaginator
+    {
+        return Order::with('user')
+            ->filter(new OrderFilter($request))
+            ->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->appends($request->query());
+    }
+
+    /**
+     * Assign a delivery man to an order.
+     *
+     * @param Order $order The order to assign delivery to
+     * @param User $deliveryMan The delivery man to assign
+     * @param User $admin The admin performing the assignment
+     * @return Delivery The created delivery record
+     *
+     * @throws DuplicateDeliveryException If order already has an active delivery
+     */
+    public function assignDelivery(Order $order, User $deliveryMan, User $admin): Delivery
+    {
+        // Check if order already has an active delivery
+        if ($order->delivery()->exists()) {
+            throw new DuplicateDeliveryException($order->order_number);
+        }
+
+        return Delivery::create([
+            'order_id' => $order->id,
+            'delivery_man_id' => $deliveryMan->id,
+            'assigned_by' => $admin->id,
+            'assigned_at' => now(),
+        ]);
     }
 }
