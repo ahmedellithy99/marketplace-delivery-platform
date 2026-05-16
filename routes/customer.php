@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +21,7 @@ Route::resource('cart', CartController::class)
 
 Route::delete('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
 
-// Orders
-Route::get('/orders', function () {
-    return response('Customer orders');
-})->name('customer.orders');
+// Order routes
+Route::resource('orders', OrderController::class)
+    ->only(['index', 'store', 'show'])
+    ->names('customer.orders');
