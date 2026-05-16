@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Customer\CartController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,10 +12,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/cart', function () {
-    return response('Cart page');
-})->name('customer.cart');
+// Cart routes
+Route::resource('cart', CartController::class)
+    ->only(['index', 'store', 'update', 'destroy'])
+    ->names('customer.cart')
+    ->parameter('cart', 'cartItem');
 
+Route::delete('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
+
+// Orders
 Route::get('/orders', function () {
     return response('Customer orders');
 })->name('customer.orders');

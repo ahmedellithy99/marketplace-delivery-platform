@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Controllers\Customer;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Customer\CartItemStoreRequest;
+use App\Http\Requests\Customer\CartItemUpdateRequest;
+use App\Models\CartItem;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Services\CartService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class CartController extends Controller
+{
+    public function __construct(
+        protected CartService $cartService
+    ) {}
+
+    public function index(Request $request): Response
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $cart = $this->cartService->getCart($user);
+
+        return Inertia::render('Customer/Cart/Index', [
+            'cart' => $cart,
+            'cartItems' => $cart->items,
+            'totals' => [
+                'itemCount' => $cart->items->count(),
+                'subtotal' => $cart->items->sum('price'),
+            ],
+        ]);
+    }
+
+    public function store(CartItemStoreRequest $request): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $product = Product::findOrFail($request->validated('product_id'));
+        $variant = $request->validated('variant_id')
+            ? ProductVariant::findOrFail($request->validated('variant_id'))
+            : null;
+
+        $this->cartService->addCartItem(
+            $user,
+            $product,
+            $variant,
+            $request->validated('quantity')
+        );
+
+        return redirect()->back()
+            ->with('success', 'Item added to cart.');
+    }
+
+    public function update(CartItemUpdateRequest $request, CartItem $cartItem): RedirectResponse
+    {
+        $this->cartService->updateCartItem(
+            $cartItem,
+            $request->validated('quantity')
+        );
+
+        return redirect()->back()
+            ->with('success', 'Cart item updated.');
+    }
+
+    public function destroy(CartItem $cartItem): RedirectResponse
+    {
+        $this->cartService->removeCartItem($cartItem);
+
+        return redirect()->back()
+            ->with('success', 'Item removed from cart.');
+    }
+
+    public function clear(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $cart = $this->cartService->getOrCreateCart($user);
+        $this->cartService->clearCart($cart);
+
+        return redirect()->back()
+            ->with('success', 'Cart cleared.');
+    }
+}
