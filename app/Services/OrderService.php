@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidStatusTransitionException;
 use App\Exceptions\ProductUnavailableException;
 use App\Models\Order;
 use App\Models\User;
@@ -9,10 +10,23 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class OrderService
 {
+    /**
+     * Allowed status transitions.
+     * 'cancelled' is reachable from any active status (admin only).
+     */
+    private const ALLOWED_TRANSITIONS = [
+        'pending' => ['accepted', 'cancelled'],
+        'accepted' => ['preparing', 'cancelled'],
+        'preparing' => ['on_the_way', 'cancelled'],
+        'on_the_way' => ['delivered', 'cancelled'],
+        'delivered' => [],
+        'cancelled' => [],
+    ];
     public function __construct(
         private CartService $cartService,
         private DeliveryFeeService $deliveryFeeService,
@@ -132,5 +146,71 @@ class OrderService
         } while (Order::where('order_number', $orderNumber)->exists());
 
         return $orderNumber;
+    }
+
+    /**
+     * Transition an order to a new status.
+     *
+     * @param Order $order The order to transition
+     * @param string $newStatus The target status
+     * @return Order The refreshed order
+     *
+     * @throws InvalidStatusTransitionException If the transition is not allowed
+     */
+    public function transitionStatus(Order $order, string $newStatus): Order
+    {
+        $currentStatus = $order->status;
+        $allowedTargets = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
+
+        if (!in_array($newStatus, $allowedTargets, true)) {
+            throw new InvalidStatusTransitionException($currentStatus, $newStatus);
+        }
+
+        $order->update(['status' => $newStatus]);
+
+        return $order->refresh();
+    }
+
+    /**
+     * Accept a pending order by setting the delivery fee and recalculating total.
+     *
+     * @param Order $order The order to accept
+     * @param float $deliveryFee The actual delivery fee
+     * @return Order The refreshed order
+     *
+     * @throws InvalidStatusTransitionException If order is not in 'pending' status
+     * @throws ValidationException If delivery_fee is missing or zero
+     */
+    public function acceptOrder(Order $order, float $deliveryFee): Order
+    {
+        if ($order->status !== 'pending') {
+            throw new InvalidStatusTransitionException($order->status, 'accepted');
+        }
+
+        if ($deliveryFee <= 0) {
+            throw ValidationException::withMessages([
+                'delivery_fee' => ['The delivery fee is required and must be greater than zero.'],
+            ]);
+        }
+
+        $order->update([
+            'delivery_fee' => $deliveryFee,
+            'total' => (float) $order->subtotal + $deliveryFee,
+        ]);
+
+        return $this->transitionStatus($order->refresh(), 'accepted');
+    }
+
+    /**
+     * Cancel an order from any active status.
+     *
+     * @param Order $order The order to cancel
+     * @return Order The refreshed order
+     *
+     * @throws InvalidStatusTransitionException If order is already delivered or cancelled
+     */
+    public function cancelOrder(Order $order): Order
+    {
+        return $this->transitionStatus($order, 'cancelled');
     }
 }
