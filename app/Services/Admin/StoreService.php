@@ -54,7 +54,10 @@ class StoreService
     {
         $this->validateOperatingHours($data);
 
-        $store = Store::create($data);
+        // Remove file fields from data — they're handled via MediaLibrary
+        $storeData = collect($data)->except(['logo', 'cover'])->toArray();
+
+        $store = Store::create($storeData);
 
         if ($logo) {
             $store->addMedia($logo)->toMediaCollection('logo');
@@ -81,7 +84,10 @@ class StoreService
     {
         $this->validateOperatingHours($data, $store);
 
-        $store->update($data);
+        // Remove file fields from data — they're handled via MediaLibrary
+        $storeData = collect($data)->except(['logo', 'cover'])->toArray();
+
+        $store->update($storeData);
 
         if ($logo) {
             $store->addMedia($logo)->toMediaCollection('logo');
