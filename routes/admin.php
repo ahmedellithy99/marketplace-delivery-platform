@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-Route::get('/stores', [StoreController::class, 'index'])->name('admin.stores.index');
+Route::resource('stores', StoreController::class)
+    ->names('admin.stores')
+    ->except(['show']);
 
 Route::resource('categories', CategoryController::class)
     ->names('admin.categories')

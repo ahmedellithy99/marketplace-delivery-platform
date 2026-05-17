@@ -40,7 +40,7 @@ class StoreController extends Controller
             $request->file('cover')
         );
 
-        return redirect()->route('super_admin.stores.index')
+        return redirect()->route('admin.stores.index')
             ->with('success', 'Store created successfully.');
     }
 
@@ -61,7 +61,7 @@ class StoreController extends Controller
             $request->file('cover')
         );
 
-        return redirect()->route('super_admin.stores.index')
+        return redirect()->route('admin.stores.index')
             ->with('success', 'Store updated successfully.');
     }
 
@@ -69,7 +69,7 @@ class StoreController extends Controller
     {
         $this->storeService->deleteStore($store);
 
-        return redirect()->route('super_admin.stores.index')
+        return redirect()->route('admin.stores.index')
             ->with('success', 'Store deleted successfully.');
     }
 }

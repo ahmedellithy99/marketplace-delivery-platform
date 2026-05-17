@@ -37,11 +37,6 @@ Route::middleware('auth')->group(function () {
         ->prefix('admin')
         ->group(base_path('routes/admin.php'));
 
-    // Super Admin routes
-    Route::middleware('role:super_admin')
-        ->prefix('super-admin')
-        ->group(base_path('routes/super_admin.php'));
-
     // Delivery routes
     Route::middleware('role:delivery')
         ->prefix('delivery')
