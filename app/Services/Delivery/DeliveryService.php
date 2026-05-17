@@ -2,6 +2,7 @@
 
 namespace App\Services\Delivery;
 
+use App\Events\DeliveryAssigned;
 use App\Exceptions\DuplicateDeliveryException;
 use App\Models\Delivery;
 use App\Models\Order;
@@ -47,12 +48,16 @@ class DeliveryService
             throw new DuplicateDeliveryException($order->order_number);
         }
 
-        return Delivery::create([
+        $delivery = Delivery::create([
             'order_id' => $order->id,
             'delivery_man_id' => $deliveryMan->id,
             'assigned_by' => $admin->id,
             'assigned_at' => now(),
         ]);
+
+        event(new DeliveryAssigned($delivery));
+
+        return $delivery;
     }
 
     /**

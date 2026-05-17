@@ -2,6 +2,7 @@
 
 namespace App\Services\Customer;
 
+use App\Events\OrderPlaced;
 use App\Exceptions\ProductUnavailableException;
 use App\Models\Order;
 use App\Models\User;
@@ -101,6 +102,8 @@ class OrderService
 
             return $order;
         });
+
+        event(new OrderPlaced($order));
 
         return $order->load('items');
     }

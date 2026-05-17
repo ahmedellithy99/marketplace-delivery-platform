@@ -2,6 +2,8 @@
 
 namespace App\Services\Admin;
 
+use App\Events\DeliveryAssigned;
+use App\Events\OrderStatusChanged;
 use App\Exceptions\DuplicateDeliveryException;
 use App\Exceptions\InvalidStatusTransitionException;
 use App\Filters\Admin\OrderFilter;
@@ -110,6 +112,8 @@ class OrderService
 
         $order->update(['status' => $newStatus]);
 
+        event(new OrderStatusChanged($order, $currentStatus, $newStatus));
+
         return $order->refresh();
     }
 
@@ -130,11 +134,15 @@ class OrderService
             throw new DuplicateDeliveryException($order->order_number);
         }
 
-        return Delivery::create([
+        $delivery = Delivery::create([
             'order_id' => $order->id,
             'delivery_man_id' => $deliveryMan->id,
             'assigned_by' => $admin->id,
             'assigned_at' => now(),
         ]);
+
+        event(new DeliveryAssigned($delivery));
+
+        return $delivery;
     }
 }
