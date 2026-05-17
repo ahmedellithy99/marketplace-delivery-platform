@@ -7,7 +7,7 @@
 @source '../**/*.vue';
 
 @theme {
-    --font-sans: 'Cairo', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'IBM Plex Sans Arabic', 'Cairo', ui-sans-serif, system-ui, sans-serif;
 
     --color-primary-50: #fdf2f7;
     --color-primary-100: #fce7f0;
