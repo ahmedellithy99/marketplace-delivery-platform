@@ -15,7 +15,7 @@ const paginationLinks = computed(() => props.categories?.links || []);
 
 function deleteCategory(category) {
     if (confirm(`هل أنت متأكد من حذف القسم "${category.name}"؟`)) {
-        router.delete(`/admin/categories/${category.id}`);
+        router.delete(`/admin/categories/${category.slug}`);
     }
 }
 </script>
@@ -80,7 +80,7 @@ function deleteCategory(category) {
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
                                     <Link
-                                        :href="`/admin/categories/${category.id}/edit`"
+                                        :href="`/admin/categories/${category.slug}/edit`"
                                         class="text-blue-600 hover:text-blue-800 text-xs font-medium"
                                     >
                                         تعديل

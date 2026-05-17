@@ -24,7 +24,7 @@ function handleImages(e) {
 }
 
 function submit() {
-    form.post(`/admin/products/${props.product.id}`, {
+    form.post(`/admin/products/${props.product.slug}`, {
         forceFormData: true,
     });
 }

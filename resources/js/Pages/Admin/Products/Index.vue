@@ -19,12 +19,12 @@ function formatPrice(price) {
 }
 
 function toggleAvailability(product) {
-    router.patch(`/admin/products/${product.id}/toggle-availability`);
+    router.patch(`/admin/products/${product.slug}/toggle-availability`);
 }
 
 function deleteProduct(product) {
     if (confirm(`هل أنت متأكد من حذف المنتج "${product.name}"؟`)) {
-        router.delete(`/admin/products/${product.id}`);
+        router.delete(`/admin/products/${product.slug}`);
     }
 }
 
@@ -164,7 +164,7 @@ function getImageUrl(product) {
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
                                     <Link
-                                        :href="`/admin/products/${product.id}/edit`"
+                                        :href="`/admin/products/${product.slug}/edit`"
                                         class="text-blue-600 hover:text-blue-800 text-xs font-medium"
                                     >
                                         تعديل
