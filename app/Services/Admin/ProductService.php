@@ -69,7 +69,8 @@ class ProductService
         }
 
         $product = DB::transaction(function () use ($data) {
-            return Product::create($data);
+            $productData = collect($data)->except(['images'])->toArray();
+            return Product::create($productData);
         });
 
         foreach ($images as $image) {
@@ -108,7 +109,8 @@ class ProductService
         }
 
         DB::transaction(function () use ($product, $data) {
-            $product->update($data);
+            $productData = collect($data)->except(['images'])->toArray();
+            $product->update($productData);
         });
 
         foreach ($images as $image) {

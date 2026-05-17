@@ -92,7 +92,9 @@ class CategoryService
             $this->detectCircularHierarchy($category, $newParentId);
         }
 
-        $category->update($data);
+        $categoryData = collect($data)->except(['image'])->toArray();
+
+        $category->update($categoryData);
 
         if ($image) {
             $category->addMedia($image)->toMediaCollection('image');
