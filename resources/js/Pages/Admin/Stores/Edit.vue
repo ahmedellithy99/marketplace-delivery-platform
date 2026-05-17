@@ -7,6 +7,14 @@ const props = defineProps({
     storeTypes: { type: Array, default: () => [] },
 });
 
+function formatTime(time) {
+    if (!time) return "";
+    if (typeof time === "string" && time.length <= 5) return time;
+    // Handle datetime strings like "2026-01-01T08:00:00.000000Z" or "08:00:00"
+    const match = String(time).match(/(\d{2}):(\d{2})/);
+    return match ? `${match[1]}:${match[2]}` : "";
+}
+
 const form = useForm({
     _method: "PUT",
     name: props.store.name || "",
@@ -15,8 +23,8 @@ const form = useForm({
     address: props.store.address || "",
     latitude: props.store.latitude || "",
     longitude: props.store.longitude || "",
-    opening_time: props.store.opening_time || "",
-    closing_time: props.store.closing_time || "",
+    opening_time: formatTime(props.store.opening_time),
+    closing_time: formatTime(props.store.closing_time),
     logo: null,
     cover: null,
 });
@@ -30,7 +38,7 @@ function handleCover(e) {
 }
 
 function submit() {
-    form.post(`/admin/stores/${props.store.id}`, {
+    form.post(`/admin/stores/${props.store.slug}`, {
         forceFormData: true,
     });
 }

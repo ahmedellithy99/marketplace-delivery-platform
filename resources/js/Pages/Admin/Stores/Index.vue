@@ -15,7 +15,7 @@ const paginationLinks = computed(() => props.stores?.links || []);
 
 function deleteStore(store) {
     if (confirm(`هل أنت متأكد من حذف المتجر "${store.name}"؟`)) {
-        router.delete(`/admin/stores/${store.id}`);
+        router.delete(`/admin/stores/${store.slug}`);
     }
 }
 </script>
@@ -101,7 +101,7 @@ function deleteStore(store) {
                             <td class="px-5 py-3">
                                 <div class="flex items-center gap-2">
                                     <Link
-                                        :href="`/admin/stores/${store.id}/edit`"
+                                        :href="`/admin/stores/${store.slug}/edit`"
                                         class="text-blue-600 hover:text-blue-800 text-xs font-medium"
                                     >
                                         تعديل
