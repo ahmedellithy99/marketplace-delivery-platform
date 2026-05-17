@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
 class Order extends Model
 {
@@ -49,5 +50,33 @@ class Order extends Model
     public function delivery(): HasOne
     {
         return $this->hasOne(Delivery::class);
+    }
+
+    // ─── Multi-Store Grouping ──────────────────────────────────────────
+
+    /**
+     * Get order items grouped by store with store details.
+     *
+     * Returns a collection keyed by store_id, each containing:
+     * - store_id, store_name, store_address: store info for pickup
+     * - items: the order items belonging to that store
+     *
+     * Requires items.store relationship to be loaded.
+     */
+    public function getItemsGroupedByStore(): Collection
+    {
+        $this->loadMissing('items.store');
+
+        return $this->items->groupBy('store_id')->map(function (Collection $items, int $storeId) {
+            $store = $items->first()->store;
+
+            return [
+                'store_id' => $storeId,
+                'store_name' => $store?->name,
+                'store_address' => $store?->address,
+                'store_phone' => $store?->phone,
+                'items' => $items,
+            ];
+        })->values();
     }
 }

@@ -38,8 +38,19 @@ class Store extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('logo')->singleFile();
-        $this->addMediaCollection('cover')->singleFile();
+        $this->addMediaCollection('logo')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->acceptsFile(function (\Spatie\MediaLibrary\MediaCollections\File $file) {
+                return $file->size <= 2 * 1024 * 1024; // 2MB max
+            });
+
+        $this->addMediaCollection('cover')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->acceptsFile(function (\Spatie\MediaLibrary\MediaCollections\File $file) {
+                return $file->size <= 5 * 1024 * 1024; // 5MB max
+            });
     }
 
     public function registerMediaConversions(?Media $media = null): void
