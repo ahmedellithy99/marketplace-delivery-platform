@@ -40,7 +40,7 @@ function getUserInitials() {
 </script>
 
 <template>
-    <div class="min-h-screen flex bg-gray-50" dir="rtl">
+    <div class="min-h-screen lg:flex bg-gray-50" dir="rtl">
         <!-- Mobile Backdrop -->
         <Transition
             enter-active-class="transition-opacity duration-300"
@@ -260,7 +260,9 @@ function getUserInitials() {
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col min-h-screen lg:min-w-0">
+        <div
+            class="flex-1 flex flex-col min-h-screen min-w-0 w-full overflow-x-hidden"
+        >
             <!-- Top Bar -->
             <header
                 class="bg-white border-b border-gray-200/80 sticky top-0 z-30"
