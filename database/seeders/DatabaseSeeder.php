@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // ─── Admin & Super Admin (fixed credentials) ───────────────────────
+        $this->call(AdminSeeder::class);
+
         // ─── Users ─────────────────────────────────────────────────────────
 
         $superAdmin = User::factory()->superAdmin()->create([

@@ -20,7 +20,16 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (! $user || ! in_array($user->role, $roles, true)) {
+        if (! $user) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Super admin bypasses all role checks
+        if ($user->role === 'super_admin') {
+            return $next($request);
+        }
+
+        if (! in_array($user->role, $roles, true)) {
             abort(403, 'Unauthorized. You do not have the required role to access this resource.');
         }
 
