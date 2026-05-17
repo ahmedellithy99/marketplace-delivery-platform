@@ -26,8 +26,25 @@ class Category extends Model implements HasMedia
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
             ->acceptsFile(function (\Spatie\MediaLibrary\MediaCollections\File $file) {
-                return $file->size <= 2 * 1024 * 1024; // 2MB max
+                return $file->size <= 5 * 1024 * 1024; // 5MB max
             });
+    }
+
+    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(200)
+            ->height(200)
+            ->format('webp')
+            ->quality(80)
+            ->sharpen(10);
+
+        $this->addMediaConversion('optimized')
+            ->width(600)
+            ->height(600)
+            ->format('webp')
+            ->quality(85)
+            ->nonQueued();
     }
 
     // ─── Relationships ─────────────────────────────────────────────────
