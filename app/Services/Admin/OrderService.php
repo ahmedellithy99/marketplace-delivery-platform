@@ -42,11 +42,40 @@ class OrderService
     }
 
     /**
-     * Get a single order with items and delivery loaded.
+     * Get a single order with items (grouped by store) and delivery loaded.
      */
     public function getOrder(Order $order): Order
     {
-        return $order->load(['items', 'delivery']);
+        return $order->load(['items.store', 'delivery.deliveryMan', 'user']);
+    }
+
+    /**
+     * Get order items grouped by store with store details.
+     *
+     * Returns items grouped by store_id, each group containing:
+     * - store: the Store model (name, address, phone for pickup)
+     * - store_address: the store's address for delivery man pickup
+     * - items: the order items belonging to that store
+     *
+     * A single delivery fee is calculated regardless of store count.
+     */
+    public function getOrderGroupedByStore(Order $order): array
+    {
+        $order->loadMissing(['items.product.store', 'items.store']);
+
+        return $order->items
+            ->groupBy('store_id')
+            ->map(function ($items, $storeId) {
+                $store = $items->first()->store;
+
+                return [
+                    'store' => $store,
+                    'store_address' => $store?->address,
+                    'items' => $items->values(),
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     /**

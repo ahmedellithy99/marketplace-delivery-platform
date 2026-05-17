@@ -18,11 +18,11 @@ class DeliveryService
     ) {}
 
     /**
-     * Get paginated deliveries assigned to a delivery man with order details.
+     * Get paginated deliveries assigned to a delivery man with order details and store addresses.
      */
     public function getDeliveries(User $deliveryMan, Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Delivery::with(['order.user', 'order.items'])
+        return Delivery::with(['order.user', 'order.items.store'])
             ->where('delivery_man_id', $deliveryMan->id)
             ->orderByDesc('assigned_at')
             ->paginate($perPage)
@@ -30,11 +30,11 @@ class DeliveryService
     }
 
     /**
-     * Get a single delivery with order, order items, and customer loaded.
+     * Get a single delivery with order, order items (with store addresses), and customer loaded.
      */
     public function getDelivery(Delivery $delivery): Delivery
     {
-        return $delivery->load(['order', 'order.items', 'order.user']);
+        return $delivery->load(['order', 'order.items.store', 'order.user']);
     }
 
     /**

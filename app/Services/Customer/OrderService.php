@@ -120,11 +120,11 @@ class OrderService
     }
 
     /**
-     * Get a single order with items and delivery loaded.
+     * Get a single order with items (grouped by store) and delivery loaded.
      */
     public function getOrder(Order $order): Order
     {
-        return $order->load(['items', 'delivery']);
+        return $order->load(['items.store', 'delivery']);
     }
 
     /**

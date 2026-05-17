@@ -36,6 +36,7 @@ class OrderController extends Controller
     {
         return Inertia::render('Admin/Orders/Show', [
             'order' => $this->orderService->getOrder($order),
+            'groupedItems' => $this->orderService->getOrderGroupedByStore($order),
         ]);
     }
 
