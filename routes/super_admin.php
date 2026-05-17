@@ -24,6 +24,7 @@ Route::resource('stores', StoreController::class)
         'destroy' => 'super_admin.stores.destroy',
     ]);
 
+// Store types route - placeholder for future implementation
 Route::get('/store-types', function () {
-    return response('Super admin store types');
+    return inertia('Admin/StoreTypes/Index');
 })->name('super_admin.store_types.index');
