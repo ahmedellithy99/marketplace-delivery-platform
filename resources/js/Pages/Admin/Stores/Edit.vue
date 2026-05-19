@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useForm, Link } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import LocationPicker from "@/Components/LocationPicker.vue";
 
 const props = defineProps({
     store: { type: Object, required: true },
@@ -295,77 +296,71 @@ function submit() {
                                     </p>
                                 </div>
 
-                                <!-- Lat/Lng -->
-                                <div
-                                    class="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                                >
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 mb-2"
-                                            >خط العرض</label
-                                        >
-                                        <input
-                                            v-model="form.latitude"
-                                            type="text"
-                                            dir="ltr"
-                                            placeholder="30.0444"
-                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none"
-                                            :class="{
-                                                'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                    form.errors.latitude,
-                                            }"
-                                        />
-                                        <p
-                                            v-if="form.errors.latitude"
-                                            class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 shrink-0"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
+                                <!-- Lat/Lng with Map -->
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold text-gray-700 mb-2"
+                                        >الموقع على الخريطة</label
+                                    >
+                                    <LocationPicker
+                                        :latitude="form.latitude"
+                                        :longitude="form.longitude"
+                                        @update:latitude="
+                                            form.latitude = $event
+                                        "
+                                        @update:longitude="
+                                            form.longitude = $event
+                                        "
+                                    />
+                                    <div class="grid grid-cols-2 gap-4 mt-3">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-medium text-gray-500 mb-1"
+                                                >خط العرض</label
                                             >
-                                                <path
-                                                    fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"
-                                                />
-                                            </svg>
-                                            {{ form.errors.latitude }}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 mb-2"
-                                            >خط الطول</label
-                                        >
-                                        <input
-                                            v-model="form.longitude"
-                                            type="text"
-                                            dir="ltr"
-                                            placeholder="31.2357"
-                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none"
-                                            :class="{
-                                                'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                    form.errors.longitude,
-                                            }"
-                                        />
-                                        <p
-                                            v-if="form.errors.longitude"
-                                            class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 shrink-0"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
+                                            <input
+                                                v-model="form.latitude"
+                                                type="text"
+                                                dir="ltr"
+                                                placeholder="30.0444"
+                                                readonly
+                                                class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg bg-gray-50 outline-none"
+                                                :class="{
+                                                    'border-red-300':
+                                                        form.errors.latitude,
+                                                }"
+                                            />
+                                            <p
+                                                v-if="form.errors.latitude"
+                                                class="text-xs text-red-600 mt-1"
                                             >
-                                                <path
-                                                    fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"
-                                                />
-                                            </svg>
-                                            {{ form.errors.longitude }}
-                                        </p>
+                                                {{ form.errors.latitude }}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-medium text-gray-500 mb-1"
+                                                >خط الطول</label
+                                            >
+                                            <input
+                                                v-model="form.longitude"
+                                                type="text"
+                                                dir="ltr"
+                                                placeholder="31.2357"
+                                                readonly
+                                                class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg bg-gray-50 outline-none"
+                                                :class="{
+                                                    'border-red-300':
+                                                        form.errors.longitude,
+                                                }"
+                                            />
+                                            <p
+                                                v-if="form.errors.longitude"
+                                                class="text-xs text-red-600 mt-1"
+                                            >
+                                                {{ form.errors.longitude }}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
