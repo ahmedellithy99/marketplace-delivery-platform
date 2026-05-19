@@ -17,7 +17,7 @@ class CategoryService
      */
     public function getCategories(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Category::with(['parent', 'children'])
+        return Category::with(['parent', 'children', 'media'])
             ->filter(new CategoryFilter($request))
             ->latest()
             ->paginate($perPage)
