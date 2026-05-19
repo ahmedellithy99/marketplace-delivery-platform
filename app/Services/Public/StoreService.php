@@ -6,7 +6,6 @@ use App\Filters\Public\ProductFilter;
 use App\Filters\Public\StoreFilter;
 use App\Models\Product;
 use App\Models\Store;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -21,8 +20,7 @@ class StoreService
         return Store::with(['storeType', 'media'])
             ->latest()
             ->take($limit)
-            ->get()
-            ->map(fn (Store $store) => $this->appendStoreStatus($store));
+            ->get();
     }
 
     /**
@@ -42,17 +40,11 @@ class StoreService
      */
     public function getStores(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        $paginator = Store::with(['storeType', 'media'])
+        return Store::with(['storeType', 'media'])
             ->filter(new StoreFilter($request))
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
-
-        $paginator->getCollection()->transform(
-            fn (Store $store) => $this->appendStoreStatus($store)
-        );
-
-        return $paginator;
     }
 
     /**
@@ -61,8 +53,6 @@ class StoreService
     public function getStoreDetails(Store $store): Store
     {
         $store->load(['storeType', 'media']);
-
-        $store->setAttribute('is_open', $this->isStoreOpen($store));
 
         // Load available products grouped by category
         $products = $store->products()
@@ -92,33 +82,5 @@ class StoreService
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
-    }
-
-    /**
-     * Determine if a store is currently open based on operating hours.
-     */
-    public function isStoreOpen(Store $store): bool
-    {
-        $now = Carbon::now()->format('H:i');
-
-        $openingTime = $store->opening_time instanceof \DateTimeInterface
-            ? $store->opening_time->format('H:i')
-            : (string) $store->opening_time;
-
-        $closingTime = $store->closing_time instanceof \DateTimeInterface
-            ? $store->closing_time->format('H:i')
-            : (string) $store->closing_time;
-
-        return $now >= $openingTime && $now <= $closingTime;
-    }
-
-    /**
-     * Append the is_open status to a store instance.
-     */
-    protected function appendStoreStatus(Store $store): Store
-    {
-        $store->setAttribute('is_open', $this->isStoreOpen($store));
-
-        return $store;
     }
 }
