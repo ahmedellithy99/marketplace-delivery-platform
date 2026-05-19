@@ -44,6 +44,13 @@ class StoreController extends Controller
             ->with('success', 'Store created successfully.');
     }
 
+    public function show(Store $store, Request $request): Response
+    {
+        $data = $this->storeService->getStoreWithProducts($store, $request);
+
+        return Inertia::render('Admin/Stores/Show', $data);
+    }
+
     public function edit(Store $store): Response
     {
         return Inertia::render('Admin/Stores/Edit', [

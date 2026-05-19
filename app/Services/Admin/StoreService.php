@@ -2,7 +2,9 @@
 
 namespace App\Services\Admin;
 
+use App\Filters\Admin\ProductFilter;
 use App\Filters\Public\StoreFilter;
+use App\Models\Category;
 use App\Models\Store;
 use App\Models\StoreType;
 use Illuminate\Http\Request;
@@ -31,6 +33,27 @@ class StoreService
     public function getStore(Store $store): Store
     {
         return $store->load(['storeType', 'media', 'products']);
+    }
+
+    /**
+     * Get a store with its paginated, filterable products for the admin show page.
+     */
+    public function getStoreWithProducts(Store $store, Request $request, int $perPage = 15): array
+    {
+        $products = $store->products()
+            ->with(['category', 'media', 'variants'])
+            ->filter(new ProductFilter($request))
+            ->latest()
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        $categories = Category::orderBy('name')->get(['id', 'name']);
+
+        return [
+            'store'      => $store->load(['storeType', 'media']),
+            'products'   => $products,
+            'categories' => $categories,
+        ];
     }
 
     /**

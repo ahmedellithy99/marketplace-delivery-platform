@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Filters\Admin\ProductFilter;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -20,6 +21,7 @@ class ProductService
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
         return Product::with(['store', 'category', 'media', 'variants'])
+            ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());

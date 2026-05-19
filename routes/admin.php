@@ -24,6 +24,8 @@ Route::resource('stores', StoreController::class)
     ->names('admin.stores')
     ->except(['show']);
 
+Route::get('/stores/{store}', [StoreController::class, 'show'])->name('admin.stores.show');
+
 Route::resource('categories', CategoryController::class)
     ->names('admin.categories')
     ->except(['show']);
