@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
 
         $cartData = ['itemCount' => 0, 'subtotal' => 0];
+        $notifications = [];
         if ($user && $user->role === 'customer') {
             $cart = \App\Models\Cart::where('user_id', $user->id)->with('items')->first();
             if ($cart) {
@@ -47,6 +48,14 @@ class HandleInertiaRequests extends Middleware
                     'subtotal' => $cart->items->sum('total_price'),
                 ];
             }
+        }
+
+        if ($user) {
+            $notifications = \App\Models\Notification::where('user_id', $user->id)
+                ->latest()
+                ->take(10)
+                ->get(['id', 'title', 'body', 'is_read', 'created_at'])
+                ->toArray();
         }
 
         return [
@@ -61,6 +70,7 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'cart' => $cartData,
+            'notifications' => $notifications,
             'notificationsCount' => $user
                 ? app(NotificationService::class)->getUnreadCount($user)
                 : 0,
