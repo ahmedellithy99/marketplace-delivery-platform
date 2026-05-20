@@ -160,10 +160,10 @@ function formatPrice(price) {
 
                         <!-- Discount Badge -->
                         <span
-                            v-if="false"
+                            v-if="product.pricing?.has_discount"
                             class="absolute top-2 inset-s-2 bg-secondary-500 text-white text-xs font-bold px-2 py-1 rounded-lg"
                         >
-                            خصم
+                            {{ product.pricing.discount_label }}
                         </span>
                     </div>
 
@@ -180,9 +180,33 @@ function formatPrice(price) {
 
                         <!-- Price -->
                         <div class="mt-3 flex items-center gap-2">
-                            <span class="text-primary-900 font-bold text-sm">{{
-                                formatPrice(product.base_price)
-                            }}</span>
+                            <template v-if="product.pricing?.has_discount">
+                                <span
+                                    class="text-secondary-500 font-bold text-sm"
+                                    >{{
+                                        formatPrice(
+                                            product.pricing.effective_price,
+                                        )
+                                    }}</span
+                                >
+                                <span
+                                    class="text-gray-400 text-xs line-through"
+                                    >{{
+                                        formatPrice(product.pricing.unit_price)
+                                    }}</span
+                                >
+                            </template>
+                            <template v-else>
+                                <span
+                                    class="text-primary-900 font-bold text-sm"
+                                    >{{
+                                        formatPrice(
+                                            product.pricing?.effective_price ||
+                                                product.base_price,
+                                        )
+                                    }}</span
+                                >
+                            </template>
                         </div>
 
                         <!-- Add to Cart Button -->

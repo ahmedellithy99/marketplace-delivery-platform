@@ -138,13 +138,15 @@ function formatPrice(price) {
 }
 
 function hasDiscount(product) {
-    // Discounts are now computed server-side; disabled until backend passes pricing data
-    return false;
+    return product.pricing?.has_discount || false;
 }
 
 function discountPct(product) {
-    // Discounts are now computed server-side; disabled until backend passes pricing data
-    return 0;
+    if (!hasDiscount(product) || !product.pricing) return 0;
+    const unit = product.pricing.unit_price;
+    const effective = product.pricing.effective_price;
+    if (!unit || unit <= 0) return 0;
+    return Math.round((1 - effective / unit) * 100);
 }
 
 function toggleAvailability(product) {
@@ -484,7 +486,11 @@ function deleteProduct(product) {
                                     class="flex flex-col"
                                 >
                                     <span class="font-semibold text-green-700"
-                                        >{{ formatPrice(product.base_price) }}
+                                        >{{
+                                            formatPrice(
+                                                product.pricing.effective_price,
+                                            )
+                                        }}
                                         <span
                                             class="text-xs font-normal text-gray-500"
                                             >جنيه</span
@@ -493,13 +499,22 @@ function deleteProduct(product) {
                                     <span
                                         class="text-xs text-gray-400 line-through"
                                         >{{
-                                            formatPrice(product.base_price)
+                                            formatPrice(
+                                                product.pricing.unit_price,
+                                            )
                                         }}</span
                                     >
                                 </div>
                                 <div v-else>
                                     <span class="font-semibold text-gray-900"
-                                        >{{ formatPrice(product.base_price) }}
+                                        >{{
+                                            formatPrice(
+                                                product.pricing
+                                                    ?.effective_price ??
+                                                    product.base_price ??
+                                                    0,
+                                            )
+                                        }}
                                         <span
                                             class="text-xs font-normal text-gray-500"
                                             >جنيه</span

@@ -138,6 +138,19 @@ function deleteVariant(variant) {
         },
     );
 }
+
+function setDefaultVariant(variant) {
+    router.patch(
+        `/admin/products/${props.product.slug}/variants/${variant.id}/set-default`,
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                variants.value = page.props.product.variants || [];
+            },
+        },
+    );
+}
 </script>
 
 <template>
@@ -448,6 +461,27 @@ function deleteVariant(variant) {
                                         >
                                     </div>
                                     <div class="flex items-center gap-1">
+                                        <button
+                                            v-if="!variant.is_default"
+                                            type="button"
+                                            @click="setDefaultVariant(variant)"
+                                            class="p-1.5 rounded-md text-primary-600 hover:bg-primary-50 transition-colors"
+                                            title="تعيين كافتراضي"
+                                        >
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </button>
                                         <button
                                             type="button"
                                             @click="openEditVariant(variant)"

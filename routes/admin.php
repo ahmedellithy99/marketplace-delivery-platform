@@ -47,6 +47,9 @@ Route::put('/products/{product}/variants/{variant}', [ProductController::class, 
 Route::delete('/products/{product}/variants/{variant}', [ProductController::class, 'destroyVariant'])
     ->name('admin.products.variants.destroy');
 
+Route::patch('/products/{product}/variants/{variant}/set-default', [ProductController::class, 'setDefaultVariant'])
+    ->name('admin.products.variants.set-default');
+
 Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
 Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
 Route::post('/orders/{order}/accept', [OrderController::class, 'accept'])->name('admin.orders.accept');

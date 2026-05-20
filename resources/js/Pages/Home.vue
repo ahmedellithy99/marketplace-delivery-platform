@@ -522,7 +522,11 @@ onMounted(() => {
                                         <span
                                             class="text-sm sm:text-base font-bold text-gray-900"
                                             >{{
-                                                formatPrice(product.base_price)
+                                                formatPrice(
+                                                    product.pricing
+                                                        ?.effective_price ??
+                                                        product.base_price,
+                                                )
                                             }}</span
                                         >
                                     </template>

@@ -116,6 +116,17 @@ class ProductController extends Controller
             ->with('success', 'Variant removed successfully.');
     }
 
+    public function setDefaultVariant(Product $product, ProductVariant $variant): RedirectResponse
+    {
+        // Unset all defaults for this product
+        $product->variants()->update(['is_default' => false]);
+        // Set the selected one as default
+        $variant->update(['is_default' => true]);
+
+        return redirect()->back()
+            ->with('success', 'تم تعيين المتغير الافتراضي.');
+    }
+
     public function storeDiscount(Request $request, Product $product): RedirectResponse
     {
         $validated = $request->validate([

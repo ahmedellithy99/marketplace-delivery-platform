@@ -41,7 +41,7 @@ class StoreService
     public function getStoreWithProducts(Store $store, Request $request, int $perPage = 15): array
     {
         $products = $store->products()
-            ->with(['category', 'media', 'variants'])
+            ->with(['category', 'media', 'variants', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)

@@ -36,13 +36,15 @@ function getImageUrl(product) {
 }
 
 function hasDiscount(product) {
-    // Discounts are now computed server-side; disabled until backend passes pricing data
-    return false;
+    return product.pricing?.has_discount || false;
 }
 
 function discountPercentage(product) {
-    // Discounts are now computed server-side; disabled until backend passes pricing data
-    return 0;
+    if (!hasDiscount(product) || !product.pricing) return 0;
+    const unit = product.pricing.unit_price;
+    const effective = product.pricing.effective_price;
+    if (!unit || unit <= 0) return 0;
+    return Math.round((1 - effective / unit) * 100);
 }
 </script>
 
@@ -189,7 +191,10 @@ function discountPercentage(product) {
                                         <span
                                             class="font-semibold text-green-700"
                                             >{{
-                                                formatPrice(product.base_price)
+                                                formatPrice(
+                                                    product.pricing
+                                                        .effective_price,
+                                                )
                                             }}
                                             <span
                                                 class="text-xs font-normal text-gray-500"
@@ -199,7 +204,9 @@ function discountPercentage(product) {
                                         <span
                                             class="text-xs text-gray-400 line-through"
                                             >{{
-                                                formatPrice(product.base_price)
+                                                formatPrice(
+                                                    product.pricing.unit_price,
+                                                )
                                             }}</span
                                         >
                                     </div>
@@ -207,7 +214,11 @@ function discountPercentage(product) {
                                         <span
                                             class="font-semibold text-gray-900"
                                             >{{
-                                                formatPrice(product.base_price)
+                                                formatPrice(
+                                                    product.pricing
+                                                        ?.effective_price ||
+                                                        product.base_price,
+                                                )
                                             }}
                                             <span
                                                 class="text-xs font-normal text-gray-500"

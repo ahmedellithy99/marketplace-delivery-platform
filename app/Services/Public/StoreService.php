@@ -28,7 +28,7 @@ class StoreService
      */
     public function getFeaturedProducts(int $limit = 8): Collection
     {
-        return Product::with(['store', 'category', 'media'])
+        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
             ->where('is_available', true)
             ->latest()
             ->take($limit)
@@ -57,7 +57,7 @@ class StoreService
         // Load available products grouped by category
         $products = $store->products()
             ->where('is_available', true)
-            ->with(['category', 'media', 'variants'])
+            ->with(['category', 'media', 'variants', 'discounts'])
             ->get();
 
         $groupedProducts = $products->groupBy(fn (Product $product) => $product->category?->name ?? 'Uncategorized')
@@ -77,7 +77,7 @@ class StoreService
      */
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Product::with(['store', 'category', 'media', 'variants'])
+        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)

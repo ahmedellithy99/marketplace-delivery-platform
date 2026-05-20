@@ -20,7 +20,7 @@ class ProductService
      */
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Product::with(['store', 'category', 'media', 'variants'])
+        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)

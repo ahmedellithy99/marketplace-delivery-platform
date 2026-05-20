@@ -60,10 +60,20 @@ class PricingService
         $bestDiscount = null;
         $bestSavings = 0;
 
+        $now = now();
+
+        // Helper to check if a discount is currently active
+        $isActive = function (Discount $d) use ($now) {
+            if (!$d->is_active) return false;
+            if ($d->starts_at && $d->starts_at > $now) return false;
+            if ($d->ends_at && $d->ends_at < $now) return false;
+            return true;
+        };
+
         // 1. Variant-level discounts (most specific)
-        if ($variant) {
-            $variantDiscounts = $variant->discounts()->active()->get();
-            foreach ($variantDiscounts as $discount) {
+        if ($variant && $variant->relationLoaded('discounts')) {
+            foreach ($variant->discounts as $discount) {
+                if (!$isActive($discount)) continue;
                 $savings = $discount->calculateAmount($unitPrice);
                 if ($savings > $bestSavings) {
                     $bestSavings = $savings;
@@ -73,17 +83,28 @@ class PricingService
         }
 
         // 2. Product-level discounts
-        $productDiscounts = $product->discounts()->active()->get();
-        foreach ($productDiscounts as $discount) {
-            $savings = $discount->calculateAmount($unitPrice);
-            if ($savings > $bestSavings) {
-                $bestSavings = $savings;
-                $bestDiscount = $discount;
+        if ($product->relationLoaded('discounts')) {
+            foreach ($product->discounts as $discount) {
+                if (!$isActive($discount)) continue;
+                $savings = $discount->calculateAmount($unitPrice);
+                if ($savings > $bestSavings) {
+                    $bestSavings = $savings;
+                    $bestDiscount = $discount;
+                }
+            }
+        } else {
+            $productDiscounts = $product->discounts()->active()->get();
+            foreach ($productDiscounts as $discount) {
+                $savings = $discount->calculateAmount($unitPrice);
+                if ($savings > $bestSavings) {
+                    $bestSavings = $savings;
+                    $bestDiscount = $discount;
+                }
             }
         }
 
-        // 3. Category-level discounts
-        if ($product->category) {
+        // 3. Category-level discounts (skip if not loaded to avoid N+1)
+        if ($product->relationLoaded('category') && $product->category) {
             $categoryDiscounts = $product->category->discounts()->active()->get();
             foreach ($categoryDiscounts as $discount) {
                 $savings = $discount->calculateAmount($unitPrice);
@@ -94,8 +115,8 @@ class PricingService
             }
         }
 
-        // 4. Store-level discounts
-        if ($product->store) {
+        // 4. Store-level discounts (skip if not loaded to avoid N+1)
+        if ($product->relationLoaded('store') && $product->store) {
             $storeDiscounts = $product->store->discounts()->active()->get();
             foreach ($storeDiscounts as $discount) {
                 $savings = $discount->calculateAmount($unitPrice);
