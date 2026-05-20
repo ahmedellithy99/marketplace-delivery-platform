@@ -36,17 +36,13 @@ function getImageUrl(product) {
 }
 
 function hasDiscount(product) {
-    return (
-        product.discounted_price &&
-        Number(product.discounted_price) < Number(product.price)
-    );
+    // Discounts are now computed server-side; disabled until backend passes pricing data
+    return false;
 }
 
 function discountPercentage(product) {
-    if (!hasDiscount(product)) return 0;
-    return Math.round(
-        (1 - Number(product.discounted_price) / Number(product.price)) * 100,
-    );
+    // Discounts are now computed server-side; disabled until backend passes pricing data
+    return 0;
 }
 </script>
 
@@ -193,9 +189,7 @@ function discountPercentage(product) {
                                         <span
                                             class="font-semibold text-green-700"
                                             >{{
-                                                formatPrice(
-                                                    product.discounted_price,
-                                                )
+                                                formatPrice(product.base_price)
                                             }}
                                             <span
                                                 class="text-xs font-normal text-gray-500"
@@ -205,14 +199,16 @@ function discountPercentage(product) {
                                         <span
                                             class="text-xs text-gray-400 line-through"
                                             >{{
-                                                formatPrice(product.price)
+                                                formatPrice(product.base_price)
                                             }}</span
                                         >
                                     </div>
                                     <div v-else>
                                         <span
                                             class="font-semibold text-gray-900"
-                                            >{{ formatPrice(product.price) }}
+                                            >{{
+                                                formatPrice(product.base_price)
+                                            }}
                                             <span
                                                 class="text-xs font-normal text-gray-500"
                                                 >جنيه</span

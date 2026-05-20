@@ -13,8 +13,13 @@ const form = useForm({
     category_id: "",
     name: "",
     description: "",
-    price: "",
-    discounted_price: "",
+    type: "simple",
+    base_price: "",
+    measurement_unit: "",
+    min_quantity: "",
+    max_quantity: "",
+    quantity_step: "",
+    variants: [{ name: "", price: "" }],
     images: [],
 });
 
@@ -32,26 +37,29 @@ function removeImage(index) {
     newFiles.splice(index, 1);
     form.images = newFiles;
     imagePreviews.value.splice(index, 1);
-    // Reset input if no files left
-    if (newFiles.length === 0 && imagesInput.value) {
+    if (newFiles.length === 0 && imagesInput.value)
         imagesInput.value.value = "";
-    }
+}
+
+function addVariant() {
+    form.variants.push({ name: "", price: "" });
+}
+
+function removeVariant(index) {
+    if (form.variants.length > 1) form.variants.splice(index, 1);
 }
 
 function submit() {
-    form.post("/admin/products", {
-        forceFormData: true,
-    });
+    form.post("/admin/products", { forceFormData: true });
 }
 </script>
 
 <template>
     <AdminLayout title="إضافة منتج">
         <div class="max-w-7xl mx-auto">
-            <!-- Back Link -->
             <Link
                 href="/admin/products"
-                class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary-900 mb-6 transition-colors duration-200"
+                class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary-900 mb-6 transition-colors"
             >
                 <svg
                     class="w-4 h-4"
@@ -69,7 +77,6 @@ function submit() {
                 العودة للمنتجات
             </Link>
 
-            <!-- Page Header -->
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-primary-900">
                     إضافة منتج جديد
@@ -81,9 +88,8 @@ function submit() {
 
             <form @submit.prevent="submit">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Main Form Fields (2/3) -->
                     <div class="lg:col-span-2 space-y-0">
-                        <!-- Section: Basic Info -->
+                        <!-- Basic Info -->
                         <fieldset>
                             <legend
                                 class="text-base font-bold text-gray-800 mb-5"
@@ -95,52 +101,41 @@ function submit() {
                                 <div>
                                     <label
                                         class="block text-sm font-semibold text-gray-700 mb-2"
+                                        >اسم المنتج
+                                        <span class="text-red-500"
+                                            >*</span
+                                        ></label
                                     >
-                                        اسم المنتج
-                                        <span class="text-red-500">*</span>
-                                    </label>
                                     <input
                                         v-model="form.name"
                                         type="text"
                                         placeholder="أدخل اسم المنتج"
-                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none"
+                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                                         :class="{
-                                            'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                form.errors.name,
+                                            'border-red-300': form.errors.name,
                                         }"
                                     />
                                     <p
                                         v-if="form.errors.name"
-                                        class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
+                                        class="text-sm text-red-600 mt-1.5"
                                     >
-                                        <svg
-                                            class="w-4 h-4 shrink-0"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
                                         {{ form.errors.name }}
                                     </p>
                                 </div>
-
                                 <!-- Store -->
                                 <div>
                                     <label
                                         class="block text-sm font-semibold text-gray-700 mb-2"
+                                        >المتجر
+                                        <span class="text-red-500"
+                                            >*</span
+                                        ></label
                                     >
-                                        المتجر
-                                        <span class="text-red-500">*</span>
-                                    </label>
                                     <select
                                         v-model="form.store_id"
-                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none appearance-none bg-white"
+                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none appearance-none bg-white transition-all"
                                         :class="{
-                                            'border-red-300 focus:border-red-500 focus:ring-red-500/20':
+                                            'border-red-300':
                                                 form.errors.store_id,
                                         }"
                                     >
@@ -155,206 +150,475 @@ function submit() {
                                     </select>
                                     <p
                                         v-if="form.errors.store_id"
-                                        class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
+                                        class="text-sm text-red-600 mt-1.5"
                                     >
-                                        <svg
-                                            class="w-4 h-4 shrink-0"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
                                         {{ form.errors.store_id }}
                                     </p>
                                 </div>
-
                                 <!-- Category -->
                                 <div>
                                     <label
                                         class="block text-sm font-semibold text-gray-700 mb-2"
+                                        >القسم
+                                        <span class="text-red-500"
+                                            >*</span
+                                        ></label
                                     >
-                                        القسم
-                                        <span class="text-red-500">*</span>
-                                    </label>
                                     <select
                                         v-model="form.category_id"
-                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none appearance-none bg-white"
+                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none appearance-none bg-white transition-all"
                                         :class="{
-                                            'border-red-300 focus:border-red-500 focus:ring-red-500/20':
+                                            'border-red-300':
                                                 form.errors.category_id,
                                         }"
                                     >
                                         <option value="">اختر القسم</option>
                                         <option
-                                            v-for="category in categories"
-                                            :key="category.id"
-                                            :value="category.id"
+                                            v-for="cat in categories"
+                                            :key="cat.id"
+                                            :value="cat.id"
                                         >
-                                            {{ category.name }}
+                                            {{ cat.name }}
                                         </option>
                                     </select>
                                     <p
                                         v-if="form.errors.category_id"
-                                        class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
+                                        class="text-sm text-red-600 mt-1.5"
                                     >
-                                        <svg
-                                            class="w-4 h-4 shrink-0"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
                                         {{ form.errors.category_id }}
                                     </p>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <!-- Section: Pricing & Description -->
+                        <!-- Product Type -->
                         <fieldset class="border-t border-gray-100 pt-6 mt-6">
                             <legend
                                 class="text-base font-bold text-gray-800 mb-5"
                             >
-                                السعر والوصف
+                                نوع المنتج
+                            </legend>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button
+                                    type="button"
+                                    @click="form.type = 'simple'"
+                                    class="p-4 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'simple'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <svg
+                                        class="w-6 h-6 mx-auto mb-2"
+                                        :class="
+                                            form.type === 'simple'
+                                                ? 'text-primary-600'
+                                                : 'text-gray-400'
+                                        "
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.5"
+                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                        />
+                                    </svg>
+                                    <p
+                                        class="text-sm font-semibold"
+                                        :class="
+                                            form.type === 'simple'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-700'
+                                        "
+                                    >
+                                        بسيط
+                                    </p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">
+                                        سعر ثابت
+                                    </p>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="form.type = 'variant'"
+                                    class="p-4 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'variant'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <svg
+                                        class="w-6 h-6 mx-auto mb-2"
+                                        :class="
+                                            form.type === 'variant'
+                                                ? 'text-primary-600'
+                                                : 'text-gray-400'
+                                        "
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.5"
+                                            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                                        />
+                                    </svg>
+                                    <p
+                                        class="text-sm font-semibold"
+                                        :class="
+                                            form.type === 'variant'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-700'
+                                        "
+                                    >
+                                        متغيرات
+                                    </p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">
+                                        أحجام / أنواع
+                                    </p>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="form.type = 'measured'"
+                                    class="p-4 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'measured'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <svg
+                                        class="w-6 h-6 mx-auto mb-2"
+                                        :class="
+                                            form.type === 'measured'
+                                                ? 'text-primary-600'
+                                                : 'text-gray-400'
+                                        "
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="1.5"
+                                            d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+                                        />
+                                    </svg>
+                                    <p
+                                        class="text-sm font-semibold"
+                                        :class="
+                                            form.type === 'measured'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-700'
+                                        "
+                                    >
+                                        بالوزن
+                                    </p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">
+                                        كيلو / جرام
+                                    </p>
+                                </button>
+                            </div>
+                            <p
+                                v-if="form.errors.type"
+                                class="text-sm text-red-600 mt-2"
+                            >
+                                {{ form.errors.type }}
+                            </p>
+                        </fieldset>
+
+                        <!-- Pricing — Simple & Measured -->
+                        <fieldset
+                            v-if="form.type !== 'variant'"
+                            class="border-t border-gray-100 pt-6 mt-6"
+                        >
+                            <legend
+                                class="text-base font-bold text-gray-800 mb-5"
+                            >
+                                السعر
                             </legend>
                             <div class="space-y-5">
-                                <!-- Price / Discounted Price -->
-                                <div
-                                    class="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                                >
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 mb-2"
-                                        >
-                                            السعر (جنيه)
-                                            <span class="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            v-model="form.price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            dir="ltr"
-                                            placeholder="0.00"
-                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none"
-                                            :class="{
-                                                'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                    form.errors.price,
-                                            }"
-                                        />
-                                        <p
-                                            v-if="form.errors.price"
-                                            class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 shrink-0"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"
-                                                />
-                                            </svg>
-                                            {{ form.errors.price }}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 mb-2"
-                                            >السعر بعد الخصم (جنيه)</label
-                                        >
-                                        <input
-                                            v-model="form.discounted_price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            dir="ltr"
-                                            placeholder="0.00"
-                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none"
-                                            :class="{
-                                                'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                    form.errors
-                                                        .discounted_price,
-                                            }"
-                                        />
-                                        <p class="text-xs text-gray-400 mt-1">
-                                            اتركه فارغاً إذا لا يوجد خصم
-                                        </p>
-                                        <p
-                                            v-if="form.errors.discounted_price"
-                                            class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
-                                        >
-                                            <svg
-                                                class="w-4 h-4 shrink-0"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    fill-rule="evenodd"
-                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"
-                                                />
-                                            </svg>
-                                            {{ form.errors.discounted_price }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <!-- Description -->
                                 <div>
                                     <label
                                         class="block text-sm font-semibold text-gray-700 mb-2"
-                                        >الوصف</label
                                     >
-                                    <textarea
-                                        v-model="form.description"
-                                        rows="5"
-                                        placeholder="أدخل وصف المنتج..."
-                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 outline-none resize-none"
+                                        {{
+                                            form.type === "measured"
+                                                ? "السعر لكل وحدة (جنيه)"
+                                                : "السعر (جنيه)"
+                                        }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        v-model="form.base_price"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        dir="ltr"
+                                        placeholder="0.00"
+                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                                         :class="{
-                                            'border-red-300 focus:border-red-500 focus:ring-red-500/20':
-                                                form.errors.description,
+                                            'border-red-300':
+                                                form.errors.base_price,
                                         }"
-                                    ></textarea>
+                                    />
                                     <p
-                                        v-if="form.errors.description"
-                                        class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
+                                        v-if="form.errors.base_price"
+                                        class="text-sm text-red-600 mt-1.5"
                                     >
-                                        <svg
-                                            class="w-4 h-4 shrink-0"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                        {{ form.errors.description }}
+                                        {{ form.errors.base_price }}
                                     </p>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <!-- Desktop Submit -->
+                        <!-- Measured Fields -->
+                        <fieldset
+                            v-if="form.type === 'measured'"
+                            class="border-t border-gray-100 pt-6 mt-6"
+                        >
+                            <legend
+                                class="text-base font-bold text-gray-800 mb-5"
+                            >
+                                إعدادات الوزن / القياس
+                            </legend>
+                            <div class="space-y-5">
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold text-gray-700 mb-2"
+                                        >وحدة القياس
+                                        <span class="text-red-500"
+                                            >*</span
+                                        ></label
+                                    >
+                                    <select
+                                        v-model="form.measurement_unit"
+                                        class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none appearance-none bg-white transition-all"
+                                        :class="{
+                                            'border-red-300':
+                                                form.errors.measurement_unit,
+                                        }"
+                                    >
+                                        <option value="">اختر الوحدة</option>
+                                        <option value="kg">
+                                            كيلوجرام (kg)
+                                        </option>
+                                        <option value="g">جرام (g)</option>
+                                        <option value="liter">لتر</option>
+                                        <option value="piece">قطعة</option>
+                                    </select>
+                                    <p
+                                        v-if="form.errors.measurement_unit"
+                                        class="text-sm text-red-600 mt-1.5"
+                                    >
+                                        {{ form.errors.measurement_unit }}
+                                    </p>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-sm font-semibold text-gray-700 mb-2"
+                                            >الحد الأدنى</label
+                                        >
+                                        <input
+                                            v-model="form.min_quantity"
+                                            type="number"
+                                            step="0.001"
+                                            min="0"
+                                            dir="ltr"
+                                            placeholder="0.25"
+                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-sm font-semibold text-gray-700 mb-2"
+                                            >الحد الأقصى</label
+                                        >
+                                        <input
+                                            v-model="form.max_quantity"
+                                            type="number"
+                                            step="0.001"
+                                            min="0"
+                                            dir="ltr"
+                                            placeholder="10"
+                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-sm font-semibold text-gray-700 mb-2"
+                                            >خطوة الزيادة</label
+                                        >
+                                        <input
+                                            v-model="form.quantity_step"
+                                            type="number"
+                                            step="0.001"
+                                            min="0"
+                                            dir="ltr"
+                                            placeholder="0.25"
+                                            class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Variants -->
+                        <fieldset
+                            v-if="form.type === 'variant'"
+                            class="border-t border-gray-100 pt-6 mt-6"
+                        >
+                            <legend
+                                class="text-base font-bold text-gray-800 mb-5"
+                            >
+                                المتغيرات (الأحجام / الأنواع)
+                            </legend>
+                            <div class="space-y-3">
+                                <div
+                                    v-for="(variant, index) in form.variants"
+                                    :key="index"
+                                    class="flex items-start gap-3"
+                                >
+                                    <div class="flex-1">
+                                        <input
+                                            v-model="variant.name"
+                                            type="text"
+                                            :placeholder="`مثال: ${index === 0 ? 'صغير' : index === 1 ? 'وسط' : 'كبير'}`"
+                                            class="w-full py-2.5 px-4 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm transition-all"
+                                            :class="{
+                                                'border-red-300':
+                                                    form.errors[
+                                                        `variants.${index}.name`
+                                                    ],
+                                            }"
+                                        />
+                                        <p
+                                            v-if="
+                                                form.errors[
+                                                    `variants.${index}.name`
+                                                ]
+                                            "
+                                            class="text-xs text-red-600 mt-1"
+                                        >
+                                            {{
+                                                form.errors[
+                                                    `variants.${index}.name`
+                                                ]
+                                            }}
+                                        </p>
+                                    </div>
+                                    <div class="w-32">
+                                        <input
+                                            v-model="variant.price"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            dir="ltr"
+                                            placeholder="السعر"
+                                            class="w-full py-2.5 px-4 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm transition-all"
+                                            :class="{
+                                                'border-red-300':
+                                                    form.errors[
+                                                        `variants.${index}.price`
+                                                    ],
+                                            }"
+                                        />
+                                        <p
+                                            v-if="
+                                                form.errors[
+                                                    `variants.${index}.price`
+                                                ]
+                                            "
+                                            class="text-xs text-red-600 mt-1"
+                                        >
+                                            {{
+                                                form.errors[
+                                                    `variants.${index}.price`
+                                                ]
+                                            }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        v-if="form.variants.length > 1"
+                                        type="button"
+                                        @click="removeVariant(index)"
+                                        class="mt-2 p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                @click="addVariant"
+                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-dashed border-gray-300 text-gray-600 hover:border-primary-500 hover:text-primary-900 hover:bg-primary-50/30 transition-all"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+                                إضافة متغير
+                            </button>
+                            <p
+                                v-if="form.errors.variants"
+                                class="text-sm text-red-600 mt-2"
+                            >
+                                {{ form.errors.variants }}
+                            </p>
+                        </fieldset>
+
+                        <!-- Description -->
+                        <fieldset class="border-t border-gray-100 pt-6 mt-6">
+                            <legend
+                                class="text-base font-bold text-gray-800 mb-5"
+                            >
+                                الوصف
+                            </legend>
+                            <textarea
+                                v-model="form.description"
+                                rows="4"
+                                placeholder="أدخل وصف المنتج..."
+                                class="w-full py-3 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none resize-none transition-all"
+                            ></textarea>
+                        </fieldset>
+
+                        <!-- Submit -->
                         <div
                             class="hidden lg:flex items-center gap-4 pt-8 mt-6 border-t border-gray-100"
                         >
                             <button
                                 type="submit"
                                 :disabled="form.processing"
-                                class="bg-primary-900 hover:bg-primary-800 text-white px-8 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                class="bg-primary-900 hover:bg-primary-800 text-white px-8 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 <svg
                                     v-if="form.processing"
@@ -384,13 +648,13 @@ function submit() {
                             </button>
                             <Link
                                 href="/admin/products"
-                                class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                                class="text-gray-500 hover:text-gray-700 transition-colors"
                                 >إلغاء</Link
                             >
                         </div>
                     </div>
 
-                    <!-- Sidebar (1/3) -->
+                    <!-- Sidebar — Images -->
                     <div class="lg:col-span-1">
                         <div
                             class="bg-white rounded-xl border border-gray-200 shadow-sm p-5"
@@ -398,10 +662,9 @@ function submit() {
                             <h3 class="text-sm font-bold text-gray-800 mb-4">
                                 الصور
                             </h3>
-                            <!-- Upload Area -->
                             <div
                                 @click="imagesInput?.click()"
-                                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-500 hover:bg-primary-50/30 transition-all duration-200 cursor-pointer"
+                                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-500 hover:bg-primary-50/30 transition-all cursor-pointer"
                             >
                                 <svg
                                     class="w-10 h-10 mx-auto text-gray-400 mb-3"
@@ -422,9 +685,6 @@ function submit() {
                                 <p class="text-xs text-gray-400 mt-1">
                                     PNG, JPG, WebP — حد أقصى 5MB
                                 </p>
-                                <p class="text-xs text-gray-400">
-                                    يمكنك اختيار أكثر من صورة
-                                </p>
                             </div>
                             <input
                                 ref="imagesInput"
@@ -434,8 +694,6 @@ function submit() {
                                 @change="handleImages"
                                 class="hidden"
                             />
-
-                            <!-- Image Previews Grid -->
                             <div
                                 v-if="imagePreviews.length > 0"
                                 class="grid grid-cols-3 gap-2 mt-4"
@@ -453,7 +711,7 @@ function submit() {
                                     <button
                                         type="button"
                                         @click="removeImage(index)"
-                                        class="absolute top-1 start-1 bg-red-500 text-white rounded-md p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
+                                        class="absolute top-1 start-1 bg-red-500 text-white rounded-md p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                     >
                                         <svg
                                             class="w-3 h-3"
@@ -471,29 +729,11 @@ function submit() {
                                     </button>
                                 </div>
                             </div>
-
-                            <p
-                                v-if="form.errors.images"
-                                class="text-sm text-red-600 mt-1.5 flex items-center gap-1"
-                            >
-                                <svg
-                                    class="w-4 h-4 shrink-0"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
-                                {{ form.errors.images }}
-                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mobile Sticky Submit -->
+                <!-- Mobile Submit -->
                 <div
                     class="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-50"
                 >
@@ -501,7 +741,7 @@ function submit() {
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="flex-1 bg-primary-900 hover:bg-primary-800 text-white px-8 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            class="flex-1 bg-primary-900 hover:bg-primary-800 text-white px-8 py-3 rounded-xl font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             <svg
                                 v-if="form.processing"
@@ -529,7 +769,7 @@ function submit() {
                         </button>
                         <Link
                             href="/admin/products"
-                            class="text-gray-500 hover:text-gray-700 px-4 py-3 transition-colors duration-200"
+                            class="text-gray-500 hover:text-gray-700 px-4 py-3 transition-colors"
                             >إلغاء</Link
                         >
                     </div>

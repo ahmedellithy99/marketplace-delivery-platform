@@ -115,4 +115,35 @@ class ProductController extends Controller
         return redirect()->back()
             ->with('success', 'Variant removed successfully.');
     }
+
+    public function storeDiscount(Request $request, Product $product): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'in:percentage,fixed'],
+            'value' => ['required', 'numeric', 'min:0.01'],
+            'starts_at' => ['nullable', 'date'],
+            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+        ]);
+
+        $discount = \App\Models\Discount::create([
+            ...$validated,
+            'scope' => 'product',
+            'is_active' => true,
+        ]);
+
+        $product->discounts()->attach($discount->id);
+
+        return redirect()->back()
+            ->with('success', 'تم إضافة الخصم بنجاح.');
+    }
+
+    public function destroyDiscount(Product $product, \App\Models\Discount $discount): RedirectResponse
+    {
+        $product->discounts()->detach($discount->id);
+        $discount->delete();
+
+        return redirect()->back()
+            ->with('success', 'تم حذف الخصم.');
+    }
 }

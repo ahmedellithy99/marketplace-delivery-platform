@@ -64,8 +64,7 @@ const form = useForm({
     category_id: "",
     name: "",
     description: "",
-    price: "",
-    discounted_price: "",
+    base_price: "",
     images: [],
 });
 
@@ -123,17 +122,13 @@ function formatPrice(price) {
 }
 
 function hasDiscount(product) {
-    return (
-        product.discounted_price &&
-        Number(product.discounted_price) < Number(product.price)
-    );
+    // Discounts are now computed server-side; disabled until backend passes pricing data
+    return false;
 }
 
 function discountPct(product) {
-    if (!hasDiscount(product)) return 0;
-    return Math.round(
-        (1 - Number(product.discounted_price) / Number(product.price)) * 100,
-    );
+    // Discounts are now computed server-side; disabled until backend passes pricing data
+    return 0;
 }
 
 function toggleAvailability(product) {
@@ -473,11 +468,7 @@ function deleteProduct(product) {
                                     class="flex flex-col"
                                 >
                                     <span class="font-semibold text-green-700"
-                                        >{{
-                                            formatPrice(
-                                                product.discounted_price,
-                                            )
-                                        }}
+                                        >{{ formatPrice(product.base_price) }}
                                         <span
                                             class="text-xs font-normal text-gray-500"
                                             >جنيه</span
@@ -485,12 +476,14 @@ function deleteProduct(product) {
                                     >
                                     <span
                                         class="text-xs text-gray-400 line-through"
-                                        >{{ formatPrice(product.price) }}</span
+                                        >{{
+                                            formatPrice(product.base_price)
+                                        }}</span
                                     >
                                 </div>
                                 <div v-else>
                                     <span class="font-semibold text-gray-900"
-                                        >{{ formatPrice(product.price) }}
+                                        >{{ formatPrice(product.base_price) }}
                                         <span
                                             class="text-xs font-normal text-gray-500"
                                             >جنيه</span
@@ -763,7 +756,7 @@ function deleteProduct(product) {
                             </p>
                         </div>
                         <!-- Price -->
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label
                                     class="block text-sm font-semibold text-gray-700 mb-2"
@@ -771,31 +764,7 @@ function deleteProduct(product) {
                                     <span class="text-red-500">*</span></label
                                 >
                                 <input
-                                    v-model="form.price"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    dir="ltr"
-                                    placeholder="0.00"
-                                    class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
-                                    :class="{
-                                        'border-red-300': form.errors.price,
-                                    }"
-                                />
-                                <p
-                                    v-if="form.errors.price"
-                                    class="text-sm text-red-600 mt-1"
-                                >
-                                    {{ form.errors.price }}
-                                </p>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-sm font-semibold text-gray-700 mb-2"
-                                    >السعر بعد الخصم</label
-                                >
-                                <input
-                                    v-model="form.discounted_price"
+                                    v-model="form.base_price"
                                     type="number"
                                     step="0.01"
                                     min="0"
@@ -804,14 +773,14 @@ function deleteProduct(product) {
                                     class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                                     :class="{
                                         'border-red-300':
-                                            form.errors.discounted_price,
+                                            form.errors.base_price,
                                     }"
                                 />
                                 <p
-                                    v-if="form.errors.discounted_price"
+                                    v-if="form.errors.base_price"
                                     class="text-sm text-red-600 mt-1"
                                 >
-                                    {{ form.errors.discounted_price }}
+                                    {{ form.errors.base_price }}
                                 </p>
                             </div>
                         </div>

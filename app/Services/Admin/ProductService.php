@@ -32,7 +32,7 @@ class ProductService
      */
     public function getProduct(Product $product): Product
     {
-        return $product->load(['store', 'category', 'media', 'variants']);
+        return $product->load(['store', 'category', 'media', 'variants', 'discounts']);
     }
 
     /**

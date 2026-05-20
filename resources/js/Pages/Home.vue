@@ -28,17 +28,26 @@ function formatPrice(price) {
 }
 
 function hasDiscount(product) {
-    return (
-        product.discounted_price &&
-        Number(product.discounted_price) < Number(product.price)
-    );
+    return product.pricing?.has_discount || false;
 }
 
 function discountPct(product) {
-    if (!hasDiscount(product)) return 0;
-    return Math.round(
-        (1 - Number(product.discounted_price) / Number(product.price)) * 100,
-    );
+    if (!hasDiscount(product) || !product.pricing) return 0;
+    const unit = product.pricing.unit_price;
+    const effective = product.pricing.effective_price;
+    if (!unit || unit <= 0) return 0;
+    return Math.round((1 - effective / unit) * 100);
+}
+
+function getEffectivePrice(product) {
+    if (product.pricing?.effective_price)
+        return product.pricing.effective_price;
+    return product.base_price;
+}
+
+function getOriginalPrice(product) {
+    if (product.pricing?.unit_price) return product.pricing.unit_price;
+    return product.base_price;
 }
 
 function addToCart(product) {
@@ -496,14 +505,16 @@ onMounted(() => {
                                             class="text-sm sm:text-base font-bold text-secondary-500"
                                             >{{
                                                 formatPrice(
-                                                    product.discounted_price,
+                                                    getEffectivePrice(product),
                                                 )
                                             }}</span
                                         >
                                         <span
                                             class="text-[10px] text-gray-300 line-through"
                                             >{{
-                                                formatPrice(product.price)
+                                                formatPrice(
+                                                    getOriginalPrice(product),
+                                                )
                                             }}</span
                                         >
                                     </template>
@@ -511,7 +522,7 @@ onMounted(() => {
                                         <span
                                             class="text-sm sm:text-base font-bold text-gray-900"
                                             >{{
-                                                formatPrice(product.price)
+                                                formatPrice(product.base_price)
                                             }}</span
                                         >
                                     </template>

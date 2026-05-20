@@ -255,10 +255,7 @@ function formatTime(time) {
 
                                 <!-- Discount Badge -->
                                 <span
-                                    v-if="
-                                        product.discounted_price &&
-                                        Number(product.discounted_price) > 0
-                                    "
+                                    v-if="false"
                                     class="absolute top-2 inset-s-2 bg-secondary-500 text-white text-xs font-bold px-2 py-1 rounded-lg"
                                 >
                                     خصم
@@ -286,35 +283,12 @@ function formatTime(time) {
 
                                 <!-- Price -->
                                 <div class="mt-3 flex items-center gap-2">
-                                    <template
-                                        v-if="
-                                            product.discounted_price &&
-                                            Number(product.discounted_price) > 0
-                                        "
+                                    <span
+                                        class="text-primary-900 font-bold text-sm"
+                                        >{{
+                                            formatPrice(product.base_price)
+                                        }}</span
                                     >
-                                        <span
-                                            class="text-secondary-500 font-bold text-sm"
-                                            >{{
-                                                formatPrice(
-                                                    product.discounted_price,
-                                                )
-                                            }}</span
-                                        >
-                                        <span
-                                            class="text-gray-400 text-xs line-through"
-                                            >{{
-                                                formatPrice(product.price)
-                                            }}</span
-                                        >
-                                    </template>
-                                    <template v-else>
-                                        <span
-                                            class="text-primary-900 font-bold text-sm"
-                                            >{{
-                                                formatPrice(product.price)
-                                            }}</span
-                                        >
-                                    </template>
                                 </div>
 
                                 <!-- Add to Cart -->

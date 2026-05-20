@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\StoreController;
@@ -53,3 +54,19 @@ Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name(
 Route::post('/orders/{order}/assign-delivery', [OrderController::class, 'assignDelivery'])->name('admin.orders.assign-delivery');
 
 Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
+
+Route::resource('discounts', DiscountController::class)
+    ->names('admin.discounts')
+    ->except(['show']);
+
+Route::patch('/discounts/{discount}/toggle-active', [DiscountController::class, 'toggleActive'])
+    ->name('admin.discounts.toggle-active');
+
+Route::get('/discounts-targets', [DiscountController::class, 'targets'])
+    ->name('admin.discounts.targets');
+
+Route::post('/products/{product}/discounts', [ProductController::class, 'storeDiscount'])
+    ->name('admin.products.discounts.store');
+
+Route::delete('/products/{product}/discounts/{discount}', [ProductController::class, 'destroyDiscount'])
+    ->name('admin.products.discounts.destroy');
