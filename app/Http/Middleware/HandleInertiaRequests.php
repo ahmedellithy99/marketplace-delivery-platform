@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
             if ($cart) {
                 $cartData = [
                     'itemCount' => $cart->items->count(),
-                    'subtotal' => $cart->items->sum('price'),
+                    'subtotal' => $cart->items->sum('total_price'),
                 ];
             }
         }

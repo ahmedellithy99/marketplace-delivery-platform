@@ -13,22 +13,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CartItemFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $quantity = fake()->numberBetween(1, 5);
-        $price = fake()->randomFloat(2, 2, 50);
+        $unitPrice = fake()->randomFloat(2, 5, 50);
 
         return [
             'cart_id' => Cart::factory(),
             'product_id' => Product::factory(),
             'variant_id' => null,
             'quantity' => $quantity,
-            'price' => $price,
+            'unit_price' => $unitPrice,
+            'total_price' => $unitPrice * $quantity,
         ];
     }
 
@@ -40,7 +36,8 @@ class CartItemFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'variant_id' => $variant->id,
             'product_id' => $variant->product_id,
-            'price' => $variant->price,
+            'unit_price' => $variant->price,
+            'total_price' => $variant->price * ($attributes['quantity'] ?? 1),
         ]);
     }
 }

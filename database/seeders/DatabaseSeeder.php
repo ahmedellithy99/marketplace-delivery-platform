@@ -88,10 +88,16 @@ class DatabaseSeeder extends Seeder
                         'category_id' => $category->id,
                     ]);
 
-                // Give some products a discount
+                // Give some products a discount (via discounts table)
                 $products->random(min(1, $products->count()))->each(function (Product $product) {
-                    $discount = round($product->price * fake()->randomFloat(2, 0.1, 0.4), 2);
-                    $product->update(['discounted_price' => round($product->price - $discount, 2)]);
+                    $discount = \App\Models\Discount::create([
+                        'name' => 'خصم ' . $product->name,
+                        'type' => fake()->randomElement(['percentage', 'fixed']),
+                        'value' => fake()->randomElement([10, 15, 20, 25, 30]),
+                        'scope' => 'product',
+                        'is_active' => true,
+                    ]);
+                    $product->discounts()->attach($discount->id);
                 });
 
                 // Give some products variants
@@ -118,7 +124,8 @@ class DatabaseSeeder extends Seeder
                 CartItem::factory()->create([
                     'cart_id' => $cart->id,
                     'product_id' => $product->id,
-                    'price' => $product->discounted_price ?? $product->price,
+                    'unit_price' => $product->base_price ?? 20,
+                    'total_price' => $product->base_price ?? 20,
                 ]);
             });
         });
@@ -146,7 +153,7 @@ class DatabaseSeeder extends Seeder
 
                 $products->each(function (Product $product) use ($order) {
                     $quantity = fake()->numberBetween(1, 3);
-                    $price = $product->discounted_price ?? $product->price;
+                    $price = (float) ($product->base_price ?? 20);
 
                     OrderItem::factory()->create([
                         'order_id' => $order->id,
@@ -154,7 +161,8 @@ class DatabaseSeeder extends Seeder
                         'product_id' => $product->id,
                         'product_name' => $product->name,
                         'quantity' => $quantity,
-                        'price' => $price,
+                        'unit_price' => $price,
+                        'discount_amount' => 0,
                         'total' => round($price * $quantity, 2),
                     ]);
                 });

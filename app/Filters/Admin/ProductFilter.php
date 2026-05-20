@@ -9,14 +9,15 @@ class ProductFilter extends BaseFilter
     protected array $allowed = [
         'search',
         'category',
+        'store',
+        'type',
         'is_available',
-        'on_discount',
         'sort',
     ];
 
     protected array $sortable = [
         'name',
-        'price',
+        'base_price',
         'created_at',
     ];
 
@@ -40,23 +41,27 @@ class ProductFilter extends BaseFilter
     }
 
     /**
+     * Filter by store ID.
+     */
+    public function store(int|string $value): void
+    {
+        $this->builder->where('store_id', $value);
+    }
+
+    /**
+     * Filter by product type (simple, variant, measured).
+     */
+    public function type(string $value): void
+    {
+        $this->builder->where('type', $value);
+    }
+
+    /**
      * Filter by availability status.
      */
     public function is_available(int|string $value): void
     {
         $this->builder->where('is_available', (bool) $value);
-    }
-
-    /**
-     * Filter by discount presence.
-     */
-    public function on_discount(int|string $value): void
-    {
-        if ($value) {
-            $this->builder->whereNotNull('discounted_price');
-        } else {
-            $this->builder->whereNull('discounted_price');
-        }
     }
 
     /**

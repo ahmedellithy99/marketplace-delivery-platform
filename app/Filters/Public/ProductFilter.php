@@ -15,13 +15,12 @@ class ProductFilter extends BaseFilter
         'price_max',
         'type',
         'is_available',
-        'on_discount',
         'sort',
     ];
 
     protected array $sortable = [
         'name',
-        'price',
+        'base_price',
         'created_at',
     ];
 
@@ -73,7 +72,7 @@ class ProductFilter extends BaseFilter
      */
     public function price_min($value): void
     {
-        $this->builder->where('price', '>=', $value);
+        $this->builder->where('base_price', '>=', $value);
     }
 
     /**
@@ -81,7 +80,7 @@ class ProductFilter extends BaseFilter
      */
     public function price_max($value): void
     {
-        $this->builder->where('price', '<=', $value);
+        $this->builder->where('base_price', '<=', $value);
     }
 
     /**
@@ -98,18 +97,6 @@ class ProductFilter extends BaseFilter
     public function is_available($value): void
     {
         $this->builder->where('is_available', $value);
-    }
-
-    /**
-     * Filter by discount availability
-     */
-    public function on_discount($onDiscount = true): void
-    {
-        if ($onDiscount) {
-            $this->builder->whereNotNull('discounted_price');
-        } else {
-            $this->builder->whereNull('discounted_price');
-        }
     }
 
     /**

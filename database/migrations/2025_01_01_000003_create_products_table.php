@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
@@ -18,20 +15,22 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->decimal('discounted_price', 10, 2)->nullable();
+            $table->enum('type', ['simple', 'variant', 'measured'])->default('simple');
+            $table->decimal('base_price', 10, 2)->nullable();
+            $table->string('measurement_unit')->nullable(); // kg, g, liter, piece
+            $table->decimal('min_quantity', 8, 3)->nullable();
+            $table->decimal('max_quantity', 8, 3)->nullable();
+            $table->decimal('quantity_step', 8, 3)->nullable();
             $table->boolean('is_available')->default(true);
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('store_id');
             $table->index('category_id');
+            $table->index('type');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

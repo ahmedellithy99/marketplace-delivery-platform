@@ -12,15 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        $price = fake()->randomFloat(2, 1, 100);
-
         return [
             'store_id' => Store::factory(),
             'category_id' => Category::factory(),
@@ -32,26 +25,36 @@ class ProductFactory extends Factory
                 'Beef Burger', 'French Fries', 'Green Tea', 'Cheesecake',
             ]),
             'description' => fake()->optional(0.7)->sentence(),
-            'price' => $price,
-            'discounted_price' => null,
+            'type' => 'simple',
+            'base_price' => fake()->randomFloat(2, 5, 100),
             'is_available' => true,
         ];
     }
 
     /**
-     * Set a discounted price on the product.
+     * Create a variant-type product (no base_price).
      */
-    public function discounted(): static
+    public function variant(): static
     {
-        return $this->state(function (array $attributes) {
-            $price = $attributes['price'] ?? fake()->randomFloat(2, 10, 100);
-            $discount = fake()->randomFloat(2, 1, $price * 0.5);
+        return $this->state(fn () => [
+            'type' => 'variant',
+            'base_price' => null,
+        ]);
+    }
 
-            return [
-                'price' => $price,
-                'discounted_price' => round($price - $discount, 2),
-            ];
-        });
+    /**
+     * Create a measured-type product.
+     */
+    public function measured(): static
+    {
+        return $this->state(fn () => [
+            'type' => 'measured',
+            'base_price' => fake()->randomFloat(2, 50, 500),
+            'measurement_unit' => fake()->randomElement(['kg', 'g', 'liter', 'piece']),
+            'min_quantity' => 0.25,
+            'max_quantity' => 10,
+            'quantity_step' => 0.25,
+        ]);
     }
 
     /**
@@ -59,7 +62,7 @@ class ProductFactory extends Factory
      */
     public function unavailable(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn () => [
             'is_available' => false,
         ]);
     }

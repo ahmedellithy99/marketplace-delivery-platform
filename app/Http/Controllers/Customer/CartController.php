@@ -31,7 +31,7 @@ class CartController extends Controller
             'cartItems' => $cart->items,
             'totals' => [
                 'itemCount' => $cart->items->count(),
-                'subtotal' => $cart->items->sum('price'),
+                'subtotal' => $cart->items->sum('total_price'),
             ],
         ]);
     }

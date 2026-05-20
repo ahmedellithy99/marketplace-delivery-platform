@@ -8,9 +8,14 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Services\PricingService;
 
 class CartService
 {
+    public function __construct(
+        protected PricingService $pricingService
+    ) {}
+
     /**
      * Get or create the user's cart (enforces single cart per customer).
      */
@@ -30,25 +35,26 @@ class CartService
     }
 
     /**
-     * Add an item to the user's cart with price resolution.
+     * Add an item to the user's cart with price resolution via PricingService.
      *
      * @throws ProductUnavailableException
      */
-    public function addCartItem(User $user, Product $product, ?ProductVariant $variant, int $quantity): CartItem
+    public function addCartItem(User $user, Product $product, ?ProductVariant $variant, float $quantity = 1): CartItem
     {
         if (!$product->is_available) {
             throw new ProductUnavailableException($product->name);
         }
 
         $cart = $this->getOrCreateCart($user);
-        $unitPrice = $this->resolvePrice($product, $variant);
+        $priceResult = $this->pricingService->calculate($product, $variant, $quantity);
 
         $cartItem = CartItem::create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'variant_id' => $variant?->id,
             'quantity' => $quantity,
-            'price' => $unitPrice * $quantity,
+            'unit_price' => $priceResult->effectivePrice,
+            'total_price' => $priceResult->total,
         ]);
 
         return $cartItem->load(['product', 'variant']);
@@ -57,13 +63,14 @@ class CartService
     /**
      * Update the quantity of a cart item and recalculate price.
      */
-    public function updateCartItem(CartItem $item, int $quantity): CartItem
+    public function updateCartItem(CartItem $item, float $quantity): CartItem
     {
-        $unitPrice = $this->resolvePrice($item->product, $item->variant);
+        $priceResult = $this->pricingService->calculate($item->product, $item->variant, $quantity);
 
         $item->update([
             'quantity' => $quantity,
-            'price' => $unitPrice * $quantity,
+            'unit_price' => $priceResult->effectivePrice,
+            'total_price' => $priceResult->total,
         ]);
 
         $item->refresh();
@@ -85,21 +92,5 @@ class CartService
     public function clearCart(Cart $cart): void
     {
         $cart->items()->delete();
-    }
-
-    /**
-     * Resolve the unit price based on priority: variant price > discounted_price > base price.
-     */
-    public function resolvePrice(Product $product, ?ProductVariant $variant): float
-    {
-        if ($variant !== null) {
-            return (float) $variant->price;
-        }
-
-        if ($product->discounted_price !== null) {
-            return (float) $product->discounted_price;
-        }
-
-        return (float) $product->price;
     }
 }

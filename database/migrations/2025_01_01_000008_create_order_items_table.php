@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
             $table->foreignId('store_id')->constrained('stores');
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('variant_id')->nullable()->constrained('product_variants');
             $table->string('product_name');
-            $table->unsignedInteger('quantity');
-            $table->decimal('price', 10, 2);
+            $table->string('variant_name')->nullable();
+            $table->decimal('quantity', 8, 3);
+            $table->decimal('unit_price', 10, 2);
+            $table->decimal('discount_amount', 10, 2)->default(0);
             $table->decimal('total', 10, 2);
             $table->timestamps();
 
@@ -28,9 +27,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('order_items');

@@ -53,24 +53,30 @@ class ProductService
 
     /**
      * Create a new product.
-     *
-     * @param array $data
-     * @param array<UploadedFile> $images
-     * @return Product
-     * @throws ValidationException
      */
     public function createProduct(array $data, array $images = []): Product
     {
         $this->validateStoreExists($data['store_id']);
         $this->validateCategoryExists($data['category_id']);
-
-        if (isset($data['discounted_price']) && $data['discounted_price'] !== null) {
-            $this->validateDiscountedPrice($data['discounted_price'], $data['price']);
-        }
+        $this->validateProductData($data);
 
         $product = DB::transaction(function () use ($data) {
-            $productData = collect($data)->except(['images'])->toArray();
-            return Product::create($productData);
+            $productData = collect($data)->except(['images', 'variants'])->toArray();
+            $product = Product::create($productData);
+
+            // Create variants if type is 'variant'
+            if ($product->isVariant() && !empty($data['variants'])) {
+                foreach ($data['variants'] as $index => $variantData) {
+                    $product->variants()->create([
+                        'name' => $variantData['name'],
+                        'price' => $variantData['price'],
+                        'is_default' => $index === 0, // First variant is default
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
+
+            return $product;
         });
 
         foreach ($images as $image) {
@@ -82,34 +88,19 @@ class ProductService
 
     /**
      * Update an existing product.
-     *
-     * @param Product $product
-     * @param array $data
-     * @param array<UploadedFile> $images
-     * @return Product
-     * @throws ValidationException
      */
     public function updateProduct(Product $product, array $data, array $images = []): Product
     {
-        $price = $data['price'] ?? $product->price;
-        $discountedPrice = array_key_exists('discounted_price', $data)
-            ? $data['discounted_price']
-            : $product->discounted_price;
-
-        if ($discountedPrice !== null) {
-            $this->validateDiscountedPrice($discountedPrice, $price);
-        }
-
         if (isset($data['store_id'])) {
             $this->validateStoreExists($data['store_id']);
         }
-
         if (isset($data['category_id'])) {
             $this->validateCategoryExists($data['category_id']);
         }
+        $this->validateProductData($data, $product);
 
         DB::transaction(function () use ($product, $data) {
-            $productData = collect($data)->except(['images'])->toArray();
+            $productData = collect($data)->except(['images', 'variants'])->toArray();
             $product->update($productData);
         });
 
@@ -118,9 +109,7 @@ class ProductService
         }
 
         $product->refresh();
-        $product->load(['store', 'category', 'media', 'variants']);
-
-        return $product;
+        return $product->load(['store', 'category', 'media', 'variants']);
     }
 
     /**
@@ -132,16 +121,12 @@ class ProductService
     }
 
     /**
-     * Toggle product availability (is_available).
+     * Toggle product availability.
      */
     public function toggleAvailability(Product $product): Product
     {
-        $product->update([
-            'is_available' => !$product->is_available,
-        ]);
-
+        $product->update(['is_available' => !$product->is_available]);
         $product->refresh();
-
         return $product;
     }
 
@@ -150,6 +135,13 @@ class ProductService
      */
     public function addVariant(Product $product, array $data): ProductVariant
     {
+        $maxSort = $product->variants()->max('sort_order') ?? -1;
+        $data['sort_order'] = $maxSort + 1;
+
+        if ($product->variants()->count() === 0) {
+            $data['is_default'] = true;
+        }
+
         return $product->variants()->create($data);
     }
 
@@ -160,7 +152,6 @@ class ProductService
     {
         $variant->update($data);
         $variant->refresh();
-
         return $variant;
     }
 
@@ -173,8 +164,30 @@ class ProductService
     }
 
     /**
-     * Validate that the store exists and is not soft-deleted.
+     * Validate product data based on type.
      */
+    protected function validateProductData(array $data, ?Product $product = null): void
+    {
+        $type = $data['type'] ?? $product?->type ?? 'simple';
+
+        if (in_array($type, ['simple', 'measured'])) {
+            $basePrice = $data['base_price'] ?? $product?->base_price;
+            if (empty($basePrice) || $basePrice <= 0) {
+                throw ValidationException::withMessages([
+                    'base_price' => ['Base price is required for simple and measured products.'],
+                ]);
+            }
+        }
+
+        if ($type === 'measured') {
+            if (empty($data['measurement_unit']) && !$product?->measurement_unit) {
+                throw ValidationException::withMessages([
+                    'measurement_unit' => ['Measurement unit is required for measured products.'],
+                ]);
+            }
+        }
+    }
+
     protected function validateStoreExists(int $storeId): void
     {
         if (!Store::where('id', $storeId)->exists()) {
@@ -184,26 +197,11 @@ class ProductService
         }
     }
 
-    /**
-     * Validate that the category exists and is not soft-deleted.
-     */
     protected function validateCategoryExists(int $categoryId): void
     {
         if (!Category::where('id', $categoryId)->exists()) {
             throw ValidationException::withMessages([
                 'category_id' => ['The selected category does not exist.'],
-            ]);
-        }
-    }
-
-    /**
-     * Validate that discounted_price is strictly less than price.
-     */
-    protected function validateDiscountedPrice(float $discountedPrice, float $price): void
-    {
-        if ($discountedPrice >= $price) {
-            throw ValidationException::withMessages([
-                'discounted_price' => ['The discounted price must be less than the original price.'],
             ]);
         }
     }

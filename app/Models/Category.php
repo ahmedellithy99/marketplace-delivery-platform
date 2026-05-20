@@ -63,4 +63,9 @@ class Category extends Model implements HasMedia
     {
         return $this->hasMany(Product::class);
     }
+
+    public function discounts(): \Illuminate\Database\Eloquent\Relations\MorphToMany
+    {
+        return $this->morphToMany(Discount::class, 'discountable');
+    }
 }

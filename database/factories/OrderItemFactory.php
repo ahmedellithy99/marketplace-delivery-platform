@@ -13,15 +13,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class OrderItemFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $quantity = fake()->numberBetween(1, 5);
-        $price = fake()->randomFloat(2, 2, 50);
+        $unitPrice = fake()->randomFloat(2, 5, 50);
 
         return [
             'order_id' => Order::factory(),
@@ -29,9 +24,11 @@ class OrderItemFactory extends Factory
             'product_id' => Product::factory(),
             'variant_id' => null,
             'product_name' => fake()->words(3, true),
+            'variant_name' => null,
             'quantity' => $quantity,
-            'price' => $price,
-            'total' => round($price * $quantity, 2),
+            'unit_price' => $unitPrice,
+            'discount_amount' => 0,
+            'total' => round($unitPrice * $quantity, 2),
         ];
     }
 }
