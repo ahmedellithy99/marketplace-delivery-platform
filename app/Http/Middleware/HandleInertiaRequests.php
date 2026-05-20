@@ -36,19 +36,33 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
+        $cartData = ['itemCount' => 0, 'subtotal' => 0];
+        if ($user && $user->role === 'customer') {
+            $cart = \App\Models\Cart::where('user_id', $user->id)->with('items')->first();
+            if ($cart) {
+                $cartData = [
+                    'itemCount' => $cart->items->count(),
+                    'subtotal' => $cart->items->sum('price'),
+                ];
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? [
-                    'id' => $request->user()->id,
-                    'name' => $request->user()->name,
-                    'phone' => $request->user()->phone,
-                    'email' => $request->user()->email,
-                    'role' => $request->user()->role,
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'phone' => $user->phone,
+                    'email' => $user->email,
+                    'role' => $user->role,
                 ] : null,
             ],
-            'notificationsCount' => $request->user()
-                ? app(NotificationService::class)->getUnreadCount($request->user())
+            'cart' => $cartData,
+            'notificationsCount' => $user
+                ? app(NotificationService::class)->getUnreadCount($user)
                 : 0,
         ];
     }

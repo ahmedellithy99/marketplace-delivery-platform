@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import PublicLayout from "@/Layouts/PublicLayout.vue";
 import { ref, onMounted } from "vue";
 
@@ -38,6 +38,19 @@ function discountPct(product) {
     if (!hasDiscount(product)) return 0;
     return Math.round(
         (1 - Number(product.discounted_price) / Number(product.price)) * 100,
+    );
+}
+
+function addToCart(product) {
+    router.post(
+        "/cart",
+        {
+            product_id: product.id,
+            quantity: 1,
+        },
+        {
+            preserveScroll: true,
+        },
     );
 }
 
@@ -442,7 +455,8 @@ onMounted(() => {
                                 <!-- Add button — bottom end corner -->
                                 <button
                                     type="button"
-                                    class="absolute bottom-2 end-2 w-7 h-7 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary-800 active:scale-90"
+                                    @click="addToCart(product)"
+                                    class="absolute bottom-2 end-2 w-7 h-7 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:bg-primary-800 active:scale-90"
                                     aria-label="أضف للسلة"
                                 >
                                     <svg

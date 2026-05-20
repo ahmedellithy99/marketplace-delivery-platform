@@ -5,8 +5,14 @@ import { computed, ref } from "vue";
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const notificationsCount = computed(() => page.props.notificationsCount || 0);
+const cartItemCount = computed(() => page.props.cart?.itemCount || 0);
+const cartSubtotal = computed(() => page.props.cart?.subtotal || 0);
 const mobileMenuOpen = ref(false);
 const userMenuOpen = ref(false);
+
+function formatCartTotal(amount) {
+    return Number(amount).toFixed(2);
+}
 </script>
 
 <template>
@@ -256,5 +262,43 @@ const userMenuOpen = ref(false);
                 </div>
             </div>
         </footer>
+
+        <!-- Floating Cart Bar (Talabat-style) — appears when cart has items -->
+        <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="translate-y-full opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="translate-y-full opacity-0"
+        >
+            <div
+                v-if="cartItemCount > 0 && user"
+                class="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4"
+            >
+                <Link
+                    href="/cart"
+                    class="flex items-center justify-between max-w-lg mx-auto bg-primary-900 text-white rounded-2xl px-5 py-3.5 shadow-2xl shadow-primary-900/40 hover:bg-primary-800 transition-all duration-200 active:scale-[0.98]"
+                >
+                    <!-- Left: item count badge -->
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="w-7 h-7 bg-secondary-500 rounded-lg flex items-center justify-center text-xs font-bold"
+                        >
+                            {{ cartItemCount }}
+                        </span>
+                        <span class="text-sm font-semibold">عرض السلة</span>
+                    </div>
+
+                    <!-- Right: total price -->
+                    <div class="flex items-center gap-1">
+                        <span class="text-base font-bold">{{
+                            formatCartTotal(cartSubtotal)
+                        }}</span>
+                        <span class="text-xs text-white/70">جنيه</span>
+                    </div>
+                </Link>
+            </div>
+        </Transition>
     </div>
 </template>
