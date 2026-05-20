@@ -64,7 +64,13 @@ const form = useForm({
     category_id: "",
     name: "",
     description: "",
+    type: "simple",
     base_price: "",
+    measurement_unit: "",
+    min_quantity: "",
+    max_quantity: "",
+    quantity_step: "",
+    variants: [{ name: "", price: "" }],
     images: [],
 });
 
@@ -86,12 +92,22 @@ function removeImage(index) {
         imagesInput.value.value = "";
 }
 
+function addVariant() {
+    form.variants.push({ name: "", price: "" });
+}
+
+function removeVariant(index) {
+    if (form.variants.length > 1) form.variants.splice(index, 1);
+}
+
 function submitProduct() {
     form.post("/admin/products", {
         forceFormData: true,
         onSuccess: () => {
             showAddModal.value = false;
             form.reset();
+            form.store_id = props.store.id;
+            form.variants = [{ name: "", price: "" }];
             imagePreviews.value = [];
             router.reload({ only: ["products"] });
         },
@@ -656,24 +672,22 @@ function deleteProduct(product) {
             </nav>
         </div>
 
-        <!-- Add Product Modal -->
+        <!-- Add Product Modal (Full-featured) -->
         <Teleport to="body">
             <div
                 v-if="showAddModal"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-                <!-- Backdrop -->
                 <div
                     class="absolute inset-0 bg-black/50 backdrop-blur-sm"
                     @click="showAddModal = false"
                 />
-                <!-- Modal -->
                 <div
                     class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                 >
-                    <!-- Modal Header -->
+                    <!-- Header -->
                     <div
-                        class="flex items-center justify-between p-6 border-b border-gray-100"
+                        class="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white z-10"
                     >
                         <div>
                             <h3 class="text-lg font-bold text-primary-900">
@@ -702,7 +716,7 @@ function deleteProduct(product) {
                             </svg>
                         </button>
                     </div>
-                    <!-- Modal Body -->
+                    <!-- Body -->
                     <form @submit.prevent="submitProduct" class="p-6 space-y-5">
                         <!-- Name -->
                         <div>
@@ -734,7 +748,7 @@ function deleteProduct(product) {
                             >
                             <select
                                 v-model="form.category_id"
-                                class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all appearance-none bg-white"
+                                class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none appearance-none bg-white transition-all"
                                 :class="{
                                     'border-red-300': form.errors.category_id,
                                 }"
@@ -755,34 +769,230 @@ function deleteProduct(product) {
                                 {{ form.errors.category_id }}
                             </p>
                         </div>
-                        <!-- Price -->
-                        <div class="grid grid-cols-1 gap-4">
+                        <!-- Type Selector -->
+                        <div>
+                            <label
+                                class="block text-sm font-semibold text-gray-700 mb-2"
+                                >نوع المنتج</label
+                            >
+                            <div class="grid grid-cols-3 gap-2">
+                                <button
+                                    type="button"
+                                    @click="form.type = 'simple'"
+                                    class="p-3 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'simple'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <p
+                                        class="text-xs font-semibold"
+                                        :class="
+                                            form.type === 'simple'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-600'
+                                        "
+                                    >
+                                        بسيط
+                                    </p>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="form.type = 'variant'"
+                                    class="p-3 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'variant'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <p
+                                        class="text-xs font-semibold"
+                                        :class="
+                                            form.type === 'variant'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-600'
+                                        "
+                                    >
+                                        متغيرات
+                                    </p>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="form.type = 'measured'"
+                                    class="p-3 rounded-xl border-2 text-center transition-all"
+                                    :class="
+                                        form.type === 'measured'
+                                            ? 'border-primary-500 bg-primary-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    "
+                                >
+                                    <p
+                                        class="text-xs font-semibold"
+                                        :class="
+                                            form.type === 'measured'
+                                                ? 'text-primary-900'
+                                                : 'text-gray-600'
+                                        "
+                                    >
+                                        بالوزن
+                                    </p>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Price (simple & measured) -->
+                        <div v-if="form.type !== 'variant'">
+                            <label
+                                class="block text-sm font-semibold text-gray-700 mb-2"
+                                >{{
+                                    form.type === "measured"
+                                        ? "السعر لكل وحدة (جنيه)"
+                                        : "السعر (جنيه)"
+                                }}
+                                <span class="text-red-500">*</span></label
+                            >
+                            <input
+                                v-model="form.base_price"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                dir="ltr"
+                                placeholder="0.00"
+                                class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                :class="{
+                                    'border-red-300': form.errors.base_price,
+                                }"
+                            />
+                            <p
+                                v-if="form.errors.base_price"
+                                class="text-sm text-red-600 mt-1"
+                            >
+                                {{ form.errors.base_price }}
+                            </p>
+                        </div>
+                        <!-- Measured fields -->
+                        <div v-if="form.type === 'measured'" class="space-y-3">
                             <div>
                                 <label
                                     class="block text-sm font-semibold text-gray-700 mb-2"
-                                    >السعر (جنيه)
+                                    >وحدة القياس
                                     <span class="text-red-500">*</span></label
                                 >
+                                <select
+                                    v-model="form.measurement_unit"
+                                    class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none appearance-none bg-white transition-all"
+                                >
+                                    <option value="">اختر الوحدة</option>
+                                    <option value="kg">كيلوجرام</option>
+                                    <option value="g">جرام</option>
+                                    <option value="liter">لتر</option>
+                                    <option value="piece">قطعة</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
                                 <input
-                                    v-model="form.base_price"
+                                    v-model="form.min_quantity"
+                                    type="number"
+                                    step="0.001"
+                                    min="0"
+                                    dir="ltr"
+                                    placeholder="الحد الأدنى"
+                                    class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-primary-500"
+                                />
+                                <input
+                                    v-model="form.max_quantity"
+                                    type="number"
+                                    step="0.001"
+                                    min="0"
+                                    dir="ltr"
+                                    placeholder="الحد الأقصى"
+                                    class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-primary-500"
+                                />
+                                <input
+                                    v-model="form.quantity_step"
+                                    type="number"
+                                    step="0.001"
+                                    min="0"
+                                    dir="ltr"
+                                    placeholder="خطوة الزيادة"
+                                    class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-primary-500"
+                                />
+                            </div>
+                        </div>
+                        <!-- Variants -->
+                        <div v-if="form.type === 'variant'" class="space-y-3">
+                            <label
+                                class="block text-sm font-semibold text-gray-700"
+                                >المتغيرات
+                                <span class="text-red-500">*</span></label
+                            >
+                            <div
+                                v-for="(variant, index) in form.variants"
+                                :key="index"
+                                class="flex items-center gap-2"
+                            >
+                                <input
+                                    v-model="variant.name"
+                                    type="text"
+                                    :placeholder="`${index === 0 ? 'صغير' : index === 1 ? 'وسط' : 'كبير'}`"
+                                    class="flex-1 py-2 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-primary-500"
+                                    :class="{
+                                        'border-red-300':
+                                            form.errors[
+                                                `variants.${index}.name`
+                                            ],
+                                    }"
+                                />
+                                <input
+                                    v-model="variant.price"
                                     type="number"
                                     step="0.01"
                                     min="0"
                                     dir="ltr"
-                                    placeholder="0.00"
-                                    class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                    placeholder="السعر"
+                                    class="w-24 py-2 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-primary-500"
                                     :class="{
                                         'border-red-300':
-                                            form.errors.base_price,
+                                            form.errors[
+                                                `variants.${index}.price`
+                                            ],
                                     }"
                                 />
-                                <p
-                                    v-if="form.errors.base_price"
-                                    class="text-sm text-red-600 mt-1"
+                                <button
+                                    v-if="form.variants.length > 1"
+                                    type="button"
+                                    @click="removeVariant(index)"
+                                    class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"
                                 >
-                                    {{ form.errors.base_price }}
-                                </p>
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
                             </div>
+                            <button
+                                type="button"
+                                @click="addVariant"
+                                class="text-sm text-primary-700 hover:text-primary-900 font-medium"
+                            >
+                                + إضافة متغير
+                            </button>
+                            <p
+                                v-if="form.errors.variants"
+                                class="text-sm text-red-600"
+                            >
+                                {{ form.errors.variants }}
+                            </p>
                         </div>
                         <!-- Description -->
                         <div>
@@ -792,9 +1002,9 @@ function deleteProduct(product) {
                             >
                             <textarea
                                 v-model="form.description"
-                                rows="3"
+                                rows="2"
                                 placeholder="أدخل وصف المنتج..."
-                                class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all resize-none"
+                                class="w-full py-2.5 px-4 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none resize-none transition-all"
                             ></textarea>
                         </div>
                         <!-- Images -->
@@ -805,21 +1015,8 @@ function deleteProduct(product) {
                             >
                             <div
                                 @click="imagesInput?.click()"
-                                class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center hover:border-primary-500 hover:bg-primary-50/30 transition-all cursor-pointer"
+                                class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary-500 hover:bg-primary-50/30 transition-all cursor-pointer"
                             >
-                                <svg
-                                    class="w-8 h-8 mx-auto text-gray-400 mb-2"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="1.5"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                    />
-                                </svg>
                                 <p class="text-sm text-gray-600">
                                     اضغط لاختيار الصور
                                 </p>

@@ -737,20 +737,30 @@ function deleteVariant(variant) {
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
-                                    <input
-                                        v-model="discountForm.starts_at"
-                                        type="datetime-local"
-                                        dir="ltr"
-                                        placeholder="بداية (اختياري)"
-                                        class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
-                                    />
-                                    <input
-                                        v-model="discountForm.ends_at"
-                                        type="datetime-local"
-                                        dir="ltr"
-                                        placeholder="نهاية (اختياري)"
-                                        class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
-                                    />
+                                    <div>
+                                        <label
+                                            class="block text-xs font-medium text-gray-600 mb-1"
+                                            >تاريخ البداية</label
+                                        >
+                                        <input
+                                            v-model="discountForm.starts_at"
+                                            type="datetime-local"
+                                            dir="ltr"
+                                            class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-medium text-gray-600 mb-1"
+                                            >تاريخ الانتهاء</label
+                                        >
+                                        <input
+                                            v-model="discountForm.ends_at"
+                                            type="datetime-local"
+                                            dir="ltr"
+                                            class="w-full py-2 px-3 text-sm border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                                        />
+                                    </div>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <button
