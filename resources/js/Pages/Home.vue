@@ -1,12 +1,17 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import PublicLayout from "@/Layouts/PublicLayout.vue";
-import { ref, onMounted } from "vue";
+import AddToCartModal from "@/Components/AddToCartModal.vue";
+import { ref, computed, onMounted } from "vue";
 
-defineProps({
+const props = defineProps({
     featuredStores: { type: Array, default: () => [] },
     featuredProducts: { type: Array, default: () => [] },
 });
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+const isCustomer = computed(() => user.value?.role === "customer");
 
 function getStoreImage(store) {
     return (
@@ -51,17 +56,26 @@ function getOriginalPrice(product) {
 }
 
 function addToCart(product) {
-    router.post(
-        "/cart",
-        {
-            product_id: product.id,
-            quantity: 1,
-        },
-        {
-            preserveScroll: true,
-        },
-    );
+    if (!isCustomer.value) {
+        router.visit("/login");
+        return;
+    }
+    // Simple products add directly, others open modal
+    if (product.type === "simple") {
+        router.post(
+            "/cart",
+            { product_id: product.id, quantity: 1 },
+            { preserveScroll: true },
+        );
+    } else {
+        selectedProduct.value = product;
+        showCartModal.value = true;
+    }
 }
+
+// Cart modal state
+const showCartModal = ref(false);
+const selectedProduct = ref(null);
 
 // Animate on mount
 const heroVisible = ref(false);
@@ -639,5 +653,14 @@ onMounted(() => {
                 </div>
             </div>
         </section>
+        <!-- Add to Cart Modal -->
+        <AddToCartModal
+            :show="showCartModal"
+            :product="selectedProduct"
+            @close="
+                showCartModal = false;
+                selectedProduct = null;
+            "
+        />
     </PublicLayout>
 </template>

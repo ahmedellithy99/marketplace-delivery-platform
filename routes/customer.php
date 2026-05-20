@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Cart routes
+Route::delete('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
+
 Route::resource('cart', CartController::class)
     ->only(['index', 'store', 'update', 'destroy'])
     ->names('customer.cart')
     ->parameter('cart', 'cartItem');
-
-Route::delete('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
 
 // Order routes
 Route::resource('orders', OrderController::class)

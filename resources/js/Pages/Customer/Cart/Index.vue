@@ -31,17 +31,35 @@ function getProductImage(item) {
 }
 
 function getUnitPrice(item) {
-    if (item.quantity === 0) return 0;
-    return item.price / item.quantity;
+    return item.unit_price || 0;
+}
+
+function getUnitLabel(product) {
+    const units = { kg: "كيلو", g: "جرام", liter: "لتر", piece: "قطعة" };
+    return units[product?.measurement_unit] || product?.measurement_unit || "";
 }
 
 function updateQuantity(cartItem, newQuantity) {
-    if (newQuantity < 1) return;
+    if (newQuantity < 0.001) return;
     router.patch(
         `/cart/${cartItem.id}`,
         { quantity: newQuantity },
         { preserveScroll: true },
     );
+}
+
+function getStep(item) {
+    if (item.product?.type === "measured" && item.product?.quantity_step) {
+        return Number(item.product.quantity_step);
+    }
+    return 1;
+}
+
+function getMinQty(item) {
+    if (item.product?.type === "measured" && item.product?.min_quantity) {
+        return Number(item.product.min_quantity);
+    }
+    return 1;
 }
 
 function removeItem(cartItem) {
@@ -158,6 +176,15 @@ const isEmpty = computed(() => props.cartItems.length === 0);
                                     >
                                         {{ item.variant.name }}
                                     </p>
+                                    <p
+                                        v-else-if="
+                                            item.product?.type === 'measured'
+                                        "
+                                        class="text-xs text-gray-500 mt-0.5"
+                                    >
+                                        {{ Number(item.quantity) }}
+                                        {{ getUnitLabel(item.product) }}
+                                    </p>
                                     <p class="text-sm text-gray-500 mt-1">
                                         سعر الوحدة:
                                         {{ formatPrice(getUnitPrice(item)) }}
@@ -187,18 +214,96 @@ const isEmpty = computed(() => props.cartItems.length === 0);
 
                             <!-- Quantity & Total -->
                             <div class="flex items-center justify-between mt-3">
-                                <!-- Quantity Controls -->
+                                <!-- Quantity Controls — Measured products use step -->
                                 <div
+                                    v-if="item.product?.type === 'measured'"
+                                    class="flex items-center gap-2"
+                                >
+                                    <button
+                                        @click="
+                                            updateQuantity(
+                                                item,
+                                                Math.round(
+                                                    (Number(item.quantity) -
+                                                        getStep(item)) *
+                                                        1000,
+                                                ) / 1000,
+                                            )
+                                        "
+                                        :disabled="
+                                            Number(item.quantity) <=
+                                            getMinQty(item)
+                                        "
+                                        class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M20 12H4"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <div class="text-center min-w-[60px]">
+                                        <span
+                                            class="text-sm font-bold text-gray-900"
+                                            >{{ Number(item.quantity) }}</span
+                                        >
+                                        <span
+                                            class="text-[10px] text-gray-400 ms-1"
+                                            >{{
+                                                getUnitLabel(item.product)
+                                            }}</span
+                                        >
+                                    </div>
+                                    <button
+                                        @click="
+                                            updateQuantity(
+                                                item,
+                                                Math.round(
+                                                    (Number(item.quantity) +
+                                                        getStep(item)) *
+                                                        1000,
+                                                ) / 1000,
+                                            )
+                                        "
+                                        class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M12 4v16m8-8H4"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Quantity Controls — Simple/Variant use integer +1/-1 -->
+                                <div
+                                    v-else
                                     class="flex items-center gap-2 border border-gray-200 rounded-lg"
                                 >
                                     <button
                                         @click="
                                             updateQuantity(
                                                 item,
-                                                item.quantity - 1,
+                                                Number(item.quantity) - 1,
                                             )
                                         "
-                                        :disabled="item.quantity <= 1"
+                                        :disabled="Number(item.quantity) <= 1"
                                         class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-s-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         aria-label="تقليل الكمية"
                                     >
@@ -219,13 +324,13 @@ const isEmpty = computed(() => props.cartItems.length === 0);
                                     <span
                                         class="w-8 text-center text-sm font-medium text-gray-900"
                                     >
-                                        {{ item.quantity }}
+                                        {{ Math.round(Number(item.quantity)) }}
                                     </span>
                                     <button
                                         @click="
                                             updateQuantity(
                                                 item,
-                                                item.quantity + 1,
+                                                Number(item.quantity) + 1,
                                             )
                                         "
                                         class="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-e-lg transition-colors"
@@ -251,7 +356,7 @@ const isEmpty = computed(() => props.cartItems.length === 0);
                                 <span
                                     class="font-bold text-primary-900 text-sm sm:text-base"
                                 >
-                                    {{ formatPrice(item.price) }}
+                                    {{ formatPrice(item.total_price) }}
                                 </span>
                             </div>
                         </div>
