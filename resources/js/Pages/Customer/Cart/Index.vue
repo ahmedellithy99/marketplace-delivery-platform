@@ -1,7 +1,8 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, useForm } from "@inertiajs/vue3";
 import PublicLayout from "@/Layouts/PublicLayout.vue";
-import { computed } from "vue";
+import LocationPicker from "@/Components/LocationPicker.vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     cart: {
@@ -71,6 +72,21 @@ function clearCart() {
 }
 
 const isEmpty = computed(() => props.cartItems.length === 0);
+
+// Map toggle
+const showMap = ref(false);
+
+// Order form
+const orderForm = useForm({
+    delivery_address: "",
+    latitude: "",
+    longitude: "",
+    notes: "",
+});
+
+function placeOrder() {
+    orderForm.post("/orders");
+}
 </script>
 
 <template>
@@ -400,7 +416,7 @@ const isEmpty = computed(() => props.cartItems.length === 0);
                         </div>
 
                         <div
-                            class="border-t border-gray-200 pt-4 mb-6 flex items-center justify-between"
+                            class="border-t border-gray-200 pt-4 mb-4 flex items-center justify-between"
                         >
                             <span class="font-bold text-gray-900"
                                 >الإجمالي</span
@@ -410,12 +426,122 @@ const isEmpty = computed(() => props.cartItems.length === 0);
                             }}</span>
                         </div>
 
-                        <Link
-                            href="/orders/create"
-                            class="block w-full text-center bg-secondary-500 hover:bg-secondary-600 text-white py-3 rounded-lg font-semibold transition-colors"
+                        <!-- Delivery Address -->
+                        <div class="mb-4">
+                            <label
+                                class="block text-sm font-semibold text-gray-700 mb-2"
+                                >عنوان التوصيل
+                                <span class="text-red-500">*</span></label
+                            >
+                            <input
+                                v-model="orderForm.delivery_address"
+                                type="text"
+                                placeholder="أدخل عنوان التوصيل"
+                                class="w-full py-2.5 px-4 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm transition-all"
+                                :class="{
+                                    'border-red-300':
+                                        orderForm.errors.delivery_address,
+                                }"
+                            />
+                            <p
+                                v-if="orderForm.errors.delivery_address"
+                                class="text-xs text-red-600 mt-1"
+                            >
+                                {{ orderForm.errors.delivery_address }}
+                            </p>
+                        </div>
+
+                        <!-- Location Map (optional — toggle) -->
+                        <div class="mb-4">
+                            <button
+                                v-if="!showMap"
+                                type="button"
+                                @click="showMap = true"
+                                class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:border-primary-500 hover:text-primary-900 hover:bg-primary-50/30 transition-all"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                </svg>
+                                إضافة موقع على الخريطة
+                            </button>
+                            <div v-else>
+                                <div
+                                    class="flex items-center justify-between mb-2"
+                                >
+                                    <label
+                                        class="text-sm font-semibold text-gray-700"
+                                        >الموقع على الخريطة</label
+                                    >
+                                    <button
+                                        type="button"
+                                        @click="
+                                            showMap = false;
+                                            orderForm.latitude = '';
+                                            orderForm.longitude = '';
+                                        "
+                                        class="text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
+                                    >
+                                        إزالة
+                                    </button>
+                                </div>
+                                <LocationPicker
+                                    :latitude="orderForm.latitude"
+                                    :longitude="orderForm.longitude"
+                                    @update:latitude="
+                                        orderForm.latitude = $event
+                                    "
+                                    @update:longitude="
+                                        orderForm.longitude = $event
+                                    "
+                                    height="180px"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <label
+                                class="block text-sm font-semibold text-gray-700 mb-2"
+                                >ملاحظات</label
+                            >
+                            <textarea
+                                v-model="orderForm.notes"
+                                rows="2"
+                                placeholder="ملاحظات إضافية (اختياري)"
+                                class="w-full py-2.5 px-4 border border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm resize-none transition-all"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            @click="placeOrder"
+                            :disabled="
+                                orderForm.processing ||
+                                !orderForm.delivery_address
+                            "
+                            class="block w-full text-center bg-secondary-500 hover:bg-secondary-600 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            إتمام الطلب
-                        </Link>
+                            {{
+                                orderForm.processing
+                                    ? "جاري إرسال الطلب..."
+                                    : "إتمام الطلب"
+                            }}
+                        </button>
                     </div>
                 </div>
             </div>

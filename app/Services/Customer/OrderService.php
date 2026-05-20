@@ -58,7 +58,7 @@ class OrderService
         );
 
         // Calculate subtotal from cart items
-        $subtotal = $cart->items->sum('price');
+        $subtotal = $cart->items->sum('total_price');
 
         // Total = subtotal + fee_max (estimated total)
         $total = $subtotal + $feeRange['max'];
@@ -91,9 +91,11 @@ class OrderService
                     'product_id' => $cartItem->product_id,
                     'variant_id' => $cartItem->variant_id,
                     'product_name' => $cartItem->product->name,
+                    'variant_name' => $cartItem->variant?->name,
                     'quantity' => $cartItem->quantity,
-                    'price' => $cartItem->price / $cartItem->quantity, // unit price
-                    'total' => $cartItem->price, // total for this line item
+                    'unit_price' => $cartItem->unit_price,
+                    'discount_amount' => 0,
+                    'total' => $cartItem->total_price,
                 ]);
             }
 
