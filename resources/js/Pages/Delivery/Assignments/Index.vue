@@ -158,7 +158,22 @@ const isEmpty = computed(() => deliveriesList.value.length === 0);
                                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                             />
                         </svg>
-                        <span>{{ delivery.order.delivery_address }}</span>
+                        <div>
+                            <span>{{ delivery.order.delivery_address }}</span>
+                            <a
+                                v-if="
+                                    delivery.order.latitude &&
+                                    delivery.order.longitude
+                                "
+                                :href="`https://www.google.com/maps?q=${delivery.order.latitude},${delivery.order.longitude}`"
+                                target="_blank"
+                                rel="noopener"
+                                class="block text-xs text-primary-700 hover:text-primary-900 font-medium mt-1"
+                                @click.stop
+                            >
+                                فتح على الخريطة ↗
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Store addresses -->
