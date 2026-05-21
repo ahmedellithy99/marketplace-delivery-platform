@@ -24,10 +24,30 @@ class StoreController extends Controller
         ]);
     }
 
-    public function show(Store $store): Response
+    public function show(Store $store, Request $request): Response
     {
+        $store->load(['storeType', 'media']);
+
+        // Get categories for this store's products
+        $categories = \App\Models\Category::whereHas('products', function ($q) use ($store) {
+            $q->where('store_id', $store->id)->where('is_available', true);
+        })->orderBy('name')->get(['id', 'name']);
+
+        // Get filtered products
+        $products = $store->products()
+            ->where('is_available', true)
+            ->with(['category', 'media', 'variants', 'discounts'])
+            ->when($request->get('category'), fn ($q, $cat) => $q->where('category_id', $cat))
+            ->when($request->get('search'), fn ($q, $s) => $q->where('name', 'LIKE', "%{$s}%"))
+            ->latest()
+            ->paginate(20)
+            ->appends($request->query());
+
         return Inertia::render('Stores/Show', [
-            'store' => $this->storeService->getStoreDetails($store),
+            'store' => $store,
+            'products' => $products,
+            'categories' => $categories,
+            'filters' => $request->only(['search', 'category']),
         ]);
     }
 }
