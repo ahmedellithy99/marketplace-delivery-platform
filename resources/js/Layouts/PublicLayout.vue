@@ -102,6 +102,20 @@ function handleNotifClick(notification) {
                         >
                             المتاجر
                         </Link>
+                        <Link
+                            v-if="user?.role === 'admin'"
+                            href="/admin/dashboard"
+                            class="text-secondary-400 hover:text-secondary-300 transition-colors text-sm font-medium"
+                        >
+                            لوحة التحكم
+                        </Link>
+                        <Link
+                            v-if="user?.role === 'delivery'"
+                            href="/delivery/assignments"
+                            class="text-secondary-400 hover:text-secondary-300 transition-colors text-sm font-medium"
+                        >
+                            التوصيلات
+                        </Link>
                     </nav>
 
                     <!-- Right Section -->
@@ -246,10 +260,34 @@ function handleNotifClick(notification) {
                                     class="absolute inset-e-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50"
                                 >
                                     <Link
+                                        v-if="user.role === 'admin'"
+                                        href="/admin/dashboard"
+                                        class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        لوحة التحكم
+                                    </Link>
+                                    <Link
+                                        v-if="user.role === 'delivery'"
+                                        href="/delivery/assignments"
+                                        class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        التوصيلات
+                                    </Link>
+                                    <Link
+                                        v-if="user.role === 'customer'"
+                                        href="/orders"
+                                        class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        طلباتي
+                                    </Link>
+                                    <div
+                                        class="border-t border-gray-100 my-1"
+                                    ></div>
+                                    <Link
                                         href="/logout"
                                         method="post"
                                         as="button"
-                                        class="block w-full text-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        class="block w-full text-start px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                                     >
                                         تسجيل الخروج
                                     </Link>

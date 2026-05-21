@@ -5,6 +5,8 @@ import { computed, ref } from "vue";
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const notificationsCount = computed(() => page.props.notificationsCount || 0);
+const notifications = computed(() => page.props.notifications || []);
+const notifOpen = ref(false);
 
 defineProps({
     title: {
@@ -15,6 +17,33 @@ defineProps({
 
 function logout() {
     router.post("/logout");
+}
+
+function timeAgo(date) {
+    const now = new Date();
+    const diff = Math.floor((now - new Date(date)) / 1000);
+    if (diff < 60) return "الآن";
+    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} د`;
+    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} س`;
+    return `منذ ${Math.floor(diff / 86400)} ي`;
+}
+
+function handleNotifClick(notification) {
+    if (!notification.is_read) {
+        router.patch(
+            `/notifications/${notification.id}/read`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    if (notification.link) router.visit(notification.link);
+                },
+            },
+        );
+    } else if (notification.link) {
+        router.visit(notification.link);
+    }
+    notifOpen.value = false;
 }
 </script>
 
@@ -27,58 +56,156 @@ function logout() {
             >
                 <!-- Logo & Title -->
                 <div class="flex items-center gap-3">
-                    <div
-                        class="w-9 h-9 bg-secondary-500 rounded-lg flex items-center justify-center"
-                    >
-                        <svg
-                            class="w-5 h-5 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    <Link href="/" class="flex items-center gap-2">
+                        <div
+                            class="w-9 h-9 bg-secondary-500 rounded-lg flex items-center justify-center"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                            />
-                        </svg>
-                    </div>
-                    <span class="text-lg font-bold">{{ title }}</span>
+                            <svg
+                                class="w-5 h-5 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                                />
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold hidden sm:block"
+                            >ماركت بليس</span
+                        >
+                    </Link>
+
+                    <!-- Nav Links -->
+                    <nav class="hidden sm:flex items-center gap-4 ms-6">
+                        <Link
+                            href="/delivery/assignments"
+                            class="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                        >
+                            التوصيلات
+                        </Link>
+                        <Link
+                            href="/"
+                            class="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                        >
+                            الرئيسية
+                        </Link>
+                    </nav>
                 </div>
 
                 <!-- Right Section -->
                 <div class="flex items-center gap-3">
-                    <!-- Notifications -->
-                    <Link
-                        href="/notifications"
-                        class="relative p-2 text-white/80 hover:text-white transition-colors"
-                        aria-label="الإشعارات"
-                    >
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    <!-- Notifications Dropdown -->
+                    <div class="relative">
+                        <button
+                            @click="notifOpen = !notifOpen"
+                            class="relative p-2 text-white/80 hover:text-white transition-colors"
+                            aria-label="الإشعارات"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                            />
-                        </svg>
-                        <span
-                            v-if="notificationsCount > 0"
-                            class="absolute -top-0.5 -inset-e-0.5 bg-secondary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                />
+                            </svg>
+                            <span
+                                v-if="notificationsCount > 0"
+                                class="absolute -top-0.5 -inset-e-0.5 bg-secondary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                            >
+                                {{
+                                    notificationsCount > 9
+                                        ? "9+"
+                                        : notificationsCount
+                                }}
+                            </span>
+                        </button>
+                        <!-- Dropdown -->
+                        <div
+                            v-if="notifOpen"
+                            class="absolute inset-e-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden"
                         >
-                            {{
-                                notificationsCount > 9
-                                    ? "9+"
-                                    : notificationsCount
-                            }}
-                        </span>
-                    </Link>
+                            <div
+                                class="flex items-center justify-between px-4 py-3 border-b border-gray-100"
+                            >
+                                <h3 class="text-sm font-bold text-gray-900">
+                                    الإشعارات
+                                </h3>
+                                <Link
+                                    href="/notifications"
+                                    @click="notifOpen = false"
+                                    class="text-xs text-primary-600 hover:text-primary-800 font-medium"
+                                    >عرض الكل</Link
+                                >
+                            </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                <div
+                                    v-for="notif in notifications"
+                                    :key="notif.id"
+                                    @click="handleNotifClick(notif)"
+                                    class="px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors"
+                                    :class="{
+                                        'bg-primary-50/40': !notif.is_read,
+                                    }"
+                                >
+                                    <div class="flex items-start gap-2">
+                                        <span
+                                            v-if="!notif.is_read"
+                                            class="w-2 h-2 bg-primary-500 rounded-full mt-1.5 shrink-0"
+                                        ></span>
+                                        <span
+                                            v-else
+                                            class="w-2 h-2 shrink-0"
+                                        ></span>
+                                        <div class="flex-1 min-w-0">
+                                            <p
+                                                class="text-sm text-gray-900 line-clamp-1"
+                                                :class="{
+                                                    'font-semibold':
+                                                        !notif.is_read,
+                                                }"
+                                            >
+                                                {{ notif.title }}
+                                            </p>
+                                            <p
+                                                v-if="notif.body"
+                                                class="text-xs text-gray-500 mt-0.5 line-clamp-1"
+                                            >
+                                                {{ notif.body }}
+                                            </p>
+                                            <p
+                                                class="text-[10px] text-gray-400 mt-1"
+                                            >
+                                                {{ timeAgo(notif.created_at) }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    v-if="notifications.length === 0"
+                                    class="px-4 py-8 text-center"
+                                >
+                                    <p class="text-sm text-gray-400">
+                                        لا توجد إشعارات
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            v-if="notifOpen"
+                            @click="notifOpen = false"
+                            class="fixed inset-0 z-40"
+                        ></div>
+                    </div>
 
                     <!-- User Name -->
                     <span
