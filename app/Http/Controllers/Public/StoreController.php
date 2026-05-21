@@ -20,6 +20,7 @@ class StoreController extends Controller
         return Inertia::render('Stores/Index', [
             'stores' => $this->storeService->getStores($request),
             'filters' => $request->only(['search', 'type', 'sort']),
+            'storeTypes' => \App\Models\StoreType::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
