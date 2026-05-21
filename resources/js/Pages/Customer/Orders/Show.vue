@@ -375,12 +375,22 @@ const deliveryMan = computed(() => {
                                     <span class="text-gray-900 font-medium">{{
                                         item.product_name
                                     }}</span>
+                                    <span
+                                        v-if="item.variant_name"
+                                        class="block text-xs text-gray-500"
+                                        >{{ item.variant_name }}</span
+                                    >
+                                    <span
+                                        v-if="item.store"
+                                        class="block text-[11px] text-gray-400"
+                                        >من: {{ item.store.name }}</span
+                                    >
                                 </td>
                                 <td class="py-3 text-center text-gray-600">
                                     {{ item.quantity }}
                                 </td>
                                 <td class="py-3 text-gray-600">
-                                    {{ formatPrice(item.price) }}
+                                    {{ formatPrice(item.unit_price) }}
                                 </td>
                                 <td class="py-3 font-medium text-gray-900">
                                     {{ formatPrice(item.total) }}

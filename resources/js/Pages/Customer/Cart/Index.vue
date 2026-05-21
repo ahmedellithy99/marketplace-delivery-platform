@@ -187,6 +187,12 @@ function placeOrder() {
                                         {{ item.product?.name }}
                                     </h3>
                                     <p
+                                        v-if="item.product?.store"
+                                        class="text-[11px] text-gray-400 mt-0.5"
+                                    >
+                                        من: {{ item.product.store.name }}
+                                    </p>
+                                    <p
                                         v-if="item.variant"
                                         class="text-xs text-gray-500 mt-0.5"
                                     >

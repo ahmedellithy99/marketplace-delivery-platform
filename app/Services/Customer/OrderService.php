@@ -7,7 +7,6 @@ use App\Exceptions\ProductUnavailableException;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Customer\CartService;
-use App\Services\DeliveryFeeService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +17,6 @@ class OrderService
 {
     public function __construct(
         private CartService $cartService,
-        private DeliveryFeeService $deliveryFeeService,
     ) {}
 
     /**
@@ -51,35 +49,29 @@ class OrderService
             throw new ProductUnavailableException($unavailableProducts);
         }
 
-        // Calculate delivery fee range
-        $feeRange = $this->deliveryFeeService->calculateFeeRange(
-            (float) $data['latitude'],
-            (float) $data['longitude']
-        );
-
         // Calculate subtotal from cart items
         $subtotal = $cart->items->sum('total_price');
 
-        // Total = subtotal + fee_max (estimated total)
-        $total = $subtotal + $feeRange['max'];
+        // Total = subtotal (delivery fee set by admin when accepting)
+        $total = $subtotal;
 
         // Generate unique order number
         $orderNumber = $this->generateOrderNumber();
 
         // Wrap in transaction
-        $order = DB::transaction(function () use ($user, $data, $cart, $feeRange, $subtotal, $total, $orderNumber) {
+        $order = DB::transaction(function () use ($user, $data, $cart, $subtotal, $total, $orderNumber) {
             // Create the order
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => $orderNumber,
                 'status' => 'pending',
                 'delivery_address' => $data['delivery_address'],
-                'latitude' => $data['latitude'],
-                'longitude' => $data['longitude'],
+                'latitude' => $data['latitude'] ?? null,
+                'longitude' => $data['longitude'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'subtotal' => $subtotal,
-                'delivery_fee_min' => $feeRange['min'],
-                'delivery_fee_max' => $feeRange['max'],
+                'delivery_fee_min' => 0,
+                'delivery_fee_max' => 0,
                 'delivery_fee' => null,
                 'total' => $total,
             ]);

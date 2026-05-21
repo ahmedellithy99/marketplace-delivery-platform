@@ -31,7 +31,7 @@ class CartService
     {
         $cart = $this->getOrCreateCart($user);
 
-        return $cart->load(['items.product.media', 'items.product.variants', 'items.variant']);
+        return $cart->load(['items.product.media', 'items.product.store', 'items.product.variants', 'items.variant']);
     }
 
     /**
