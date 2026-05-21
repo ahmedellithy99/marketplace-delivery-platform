@@ -24,6 +24,7 @@ class NotifyCustomerOrderStatusChanged
             type: 'order_' . $event->newStatus,
             title: 'Order Status Updated',
             body: "Your order #{$order->order_number} has been updated to {$event->newStatus}.",
+            link: "/orders/{$order->id}",
         );
     }
 }

@@ -25,6 +25,7 @@ class NotifyDeliveryManAssigned
             type: 'delivery_assigned',
             title: 'New Delivery Assigned',
             body: "You have been assigned to deliver order #{$order->order_number}.",
+            link: "/delivery/assignments/{$delivery->id}",
         );
     }
 }

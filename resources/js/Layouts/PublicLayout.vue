@@ -30,9 +30,25 @@ function markAsRead(notification) {
     router.patch(
         `/notifications/${notification.id}/read`,
         {},
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (notification.link) {
+                    router.visit(notification.link);
+                }
+            },
+        },
     );
     notifOpen.value = false;
+}
+
+function handleNotifClick(notification) {
+    if (!notification.is_read) {
+        markAsRead(notification);
+    } else if (notification.link) {
+        router.visit(notification.link);
+        notifOpen.value = false;
+    }
 }
 </script>
 
@@ -145,7 +161,7 @@ function markAsRead(notification) {
                                         <div
                                             v-for="notif in notifications"
                                             :key="notif.id"
-                                            @click="markAsRead(notif)"
+                                            @click="handleNotifClick(notif)"
                                             class="px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors"
                                             :class="{
                                                 'bg-primary-50/40':

@@ -11,13 +11,14 @@ class NotificationService
     /**
      * Create a notification for a user.
      */
-    public function createNotification(User $user, string $type, string $title, string $body): Notification
+    public function createNotification(User $user, string $type, string $title, string $body, ?string $link = null): Notification
     {
         return Notification::create([
             'user_id' => $user->id,
             'type' => $type,
             'title' => $title,
             'body' => $body,
+            'link' => $link,
             'is_read' => false,
         ]);
     }

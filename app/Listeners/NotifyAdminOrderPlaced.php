@@ -27,6 +27,7 @@ class NotifyAdminOrderPlaced
                 type: 'new_order',
                 title: 'New Order Received',
                 body: "A new order #{$order->order_number} has been placed.",
+                link: "/admin/orders/{$order->id}",
             );
         }
     }

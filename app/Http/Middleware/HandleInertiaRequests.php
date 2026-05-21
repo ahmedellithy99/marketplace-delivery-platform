@@ -54,7 +54,7 @@ class HandleInertiaRequests extends Middleware
             $notifications = \App\Models\Notification::where('user_id', $user->id)
                 ->latest()
                 ->take(10)
-                ->get(['id', 'title', 'body', 'is_read', 'created_at'])
+                ->get(['id', 'title', 'body', 'link', 'is_read', 'created_at'])
                 ->toArray();
         }
 

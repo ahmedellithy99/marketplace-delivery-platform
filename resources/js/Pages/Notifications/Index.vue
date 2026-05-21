@@ -4,11 +4,12 @@ import PublicLayout from "@/Layouts/PublicLayout.vue";
 import { computed } from "vue";
 
 const props = defineProps({
-    notifications: { type: Array, default: () => [] },
+    notifications: { type: Object, default: () => ({ data: [] }) },
 });
 
+const notificationsList = computed(() => props.notifications?.data || []);
 const unreadCount = computed(
-    () => props.notifications.filter((n) => !n.is_read).length,
+    () => notificationsList.value.filter((n) => !n.is_read).length,
 );
 
 function markAsRead(notification) {
@@ -16,8 +17,21 @@ function markAsRead(notification) {
     router.patch(
         `/notifications/${notification.id}/read`,
         {},
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                if (notification.link) router.visit(notification.link);
+            },
+        },
     );
+}
+
+function handleClick(notification) {
+    if (!notification.is_read) {
+        markAsRead(notification);
+    } else if (notification.link) {
+        router.visit(notification.link);
+    }
 }
 
 function timeAgo(date) {
@@ -48,11 +62,11 @@ function timeAgo(date) {
             </div>
 
             <!-- Notifications List -->
-            <div v-if="notifications.length > 0" class="space-y-3">
+            <div v-if="notificationsList.length > 0" class="space-y-3">
                 <div
-                    v-for="notification in notifications"
+                    v-for="notification in notificationsList"
                     :key="notification.id"
-                    @click="markAsRead(notification)"
+                    @click="handleClick(notification)"
                     class="bg-white rounded-xl border p-4 transition-all cursor-pointer hover:shadow-sm"
                     :class="
                         notification.is_read
