@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import PublicLayout from "@/Layouts/PublicLayout.vue";
 import { computed } from "vue";
 
@@ -8,7 +8,17 @@ const props = defineProps({
         type: Object,
         default: () => ({ data: [], links: [], meta: {} }),
     },
+    showAll: {
+        type: Boolean,
+        default: false,
+    },
 });
+
+function toggleShowAll() {
+    router.get("/orders", props.showAll ? {} : { show_all: 1 }, {
+        preserveState: true,
+    });
+}
 
 function formatPrice(price) {
     if (!price && price !== 0) return "";
@@ -60,7 +70,20 @@ const isEmpty = computed(() => ordersList.value.length === 0);
     <PublicLayout>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Page Header -->
-            <h1 class="text-2xl font-bold text-primary-900 mb-8">طلباتي</h1>
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-2xl font-bold text-primary-900">طلباتي</h1>
+                <button
+                    @click="toggleShowAll"
+                    class="text-sm font-medium px-4 py-2 rounded-lg border transition-all"
+                    :class="
+                        showAll
+                            ? 'bg-primary-900 text-white border-primary-900'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    "
+                >
+                    {{ showAll ? "إخفاء المكتملة" : "عرض الكل" }}
+                </button>
+            </div>
 
             <!-- Empty State -->
             <div

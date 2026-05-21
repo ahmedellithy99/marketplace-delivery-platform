@@ -112,11 +112,19 @@ class OrderService
 
     /**
      * Get paginated order history for a user.
+     * By default excludes delivered orders unless show_all is passed.
      */
     public function getOrders(User $user, Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Order::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
+        $query = Order::where('user_id', $user->id)
+            ->withCount('items');
+
+        // Exclude delivered unless show_all is requested
+        if (!$request->boolean('show_all')) {
+            $query->where('status', '!=', 'delivered');
+        }
+
+        return $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends($request->query());
     }

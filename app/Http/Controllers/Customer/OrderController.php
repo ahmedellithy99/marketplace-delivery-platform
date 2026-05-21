@@ -26,6 +26,7 @@ class OrderController extends Controller
 
         return Inertia::render('Customer/Orders/Index', [
             'orders' => $orders,
+            'showAll' => $request->boolean('show_all'),
         ]);
     }
 

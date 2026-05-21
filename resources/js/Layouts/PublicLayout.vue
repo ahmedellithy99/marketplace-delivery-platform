@@ -103,6 +103,13 @@ function handleNotifClick(notification) {
                             المتاجر
                         </Link>
                         <Link
+                            v-if="user?.role === 'customer'"
+                            href="/orders"
+                            class="text-white/90 hover:text-white transition-colors text-sm font-medium"
+                        >
+                            طلباتي
+                        </Link>
+                        <Link
                             v-if="user?.role === 'admin'"
                             href="/admin/dashboard"
                             class="text-secondary-400 hover:text-secondary-300 transition-colors text-sm font-medium"
