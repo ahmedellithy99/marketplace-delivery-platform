@@ -138,6 +138,9 @@ watch(
             <div
                 v-if="show && product"
                 class="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+                role="dialog"
+                aria-modal="true"
+                :aria-label="'إضافة ' + (product?.name || '') + ' للسلة'"
             >
                 <!-- Backdrop -->
                 <div

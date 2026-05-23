@@ -30,7 +30,6 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     'vendor-vue': ['vue', '@inertiajs/vue3'],
-                    'vendor-leaflet': ['leaflet'],
                 },
             },
         },

@@ -1,7 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, nextTick } from "vue";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { ref, onMounted, watch, nextTick, shallowRef } from "vue";
 
 const props = defineProps({
     latitude: { type: [String, Number], default: "" },
@@ -14,23 +12,16 @@ const emit = defineEmits(["update:latitude", "update:longitude"]);
 const mapContainer = ref(null);
 const locating = ref(false);
 const locationError = ref("");
+const mapReady = ref(false);
 
 let map = null;
 let marker = null;
+let L = null;
 
 // Default center: Cairo, Egypt
 const defaultLat = 30.0444;
 const defaultLng = 31.2357;
 const defaultZoom = 13;
-
-// Fix Leaflet default marker icon path issue with bundlers
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl:
-        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
 
 function getInitialCenter() {
     const lat = parseFloat(props.latitude);
@@ -49,6 +40,7 @@ function updateCoordinates(lat, lng) {
 }
 
 function placeMarker(lat, lng) {
+    if (!L || !map) return;
     if (marker) {
         marker.setLatLng([lat, lng]);
     } else {
@@ -60,8 +52,23 @@ function placeMarker(lat, lng) {
     }
 }
 
-function initMap() {
+async function initMap() {
     if (!mapContainer.value) return;
+
+    // Dynamic import — Leaflet only loads when this component mounts
+    const leaflet = await import("leaflet");
+    await import("leaflet/dist/leaflet.css");
+    L = leaflet.default || leaflet;
+
+    // Fix Leaflet default marker icon path issue with bundlers
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl:
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    });
 
     const center = getInitialCenter();
 
@@ -85,6 +92,8 @@ function initMap() {
         placeMarker(e.latlng.lat, e.latlng.lng);
         updateCoordinates(e.latlng.lat, e.latlng.lng);
     });
+
+    mapReady.value = true;
 }
 
 function useMyLocation() {
@@ -102,7 +111,7 @@ function useMyLocation() {
             const lng = position.coords.longitude;
             placeMarker(lat, lng);
             updateCoordinates(lat, lng);
-            map.setView([lat, lng], 16);
+            if (map) map.setView([lat, lng], 16);
             locating.value = false;
         },
         (error) => {

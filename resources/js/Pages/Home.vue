@@ -447,6 +447,7 @@ onMounted(() => {
                                     :src="getProductImage(product)"
                                     :alt="product.name"
                                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    loading="lazy"
                                 />
                                 <div
                                     v-else
