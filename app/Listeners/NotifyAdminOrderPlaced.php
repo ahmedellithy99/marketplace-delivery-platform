@@ -5,8 +5,9 @@ namespace App\Listeners;
 use App\Events\OrderPlaced;
 use App\Models\User;
 use App\Services\NotificationService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NotifyAdminOrderPlaced
+class NotifyAdminOrderPlaced implements ShouldQueue
 {
     public function __construct(
         private readonly NotificationService $notificationService,

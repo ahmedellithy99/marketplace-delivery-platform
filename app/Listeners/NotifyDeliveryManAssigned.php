@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\DeliveryAssigned;
 use App\Services\NotificationService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NotifyDeliveryManAssigned
+class NotifyDeliveryManAssigned implements ShouldQueue
 {
     public function __construct(
         private readonly NotificationService $notificationService,

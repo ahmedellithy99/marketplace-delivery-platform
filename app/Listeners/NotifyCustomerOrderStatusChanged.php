@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\OrderStatusChanged;
 use App\Services\NotificationService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NotifyCustomerOrderStatusChanged
+class NotifyCustomerOrderStatusChanged implements ShouldQueue
 {
     public function __construct(
         private readonly NotificationService $notificationService,
