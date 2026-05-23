@@ -12,6 +12,10 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    deliveryMenEarnings: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const month = ref(props.currentMonth || new Date().toISOString().slice(0, 7));
@@ -78,6 +82,83 @@ function getStatus(delivery) {
                     @change="changeMonth"
                     class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                 />
+            </div>
+        </div>
+
+        <!-- Delivery Men Earnings -->
+        <div
+            v-if="deliveryMenEarnings.length > 0"
+            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6"
+        >
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-bold text-gray-900">
+                    أرباح المناديب — هذا الشهر
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50/80">
+                        <tr>
+                            <th
+                                class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            >
+                                المندوب
+                            </th>
+                            <th
+                                class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            >
+                                الهاتف
+                            </th>
+                            <th
+                                class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            >
+                                عدد التوصيلات
+                            </th>
+                            <th
+                                class="px-5 py-3 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            >
+                                إجمالي الأرباح
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="dm in deliveryMenEarnings"
+                            :key="dm.id"
+                            class="border-t border-gray-100 hover:bg-gray-50/50"
+                        >
+                            <td class="px-5 py-3 font-medium text-gray-900">
+                                {{ dm.name }}
+                            </td>
+                            <td
+                                class="px-5 py-3 text-gray-600 tabular-nums"
+                                dir="ltr"
+                            >
+                                {{ dm.phone || "—" }}
+                            </td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700"
+                                >
+                                    {{ dm.deliveries_count }} توصيل
+                                </span>
+                            </td>
+                            <td
+                                class="px-5 py-3 font-bold text-green-700 tabular-nums"
+                            >
+                                {{ dm.total_fees.toFixed(2) }} جنيه
+                            </td>
+                        </tr>
+                        <tr v-if="deliveryMenEarnings.length === 0">
+                            <td
+                                colspan="4"
+                                class="px-5 py-8 text-center text-gray-400"
+                            >
+                                لا توجد بيانات
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
