@@ -59,6 +59,9 @@ class CartController extends Controller
 
     public function update(CartItemUpdateRequest $request, CartItem $cartItem): RedirectResponse
     {
+        // Verify ownership
+        abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
+
         $this->cartService->updateCartItem(
             $cartItem,
             $request->validated('quantity')
@@ -68,8 +71,11 @@ class CartController extends Controller
             ->with('success', 'Cart item updated.');
     }
 
-    public function destroy(CartItem $cartItem): RedirectResponse
+    public function destroy(Request $request, CartItem $cartItem): RedirectResponse
     {
+        // Verify ownership
+        abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
+
         $this->cartService->removeCartItem($cartItem);
 
         return redirect()->back()

@@ -41,8 +41,11 @@ class OrderController extends Controller
             ->with('success', 'Order placed successfully.');
     }
 
-    public function show(Order $order): Response
+    public function show(Request $request, Order $order): Response
     {
+        // Verify ownership
+        abort_unless($order->user_id === $request->user()->id, 403);
+
         $order = $this->orderService->getOrder($order);
 
         return Inertia::render('Customer/Orders/Show', [
