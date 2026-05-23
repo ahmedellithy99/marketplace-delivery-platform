@@ -28,8 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
-    // Customer routes
-    Route::middleware('role:customer')
+    // Customer routes (rate limited)
+    Route::middleware(['role:customer', 'throttle:60,1'])
         ->group(base_path('routes/customer.php'));
 
     // Admin routes
