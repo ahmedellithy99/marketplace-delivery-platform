@@ -79,4 +79,22 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)
             ->with('success', 'Delivery man assigned successfully.');
     }
+
+    /**
+     * Delete an order and its associated delivery.
+     */
+    public function destroy(Order $order): RedirectResponse
+    {
+        // Delete associated delivery if exists
+        $order->delivery()->delete();
+
+        // Delete order items
+        $order->items()->delete();
+
+        // Delete the order
+        $order->delete();
+
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'تم حذف الطلب بنجاح.');
+    }
 }

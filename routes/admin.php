@@ -55,6 +55,7 @@ Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.ord
 Route::post('/orders/{order}/accept', [OrderController::class, 'accept'])->name('admin.orders.accept');
 Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('admin.orders.cancel');
 Route::post('/orders/{order}/assign-delivery', [OrderController::class, 'assignDelivery'])->name('admin.orders.assign-delivery');
+Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('admin.orders.destroy');
 
 Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
 Route::get('/deliveries/men/{user}', [DeliveryController::class, 'show'])->name('admin.deliveries.show');
