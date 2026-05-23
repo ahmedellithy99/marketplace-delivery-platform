@@ -48,7 +48,7 @@ function handleNotifClick(notification) {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50" dir="rtl">
+    <div class="min-h-screen bg-gray-50">
         <!-- Top Bar -->
         <header class="bg-primary-900 text-white sticky top-0 z-30 shadow-md">
             <div

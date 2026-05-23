@@ -69,7 +69,7 @@ function handleNotifClick(notif) {
 </script>
 
 <template>
-    <div class="min-h-screen lg:flex bg-gray-50" dir="rtl">
+    <div class="min-h-screen lg:flex bg-gray-50">
         <!-- Mobile Backdrop -->
         <Transition
             enter-active-class="transition-opacity duration-300"
