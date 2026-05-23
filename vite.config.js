@@ -25,6 +25,16 @@ export default defineConfig({
             '@': path.resolve(__dirname, 'resources/js'),
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-vue': ['vue', '@inertiajs/vue3'],
+                    'vendor-leaflet': ['leaflet'],
+                },
+            },
+        },
+    },
     server: {
         host: '127.0.0.1',
         watch: {

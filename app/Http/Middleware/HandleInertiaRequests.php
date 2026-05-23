@@ -40,6 +40,7 @@ class HandleInertiaRequests extends Middleware
 
         $cartData = ['itemCount' => 0, 'subtotal' => 0];
         $notifications = [];
+
         if ($user && $user->role === 'customer') {
             $cart = \App\Models\Cart::where('user_id', $user->id)->with('items')->first();
             if ($cart) {
