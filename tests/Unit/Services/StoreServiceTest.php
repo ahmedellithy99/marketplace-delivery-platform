@@ -214,3 +214,4 @@ class StoreServiceTest extends TestCase
         $this->assertNotNull($store->id);
     }
 }
+

@@ -209,3 +209,4 @@ class OrderStatusTest extends TestCase
         $this->service->cancelOrder($order);
     }
 }
+

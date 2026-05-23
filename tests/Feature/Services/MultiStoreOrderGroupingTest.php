@@ -45,7 +45,7 @@ class MultiStoreOrderGroupingTest extends TestCase
             'store_id' => $store1->id,
             'product_name' => 'Product A',
             'quantity' => 2,
-            'price' => 10.00,
+            'unit_price' => 10.00,
             'total' => 20.00,
         ]);
         OrderItem::factory()->create([
@@ -53,7 +53,7 @@ class MultiStoreOrderGroupingTest extends TestCase
             'store_id' => $store1->id,
             'product_name' => 'Product B',
             'quantity' => 1,
-            'price' => 15.00,
+            'unit_price' => 15.00,
             'total' => 15.00,
         ]);
         OrderItem::factory()->create([
@@ -61,7 +61,7 @@ class MultiStoreOrderGroupingTest extends TestCase
             'store_id' => $store2->id,
             'product_name' => 'Product C',
             'quantity' => 3,
-            'price' => 5.00,
+            'unit_price' => 5.00,
             'total' => 15.00,
         ]);
 
@@ -203,14 +203,14 @@ class MultiStoreOrderGroupingTest extends TestCase
         $store2 = Store::factory()->create();
         $store3 = Store::factory()->create();
 
-        $product1 = Product::factory()->create(['store_id' => $store1->id, 'price' => 10.00, 'is_available' => true]);
-        $product2 = Product::factory()->create(['store_id' => $store2->id, 'price' => 20.00, 'is_available' => true]);
-        $product3 = Product::factory()->create(['store_id' => $store3->id, 'price' => 30.00, 'is_available' => true]);
+        $product1 = Product::factory()->create(['store_id' => $store1->id, 'base_price' => 10.00, 'is_available' => true]);
+        $product2 = Product::factory()->create(['store_id' => $store2->id, 'base_price' => 20.00, 'is_available' => true]);
+        $product3 = Product::factory()->create(['store_id' => $store3->id, 'base_price' => 30.00, 'is_available' => true]);
 
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'price' => 10.00]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'price' => 20.00]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product3->id, 'quantity' => 1, 'price' => 30.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'unit_price' => 10.00, 'total_price' => 10.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'unit_price' => 20.00, 'total_price' => 20.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product3->id, 'quantity' => 1, 'unit_price' => 30.00, 'total_price' => 30.00]);
 
         $order = $this->orderService->placeOrder($this->customer, [
             'delivery_address' => '789 Customer St',
@@ -218,11 +218,11 @@ class MultiStoreOrderGroupingTest extends TestCase
             'longitude' => 36.30,
         ]);
 
-        // Verify single delivery fee range (not per-store)
+        // Delivery fee is set by admin when accepting, initially 0
         $this->assertNotNull($order->delivery_fee_min);
         $this->assertNotNull($order->delivery_fee_max);
-        // Total should be subtotal + single fee_max, not fee_max * store_count
-        $expectedTotal = (float) $order->subtotal + (float) $order->delivery_fee_max;
+        // Total = subtotal (delivery fee set later)
+        $expectedTotal = (float) $order->subtotal;
         $this->assertEquals($expectedTotal, (float) $order->total);
 
         // Verify items from all 3 stores are in the order
@@ -235,12 +235,12 @@ class MultiStoreOrderGroupingTest extends TestCase
         $store1 = Store::factory()->create();
         $store2 = Store::factory()->create();
 
-        $product1 = Product::factory()->create(['store_id' => $store1->id, 'price' => 15.00, 'is_available' => true]);
-        $product2 = Product::factory()->create(['store_id' => $store2->id, 'price' => 25.00, 'is_available' => true]);
+        $product1 = Product::factory()->create(['store_id' => $store1->id, 'base_price' => 15.00, 'is_available' => true]);
+        $product2 = Product::factory()->create(['store_id' => $store2->id, 'base_price' => 25.00, 'is_available' => true]);
 
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'price' => 15.00]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'price' => 25.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'unit_price' => 15.00, 'total_price' => 15.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'unit_price' => 25.00, 'total_price' => 25.00]);
 
         $order = $this->orderService->placeOrder($this->customer, [
             'delivery_address' => '789 Customer St',
@@ -256,3 +256,4 @@ class MultiStoreOrderGroupingTest extends TestCase
         $this->assertTrue($order->items->every(fn ($item) => $item->order_id === $order->id));
     }
 }
+

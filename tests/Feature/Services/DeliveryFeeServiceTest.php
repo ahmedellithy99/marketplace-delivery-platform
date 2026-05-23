@@ -57,3 +57,4 @@ class DeliveryFeeServiceTest extends TestCase
         $this->assertLessThanOrEqual(2000, $result['max']);
     }
 }
+

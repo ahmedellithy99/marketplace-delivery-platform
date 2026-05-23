@@ -113,72 +113,72 @@ class ProductFilterTest extends TestCase
 
     public function test_price_min_filter(): void
     {
-        Product::factory()->create(['price' => 5.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 15.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 25.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 5.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 15.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 25.00, 'is_available' => true]);
 
         $filter = $this->createFilter(['price_min' => 10]);
         $results = Product::filter($filter)->get();
 
         $this->assertCount(2, $results);
-        $this->assertTrue($results->every(fn ($p) => (float) $p->price >= 10));
+        $this->assertTrue($results->every(fn ($p) => (float) $p->base_price >= 10));
     }
 
     public function test_price_max_filter(): void
     {
-        Product::factory()->create(['price' => 5.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 15.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 25.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 5.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 15.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 25.00, 'is_available' => true]);
 
         $filter = $this->createFilter(['price_max' => 20]);
         $results = Product::filter($filter)->get();
 
         $this->assertCount(2, $results);
-        $this->assertTrue($results->every(fn ($p) => (float) $p->price <= 20));
+        $this->assertTrue($results->every(fn ($p) => (float) $p->base_price <= 20));
     }
 
     public function test_price_range_combined(): void
     {
-        Product::factory()->create(['price' => 5.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 15.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 25.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 35.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 5.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 15.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 25.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 35.00, 'is_available' => true]);
 
         $filter = $this->createFilter(['price_min' => 10, 'price_max' => 30]);
         $results = Product::filter($filter)->get();
 
         $this->assertCount(2, $results);
-        $this->assertTrue($results->every(fn ($p) => (float) $p->price >= 10 && (float) $p->price <= 30));
+        $this->assertTrue($results->every(fn ($p) => (float) $p->base_price >= 10 && (float) $p->base_price <= 30));
     }
 
     // ─── Sort Filter Tests ─────────────────────────────────────────────
 
     public function test_sort_by_price_asc(): void
     {
-        Product::factory()->create(['price' => 30.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 10.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 20.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 30.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 10.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 20.00, 'is_available' => true]);
 
-        $filter = $this->createFilter(['sort' => 'price']);
+        $filter = $this->createFilter(['sort' => 'base_price']);
         $results = Product::filter($filter)->get();
 
-        $this->assertEquals(10.00, (float) $results[0]->price);
-        $this->assertEquals(20.00, (float) $results[1]->price);
-        $this->assertEquals(30.00, (float) $results[2]->price);
+        $this->assertEquals(10.00, (float) $results[0]->base_price);
+        $this->assertEquals(20.00, (float) $results[1]->base_price);
+        $this->assertEquals(30.00, (float) $results[2]->base_price);
     }
 
     public function test_sort_by_price_desc(): void
     {
-        Product::factory()->create(['price' => 30.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 10.00, 'is_available' => true]);
-        Product::factory()->create(['price' => 20.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 30.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 10.00, 'is_available' => true]);
+        Product::factory()->create(['base_price' => 20.00, 'is_available' => true]);
 
-        $filter = $this->createFilter(['sort' => '-price']);
+        $filter = $this->createFilter(['sort' => '-base_price']);
         $results = Product::filter($filter)->get();
 
-        $this->assertEquals(30.00, (float) $results[0]->price);
-        $this->assertEquals(20.00, (float) $results[1]->price);
-        $this->assertEquals(10.00, (float) $results[2]->price);
+        $this->assertEquals(30.00, (float) $results[0]->base_price);
+        $this->assertEquals(20.00, (float) $results[1]->base_price);
+        $this->assertEquals(10.00, (float) $results[2]->base_price);
     }
 
     public function test_sort_by_name_asc(): void
@@ -234,21 +234,21 @@ class ProductFilterTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Fresh Orange Juice',
-            'price' => 15.00,
+            'base_price' => 15.00,
             'is_available' => true,
         ]);
         Product::factory()->create([
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Orange Cake',
-            'price' => 5.00,
+            'base_price' => 5.00,
             'is_available' => true,
         ]);
         Product::factory()->create([
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Chocolate Milk',
-            'price' => 15.00,
+            'base_price' => 15.00,
             'is_available' => true,
         ]);
 
@@ -285,3 +285,4 @@ class ProductFilterTest extends TestCase
         $this->assertCount(3, $results);
     }
 }
+

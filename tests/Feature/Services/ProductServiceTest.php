@@ -34,7 +34,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Test Product',
-            'price' => 25.99,
+            'base_price' => 25.99,
         ]);
 
         $this->assertInstanceOf(Product::class, $product);
@@ -43,7 +43,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Test Product',
-            'price' => 25.99,
+            'base_price' => 25.99,
         ]);
     }
 
@@ -56,7 +56,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Fresh Orange Juice',
-            'price' => 5.00,
+            'base_price' => 5.00,
         ]);
 
         $this->assertNotNull($product->slug);
@@ -73,7 +73,7 @@ class ProductServiceTest extends TestCase
             'store_id' => 99999,
             'category_id' => $category->id,
             'name' => 'Test Product',
-            'price' => 10.00,
+            'base_price' => 10.00,
         ]);
     }
 
@@ -87,7 +87,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => 99999,
             'name' => 'Test Product',
-            'price' => 10.00,
+            'base_price' => 10.00,
         ]);
     }
 
@@ -103,7 +103,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Test Product',
-            'price' => 10.00,
+            'base_price' => 10.00,
         ]);
     }
 
@@ -119,55 +119,7 @@ class ProductServiceTest extends TestCase
             'store_id' => $store->id,
             'category_id' => $category->id,
             'name' => 'Test Product',
-            'price' => 10.00,
-        ]);
-    }
-
-    public function test_create_product_with_valid_discounted_price(): void
-    {
-        $store = Store::factory()->create();
-        $category = Category::factory()->create();
-
-        $product = $this->service->createProduct([
-            'store_id' => $store->id,
-            'category_id' => $category->id,
-            'name' => 'Discounted Product',
-            'price' => 50.00,
-            'discounted_price' => 35.00,
-        ]);
-
-        $this->assertEquals(35.00, (float) $product->discounted_price);
-    }
-
-    public function test_create_product_rejects_discounted_price_equal_to_price(): void
-    {
-        $store = Store::factory()->create();
-        $category = Category::factory()->create();
-
-        $this->expectException(ValidationException::class);
-
-        $this->service->createProduct([
-            'store_id' => $store->id,
-            'category_id' => $category->id,
-            'name' => 'Test Product',
-            'price' => 50.00,
-            'discounted_price' => 50.00,
-        ]);
-    }
-
-    public function test_create_product_rejects_discounted_price_greater_than_price(): void
-    {
-        $store = Store::factory()->create();
-        $category = Category::factory()->create();
-
-        $this->expectException(ValidationException::class);
-
-        $this->service->createProduct([
-            'store_id' => $store->id,
-            'category_id' => $category->id,
-            'name' => 'Test Product',
-            'price' => 50.00,
-            'discounted_price' => 60.00,
+            'base_price' => 10.00,
         ]);
     }
 
@@ -175,49 +127,15 @@ class ProductServiceTest extends TestCase
 
     public function test_update_product_with_valid_data(): void
     {
-        $product = Product::factory()->create(['name' => 'Old Name', 'price' => 20.00]);
+        $product = Product::factory()->create(['name' => 'Old Name', 'base_price' => 20.00]);
 
         $updated = $this->service->updateProduct($product, [
             'name' => 'New Name',
-            'price' => 30.00,
+            'base_price' => 30.00,
         ]);
 
         $this->assertEquals('New Name', $updated->name);
-        $this->assertEquals(30.00, (float) $updated->price);
-    }
-
-    public function test_update_product_validates_discounted_price_less_than_price(): void
-    {
-        $product = Product::factory()->create(['price' => 50.00]);
-
-        $updated = $this->service->updateProduct($product, [
-            'discounted_price' => 30.00,
-        ]);
-
-        $this->assertEquals(30.00, (float) $updated->discounted_price);
-    }
-
-    public function test_update_product_rejects_discounted_price_greater_than_price(): void
-    {
-        $product = Product::factory()->create(['price' => 50.00]);
-
-        $this->expectException(ValidationException::class);
-
-        $this->service->updateProduct($product, [
-            'discounted_price' => 60.00,
-        ]);
-    }
-
-    public function test_update_product_rejects_discounted_price_equal_to_new_price(): void
-    {
-        $product = Product::factory()->create(['price' => 50.00]);
-
-        $this->expectException(ValidationException::class);
-
-        $this->service->updateProduct($product, [
-            'price' => 30.00,
-            'discounted_price' => 30.00,
-        ]);
+        $this->assertEquals(30.00, (float) $updated->base_price);
     }
 
     public function test_update_product_validates_new_store_exists(): void
@@ -316,3 +234,4 @@ class ProductServiceTest extends TestCase
         $this->assertCount(3, $product->fresh()->variants);
     }
 }
+

@@ -158,3 +158,4 @@ class DeliveryServiceTest extends TestCase
         $this->assertTrue($result->order->relationLoaded('user'));
     }
 }
+

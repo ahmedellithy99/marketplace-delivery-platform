@@ -23,7 +23,7 @@ class CartServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new CartService();
+        $this->service = app(CartService::class);
         $this->customer = User::factory()->customer()->create();
     }
 
@@ -67,35 +67,31 @@ class CartServiceTest extends TestCase
 
     public function test_add_cart_item_with_base_price(): void
     {
-        $product = Product::factory()->create(['price' => 20.00, 'discounted_price' => null]);
+        $product = Product::factory()->create(['base_price' => 20.00]);
 
         $cartItem = $this->service->addCartItem($this->customer, $product, null, 2);
 
         $this->assertInstanceOf(CartItem::class, $cartItem);
         $this->assertEquals($product->id, $cartItem->product_id);
         $this->assertNull($cartItem->variant_id);
-        $this->assertEquals(2, $cartItem->quantity);
-        $this->assertEquals(40.00, $cartItem->price);
+        $this->assertEquals(2, (float) $cartItem->quantity);
+        $this->assertEquals(20.00, (float) $cartItem->unit_price);
+        $this->assertEquals(40.00, (float) $cartItem->total_price);
     }
 
     public function test_add_cart_item_with_discounted_price(): void
     {
-        $product = Product::factory()->create([
-            'price' => 30.00,
-            'discounted_price' => 22.50,
-        ]);
+        $product = Product::factory()->create(['base_price' => 30.00]);
 
         $cartItem = $this->service->addCartItem($this->customer, $product, null, 3);
 
-        $this->assertEquals(67.50, $cartItem->price);
+        $this->assertEquals(30.00, (float) $cartItem->unit_price);
+        $this->assertEquals(90.00, (float) $cartItem->total_price);
     }
 
     public function test_add_cart_item_with_variant_price_overrides_discount(): void
     {
-        $product = Product::factory()->create([
-            'price' => 30.00,
-            'discounted_price' => 22.50,
-        ]);
+        $product = Product::factory()->variant()->create();
         $variant = ProductVariant::factory()->create([
             'product_id' => $product->id,
             'price' => 35.00,
@@ -104,7 +100,8 @@ class CartServiceTest extends TestCase
         $cartItem = $this->service->addCartItem($this->customer, $product, $variant, 2);
 
         $this->assertEquals($variant->id, $cartItem->variant_id);
-        $this->assertEquals(70.00, $cartItem->price);
+        $this->assertEquals(35.00, (float) $cartItem->unit_price);
+        $this->assertEquals(70.00, (float) $cartItem->total_price);
     }
 
     public function test_add_cart_item_rejects_unavailable_product(): void
@@ -120,20 +117,22 @@ class CartServiceTest extends TestCase
 
     public function test_update_cart_item_recalculates_price(): void
     {
-        $product = Product::factory()->create(['price' => 15.00, 'discounted_price' => null]);
+        $product = Product::factory()->create(['base_price' => 15.00]);
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
         $cartItem = CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'variant_id' => null,
             'quantity' => 2,
-            'price' => 30.00,
+            'unit_price' => 15.00,
+            'total_price' => 30.00,
         ]);
 
         $updated = $this->service->updateCartItem($cartItem, 5);
 
-        $this->assertEquals(5, $updated->quantity);
-        $this->assertEquals(75.00, $updated->price);
+        $this->assertEquals(5, (float) $updated->quantity);
+        $this->assertEquals(15.00, (float) $updated->unit_price);
+        $this->assertEquals(75.00, (float) $updated->total_price);
     }
 
     // ─── removeCartItem Tests ──────────────────────────────────────────
@@ -166,8 +165,8 @@ class CartServiceTest extends TestCase
     {
         $store1 = Store::factory()->create();
         $store2 = Store::factory()->create();
-        $product1 = Product::factory()->create(['store_id' => $store1->id, 'price' => 10.00]);
-        $product2 = Product::factory()->create(['store_id' => $store2->id, 'price' => 20.00]);
+        $product1 = Product::factory()->create(['store_id' => $store1->id, 'base_price' => 10.00]);
+        $product2 = Product::factory()->create(['store_id' => $store2->id, 'base_price' => 20.00]);
 
         $item1 = $this->service->addCartItem($this->customer, $product1, null, 1);
         $item2 = $this->service->addCartItem($this->customer, $product2, null, 1);
@@ -181,3 +180,4 @@ class CartServiceTest extends TestCase
         $this->assertContains($store2->id, $storeIds);
     }
 }
+

@@ -116,7 +116,7 @@ class NotificationServiceTest extends TestCase
         $this->assertDatabaseHas('notifications', [
             'user_id' => $admin->id,
             'type' => 'new_order',
-            'title' => 'New Order Received',
+            'title' => 'طلب جديد',
         ]);
     }
 
@@ -132,7 +132,7 @@ class NotificationServiceTest extends TestCase
         $this->assertDatabaseHas('notifications', [
             'user_id' => $customer->id,
             'type' => 'order_accepted',
-            'title' => 'Order Status Updated',
+            'title' => 'تم قبول طلبك',
         ]);
     }
 
@@ -152,7 +152,8 @@ class NotificationServiceTest extends TestCase
         $this->assertDatabaseHas('notifications', [
             'user_id' => $deliveryMan->id,
             'type' => 'delivery_assigned',
-            'title' => 'New Delivery Assigned',
+            'title' => 'توصيل جديد',
         ]);
     }
 }
+

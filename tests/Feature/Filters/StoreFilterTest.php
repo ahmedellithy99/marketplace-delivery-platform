@@ -230,3 +230,4 @@ class StoreFilterTest extends TestCase
         $this->assertCount(3, $results);
     }
 }
+

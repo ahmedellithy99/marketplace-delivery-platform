@@ -58,7 +58,7 @@ class OrderServiceTest extends TestCase
         $store = Store::factory()->create();
         $product = Product::factory()->create([
             'store_id' => $store->id,
-            'price' => 25.00,
+            'base_price' => 25.00,
             'is_available' => true,
         ]);
 
@@ -68,7 +68,8 @@ class OrderServiceTest extends TestCase
             'product_id' => $product->id,
             'variant_id' => null,
             'quantity' => 3,
-            'price' => 75.00, // 25 * 3
+            'unit_price' => 25.00,
+            'total_price' => 75.00,
         ]);
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
@@ -80,7 +81,7 @@ class OrderServiceTest extends TestCase
         $this->assertNull($orderItem->variant_id);
         $this->assertEquals($product->name, $orderItem->product_name);
         $this->assertEquals(3, $orderItem->quantity);
-        $this->assertEquals(25.00, (float) $orderItem->price);
+        $this->assertEquals(25.00, (float) $orderItem->unit_price);
         $this->assertEquals(75.00, (float) $orderItem->total);
     }
 
@@ -89,7 +90,7 @@ class OrderServiceTest extends TestCase
         $store = Store::factory()->create();
         $product = Product::factory()->create([
             'store_id' => $store->id,
-            'price' => 20.00,
+            'base_price' => 20.00,
             'is_available' => true,
         ]);
         $variant = ProductVariant::factory()->create([
@@ -103,40 +104,43 @@ class OrderServiceTest extends TestCase
             'product_id' => $product->id,
             'variant_id' => $variant->id,
             'quantity' => 2,
-            'price' => 60.00, // 30 * 2
+            'unit_price' => 30.00,
+            'total_price' => 60.00,
         ]);
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
 
         $orderItem = $order->items->first();
         $this->assertEquals($variant->id, $orderItem->variant_id);
-        $this->assertEquals(30.00, (float) $orderItem->price);
+        $this->assertEquals(30.00, (float) $orderItem->unit_price);
         $this->assertEquals(60.00, (float) $orderItem->total);
     }
 
     public function test_place_order_calculates_subtotal_correctly(): void
     {
         $store = Store::factory()->create();
-        $product1 = Product::factory()->create(['store_id' => $store->id, 'price' => 10.00, 'is_available' => true]);
-        $product2 = Product::factory()->create(['store_id' => $store->id, 'price' => 20.00, 'is_available' => true]);
+        $product1 = Product::factory()->create(['store_id' => $store->id, 'base_price' => 10.00, 'is_available' => true]);
+        $product2 = Product::factory()->create(['store_id' => $store->id, 'base_price' => 20.00, 'is_available' => true]);
 
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product1->id,
             'quantity' => 2,
-            'price' => 20.00,
+            'unit_price' => 10.00,
+            'total_price' => 20.00,
         ]);
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product2->id,
             'quantity' => 1,
-            'price' => 20.00,
+            'unit_price' => 20.00,
+            'total_price' => 20.00,
         ]);
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
 
-        // subtotal = sum of cart item prices = 20 + 20 = 40
+        // subtotal = sum of cart item total_prices = 20 + 20 = 40
         $this->assertEquals(40.00, (float) $order->subtotal);
     }
 
@@ -146,30 +150,30 @@ class OrderServiceTest extends TestCase
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
 
-        $this->assertNotNull($order->delivery_fee_min);
-        $this->assertNotNull($order->delivery_fee_max);
-        $this->assertGreaterThan(0, (float) $order->delivery_fee_min);
-        $this->assertGreaterThanOrEqual((float) $order->delivery_fee_min, (float) $order->delivery_fee_max);
+        // Delivery fee is now set by admin when accepting, so initially 0
+        $this->assertEquals(0, (float) $order->delivery_fee_min);
+        $this->assertEquals(0, (float) $order->delivery_fee_max);
         $this->assertNull($order->delivery_fee); // No actual fee set for pending orders
     }
 
     public function test_place_order_calculates_total_as_subtotal_plus_fee_max(): void
     {
         $store = Store::factory()->create();
-        $product = Product::factory()->create(['store_id' => $store->id, 'price' => 100.00, 'is_available' => true]);
+        $product = Product::factory()->create(['store_id' => $store->id, 'base_price' => 100.00, 'is_available' => true]);
 
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'quantity' => 1,
-            'price' => 100.00,
+            'unit_price' => 100.00,
+            'total_price' => 100.00,
         ]);
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
 
-        $expectedTotal = (float) $order->subtotal + (float) $order->delivery_fee_max;
-        $this->assertEquals($expectedTotal, (float) $order->total);
+        // Total = subtotal (delivery fee set later by admin)
+        $this->assertEquals((float) $order->subtotal, (float) $order->total);
     }
 
     public function test_place_order_clears_cart_after_creation(): void
@@ -238,7 +242,8 @@ class OrderServiceTest extends TestCase
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'quantity' => 1,
-            'price' => 10.00,
+            'unit_price' => 10.00,
+            'total_price' => 10.00,
         ]);
 
         // Mark product as unavailable after adding to cart
@@ -254,8 +259,8 @@ class OrderServiceTest extends TestCase
         $product1 = Product::factory()->create(['name' => 'Product A', 'is_available' => true]);
         $product2 = Product::factory()->create(['name' => 'Product B', 'is_available' => true]);
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'price' => 10.00]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'price' => 20.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'unit_price' => 10.00, 'total_price' => 10.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'unit_price' => 20.00, 'total_price' => 20.00]);
 
         // Mark both as unavailable
         $product1->update(['is_available' => false]);
@@ -278,12 +283,12 @@ class OrderServiceTest extends TestCase
     {
         $store1 = Store::factory()->create();
         $store2 = Store::factory()->create();
-        $product1 = Product::factory()->create(['store_id' => $store1->id, 'price' => 15.00, 'is_available' => true]);
-        $product2 = Product::factory()->create(['store_id' => $store2->id, 'price' => 25.00, 'is_available' => true]);
+        $product1 = Product::factory()->create(['store_id' => $store1->id, 'base_price' => 15.00, 'is_available' => true]);
+        $product2 = Product::factory()->create(['store_id' => $store2->id, 'base_price' => 25.00, 'is_available' => true]);
 
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'price' => 15.00]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'price' => 25.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product1->id, 'quantity' => 1, 'unit_price' => 15.00, 'total_price' => 15.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product2->id, 'quantity' => 1, 'unit_price' => 25.00, 'total_price' => 25.00]);
 
         $order = $this->service->placeOrder($this->customer, $this->orderData());
 
@@ -300,7 +305,7 @@ class OrderServiceTest extends TestCase
     {
         $product = Product::factory()->create(['is_available' => true]);
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
-        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product->id, 'quantity' => 1, 'price' => 10.00]);
+        CartItem::factory()->create(['cart_id' => $cart->id, 'product_id' => $product->id, 'quantity' => 1, 'unit_price' => 10.00, 'total_price' => 10.00]);
 
         // Mark product unavailable to trigger exception
         $product->update(['is_available' => false]);
@@ -357,12 +362,14 @@ class OrderServiceTest extends TestCase
         $cart = Cart::factory()->create(['user_id' => $this->customer->id]);
 
         for ($i = 0; $i < $count; $i++) {
-            $product = Product::factory()->create(['price' => 10.00 + $i * 5, 'is_available' => true]);
+            $price = 10.00 + $i * 5;
+            $product = Product::factory()->create(['base_price' => $price, 'is_available' => true]);
             CartItem::factory()->create([
                 'cart_id' => $cart->id,
                 'product_id' => $product->id,
                 'quantity' => 1,
-                'price' => 10.00 + $i * 5,
+                'unit_price' => $price,
+                'total_price' => $price,
             ]);
         }
     }
@@ -377,3 +384,4 @@ class OrderServiceTest extends TestCase
         ], $overrides);
     }
 }
+

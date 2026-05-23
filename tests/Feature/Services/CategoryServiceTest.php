@@ -187,3 +187,4 @@ class CategoryServiceTest extends TestCase
         $this->assertSoftDeleted('categories', ['id' => $leaf->id]);
     }
 }
+
