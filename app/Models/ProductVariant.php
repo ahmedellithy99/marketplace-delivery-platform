@@ -16,6 +16,11 @@ class ProductVariant extends Model
 
     protected $appends = ['pricing'];
 
+    /**
+     * Cached pricing result.
+     */
+    protected ?array $cachedPricing = null;
+
     protected function casts(): array
     {
         return [
@@ -28,36 +33,38 @@ class ProductVariant extends Model
     // ─── Pricing Accessor ──────────────────────────────────────────────
 
     /**
-     * Compute pricing with discount for this variant.
-     * Uses the parent product from the relation if loaded to avoid N+1.
+     * Compute pricing with discount for this variant (cached per request).
      */
     public function getPricingAttribute(): array
     {
+        if ($this->cachedPricing !== null) {
+            return $this->cachedPricing;
+        }
+
         // Use already-loaded parent product to avoid N+1
         if ($this->relationLoaded('product') && $this->product) {
             $product = $this->product;
         } else {
-            // Fallback: load product with discounts (single query)
             $product = Product::with('discounts')->find($this->product_id);
         }
 
         if (!$product) {
-            return ['unit_price' => (float) $this->price, 'effective_price' => (float) $this->price, 'discount_amount' => 0, 'has_discount' => false, 'discount_label' => null, 'total' => (float) $this->price];
+            $this->cachedPricing = ['unit_price' => (float) $this->price, 'effective_price' => (float) $this->price, 'discount_amount' => 0, 'has_discount' => false, 'discount_label' => null, 'total' => (float) $this->price];
+            return $this->cachedPricing;
         }
 
-        // Ensure discounts are loaded on product
         if (!$product->relationLoaded('discounts')) {
             $product->load('discounts');
         }
 
-        // Load own discounts if not loaded
         if (!$this->relationLoaded('discounts')) {
             $this->load('discounts');
         }
 
         $pricingService = app(\App\Services\PricingService::class);
         $result = $pricingService->calculate($product, $this);
-        return $result->toArray();
+        $this->cachedPricing = $result->toArray();
+        return $this->cachedPricing;
     }
 
     // ─── Relationships ─────────────────────────────────────────────────
