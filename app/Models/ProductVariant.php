@@ -14,6 +14,8 @@ class ProductVariant extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['pricing'];
+
     protected function casts(): array
     {
         return [
@@ -21,6 +23,42 @@ class ProductVariant extends Model
             'is_default' => 'boolean',
             'sort_order' => 'integer',
         ];
+    }
+
+    // ─── Pricing Accessor ──────────────────────────────────────────────
+
+    /**
+     * Compute pricing with discount for this variant.
+     */
+    public function getPricingAttribute(): array
+    {
+        // Get the parent product — prefer the already-loaded relation
+        $product = $this->relationLoaded('product')
+            ? $this->product
+            : null;
+
+        // If not loaded, fetch with discounts
+        if (!$product) {
+            $product = Product::with(['discounts'])->find($this->product_id);
+        }
+
+        if (!$product) {
+            return ['unit_price' => (float) $this->price, 'effective_price' => (float) $this->price, 'discount_amount' => 0, 'has_discount' => false, 'discount_label' => null, 'total' => (float) $this->price];
+        }
+
+        // Ensure discounts are loaded
+        if (!$product->relationLoaded('discounts')) {
+            $product->load('discounts');
+        }
+
+        // Load variant's own discounts if not loaded
+        if (!$this->relationLoaded('discounts')) {
+            $this->load('discounts');
+        }
+
+        $pricingService = app(\App\Services\PricingService::class);
+        $result = $pricingService->calculate($product, $this);
+        return $result->toArray();
     }
 
     // ─── Relationships ─────────────────────────────────────────────────

@@ -36,7 +36,8 @@ const displayPrice = computed(() => {
         const variant = props.product.variants?.find(
             (v) => v.id === selectedVariantId.value,
         );
-        return variant ? Number(variant.price) : 0;
+        if (!variant) return 0;
+        return Number(variant.pricing?.effective_price ?? variant.price);
     }
     if (props.product.type === "measured") {
         return (
@@ -250,7 +251,33 @@ watch(
                                                 : 'text-gray-400'
                                         "
                                     >
-                                        {{ formatPrice(variant.price) }} جنيه
+                                        <template
+                                            v-if="variant.pricing?.has_discount"
+                                        >
+                                            <span class="font-bold">{{
+                                                formatPrice(
+                                                    variant.pricing
+                                                        .effective_price,
+                                                )
+                                            }}</span>
+                                            <span
+                                                class="line-through text-gray-300 ms-1"
+                                                >{{
+                                                    formatPrice(variant.price)
+                                                }}</span
+                                            >
+                                            جنيه
+                                        </template>
+                                        <template v-else>
+                                            {{
+                                                formatPrice(
+                                                    variant.pricing
+                                                        ?.effective_price ??
+                                                        variant.price,
+                                                )
+                                            }}
+                                            جنيه
+                                        </template>
                                     </p>
                                 </button>
                             </div>

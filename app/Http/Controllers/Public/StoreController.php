@@ -36,7 +36,7 @@ class StoreController extends Controller
         // Get filtered products
         $products = $store->products()
             ->where('is_available', true)
-            ->with(['category', 'media', 'variants', 'discounts'])
+            ->with(['category', 'media', 'variants.discounts', 'discounts'])
             ->when($request->get('category'), fn ($q, $cat) => $q->where('category_id', $cat))
             ->when($request->get('search'), fn ($q, $s) => $q->where('name', 'LIKE', "%{$s}%"))
             ->latest()

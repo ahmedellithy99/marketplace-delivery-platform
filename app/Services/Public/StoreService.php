@@ -28,7 +28,7 @@ class StoreService
      */
     public function getFeaturedProducts(int $limit = 8): Collection
     {
-        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
+        return Product::with(['store', 'category', 'media', 'variants.discounts', 'discounts'])
             ->where('is_available', true)
             ->latest()
             ->take($limit)
@@ -77,7 +77,7 @@ class StoreService
      */
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
+        return Product::with(['store', 'category', 'media', 'variants.discounts', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)
