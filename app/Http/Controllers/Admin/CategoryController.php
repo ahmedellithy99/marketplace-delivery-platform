@@ -40,7 +40,7 @@ class CategoryController extends Controller
         );
 
         return redirect()->route('admin.categories.index')
-            ->with('success', __('Category created successfully.'));
+            ->with('success', 'تم إنشاء القسم بنجاح.');
     }
 
     public function edit(Category $category): Response
@@ -60,7 +60,7 @@ class CategoryController extends Controller
         );
 
         return redirect()->route('admin.categories.index')
-            ->with('success', __('Category updated successfully.'));
+            ->with('success', 'تم تحديث القسم بنجاح.');
     }
 
     public function destroy(Category $category): RedirectResponse
@@ -68,6 +68,6 @@ class CategoryController extends Controller
         $this->categoryService->deleteCategory($category);
 
         return redirect()->route('admin.categories.index')
-            ->with('success', __('Category deleted successfully.'));
+            ->with('success', 'تم حذف القسم بنجاح.');
     }
 }

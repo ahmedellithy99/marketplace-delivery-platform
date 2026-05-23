@@ -38,7 +38,7 @@ class OrderController extends Controller
         $order = $this->orderService->placeOrder($user, $request->validated());
 
         return redirect()->route('customer.orders.show', $order)
-            ->with('success', 'Order placed successfully.');
+            ->with('success', 'تم تقديم الطلب بنجاح.');
     }
 
     public function show(Request $request, Order $order): Response

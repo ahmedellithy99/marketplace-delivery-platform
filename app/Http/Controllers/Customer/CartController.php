@@ -46,6 +46,11 @@ class CartController extends Controller
             ? ProductVariant::findOrFail($request->validated('variant_id'))
             : null;
 
+        // Validate variant belongs to this product
+        if ($variant && $variant->product_id !== $product->id) {
+            abort(422, 'Variant does not belong to this product.');
+        }
+
         $this->cartService->addCartItem(
             $user,
             $product,
@@ -54,12 +59,13 @@ class CartController extends Controller
         );
 
         return redirect()->back()
-            ->with('success', 'Item added to cart.');
+            ->with('success', 'تمت إضافة المنتج إلى السلة.');
     }
 
     public function update(CartItemUpdateRequest $request, CartItem $cartItem): RedirectResponse
     {
-        // Verify ownership
+        // Verify ownership (eager-load to avoid extra query on repeated access)
+        $cartItem->loadMissing('cart');
         abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
 
         $this->cartService->updateCartItem(
@@ -68,18 +74,19 @@ class CartController extends Controller
         );
 
         return redirect()->back()
-            ->with('success', 'Cart item updated.');
+            ->with('success', 'تم تحديث الكمية.');
     }
 
     public function destroy(Request $request, CartItem $cartItem): RedirectResponse
     {
         // Verify ownership
+        $cartItem->loadMissing('cart');
         abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
 
         $this->cartService->removeCartItem($cartItem);
 
         return redirect()->back()
-            ->with('success', 'Item removed from cart.');
+            ->with('success', 'تم حذف المنتج من السلة.');
     }
 
     public function clear(Request $request): RedirectResponse
@@ -90,6 +97,6 @@ class CartController extends Controller
         $this->cartService->clearCart($cart);
 
         return redirect()->back()
-            ->with('success', 'Cart cleared.');
+            ->with('success', 'تم تفريغ السلة.');
     }
 }

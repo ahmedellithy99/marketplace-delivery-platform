@@ -41,7 +41,7 @@ class StoreController extends Controller
         );
 
         return redirect()->route('admin.stores.index')
-            ->with('success', 'Store created successfully.');
+            ->with('success', 'تم إنشاء المتجر بنجاح.');
     }
 
     public function show(Store $store, Request $request): Response
@@ -69,7 +69,7 @@ class StoreController extends Controller
         );
 
         return redirect()->route('admin.stores.index')
-            ->with('success', 'Store updated successfully.');
+            ->with('success', 'تم تحديث المتجر بنجاح.');
     }
 
     public function destroy(Store $store): RedirectResponse
@@ -77,6 +77,6 @@ class StoreController extends Controller
         $this->storeService->deleteStore($store);
 
         return redirect()->route('admin.stores.index')
-            ->with('success', 'Store deleted successfully.');
+            ->with('success', 'تم حذف المتجر بنجاح.');
     }
 }

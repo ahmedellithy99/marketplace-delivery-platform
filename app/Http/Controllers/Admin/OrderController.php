@@ -53,7 +53,7 @@ class OrderController extends Controller
         $this->orderService->acceptOrder($order, (float) $request->validated('delivery_fee'));
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Order accepted successfully.');
+            ->with('success', 'تم قبول الطلب بنجاح.');
     }
 
     /**
@@ -64,7 +64,7 @@ class OrderController extends Controller
         $this->orderService->cancelOrder($order);
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Order cancelled successfully.');
+            ->with('success', 'تم إلغاء الطلب بنجاح.');
     }
 
     /**
@@ -77,24 +77,23 @@ class OrderController extends Controller
         $this->orderService->assignDelivery($order, $deliveryMan, $request->user());
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Delivery man assigned successfully.');
+            ->with('success', 'تم تعيين مندوب التوصيل بنجاح.');
     }
 
     /**
-     * Delete an order and its associated delivery.
+     * Cancel and archive an order (no hard delete — preserves records).
      */
     public function destroy(Order $order): RedirectResponse
     {
-        // Delete associated delivery if exists
-        $order->delivery()->delete();
+        // Cancel the order instead of deleting
+        $order->update(['status' => 'cancelled']);
 
-        // Delete order items
-        $order->items()->delete();
-
-        // Delete the order
-        $order->delete();
+        // Remove delivery assignment if exists
+        if ($order->delivery) {
+            $order->delivery()->delete();
+        }
 
         return redirect()->route('admin.orders.index')
-            ->with('success', 'تم حذف الطلب بنجاح.');
+            ->with('success', 'تم إلغاء الطلب بنجاح.');
     }
 }

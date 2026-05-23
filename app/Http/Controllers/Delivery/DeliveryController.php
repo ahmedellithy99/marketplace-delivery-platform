@@ -41,20 +41,20 @@ class DeliveryController extends Controller
     {
         $this->deliveryService->markPreparing($delivery);
 
-        return redirect()->back()->with('success', 'Order marked as preparing.');
+        return redirect()->back()->with('success', 'تم تحديث الحالة: جاري التحضير.');
     }
 
     public function markPickedUp(Delivery $delivery): RedirectResponse
     {
         $this->deliveryService->markPickedUp($delivery);
 
-        return redirect()->back()->with('success', 'Order marked as picked up.');
+        return redirect()->back()->with('success', 'تم تحديث الحالة: تم الاستلام.');
     }
 
     public function markDelivered(Delivery $delivery): RedirectResponse
     {
         $this->deliveryService->markDelivered($delivery);
 
-        return redirect()->back()->with('success', 'Order marked as delivered.');
+        return redirect()->back()->with('success', 'تم تحديث الحالة: تم التوصيل.');
     }
 }

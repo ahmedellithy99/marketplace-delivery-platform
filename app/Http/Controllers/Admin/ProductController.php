@@ -42,7 +42,7 @@ class ProductController extends Controller
         );
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success', 'تم إنشاء المنتج بنجاح.');
     }
 
     public function edit(Product $product): Response
@@ -63,7 +63,7 @@ class ProductController extends Controller
         );
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'Product updated successfully.');
+            ->with('success', 'تم تحديث المنتج بنجاح.');
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -71,7 +71,7 @@ class ProductController extends Controller
         $this->productService->deleteProduct($product);
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'Product deleted successfully.');
+            ->with('success', 'تم حذف المنتج بنجاح.');
     }
 
     public function toggleAvailability(Product $product): RedirectResponse
@@ -79,7 +79,7 @@ class ProductController extends Controller
         $this->productService->toggleAvailability($product);
 
         return redirect()->back()
-            ->with('success', 'Product availability updated.');
+            ->with('success', 'تم تحديث حالة التوفر.');
     }
 
     public function storeVariant(Request $request, Product $product): RedirectResponse
@@ -92,7 +92,7 @@ class ProductController extends Controller
         $this->productService->addVariant($product, $validated);
 
         return redirect()->back()
-            ->with('success', 'Variant added successfully.');
+            ->with('success', 'تم إضافة المتغير بنجاح.');
     }
 
     public function updateVariant(Request $request, Product $product, ProductVariant $variant): RedirectResponse
@@ -105,7 +105,7 @@ class ProductController extends Controller
         $this->productService->updateVariant($variant, $validated);
 
         return redirect()->back()
-            ->with('success', 'Variant updated successfully.');
+            ->with('success', 'تم تحديث المتغير بنجاح.');
     }
 
     public function destroyVariant(Product $product, ProductVariant $variant): RedirectResponse
@@ -113,7 +113,7 @@ class ProductController extends Controller
         $this->productService->removeVariant($variant);
 
         return redirect()->back()
-            ->with('success', 'Variant removed successfully.');
+            ->with('success', 'تم حذف المتغير بنجاح.');
     }
 
     public function setDefaultVariant(Product $product, ProductVariant $variant): RedirectResponse
