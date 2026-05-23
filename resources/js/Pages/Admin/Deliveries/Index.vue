@@ -1,14 +1,28 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     deliveries: {
         type: Object,
         default: () => ({ data: [], links: [] }),
     },
+    currentMonth: {
+        type: String,
+        default: "",
+    },
 });
+
+const month = ref(props.currentMonth || new Date().toISOString().slice(0, 7));
+
+function changeMonth() {
+    router.get(
+        "/admin/deliveries",
+        { month: month.value },
+        { preserveState: true },
+    );
+}
 
 const deliveriesList = computed(() => props.deliveries?.data || []);
 const paginationLinks = computed(() => props.deliveries?.links || []);
@@ -48,7 +62,23 @@ function getStatus(delivery) {
     <AdminLayout title="التوصيلات">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-primary-900">إدارة التوصيلات</h2>
+            <div>
+                <h2 class="text-xl font-bold text-primary-900">
+                    إدارة التوصيلات
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                    {{ deliveries.total || 0 }} توصيل
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-600">الشهر:</label>
+                <input
+                    v-model="month"
+                    type="month"
+                    @change="changeMonth"
+                    class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                />
+            </div>
         </div>
 
         <!-- Table -->
