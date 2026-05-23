@@ -405,7 +405,12 @@ function assignDelivery() {
                                 :key="person.id"
                                 :value="person.id"
                             >
-                                {{ person.name }}
+                                {{ person.name }} —
+                                {{
+                                    person.active_deliveries_count === 0
+                                        ? "✓ متاح"
+                                        : `⚡ ${person.active_deliveries_count} توصيل نشط`
+                                }}
                             </option>
                         </select>
                         <p

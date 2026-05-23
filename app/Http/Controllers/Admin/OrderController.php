@@ -37,7 +37,11 @@ class OrderController extends Controller
         return Inertia::render('Admin/Orders/Show', [
             'order' => $this->orderService->getOrder($order),
             'groupedItems' => $this->orderService->getOrderGroupedByStore($order),
-            'deliveryPersonnel' => User::where('role', 'delivery')->get(['id', 'name', 'phone']),
+            'deliveryPersonnel' => User::where('role', 'delivery')
+                ->withCount(['deliveries as active_deliveries_count' => function ($q) {
+                    $q->whereNull('delivered_at');
+                }])
+                ->get(['id', 'name', 'phone']),
         ]);
     }
 
