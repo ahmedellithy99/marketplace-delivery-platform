@@ -128,7 +128,11 @@ function getStatus(delivery) {
                             class="border-t border-gray-100 hover:bg-gray-50/50"
                         >
                             <td class="px-5 py-3 font-medium text-gray-900">
-                                {{ dm.name }}
+                                <Link
+                                    :href="`/admin/deliveries/men/${dm.id}`"
+                                    class="hover:text-primary-700 transition-colors underline-offset-2 hover:underline"
+                                    >{{ dm.name }}</Link
+                                >
                             </td>
                             <td
                                 class="px-5 py-3 text-gray-600 tabular-nums"

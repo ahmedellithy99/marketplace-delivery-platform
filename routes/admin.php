@@ -57,6 +57,7 @@ Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name(
 Route::post('/orders/{order}/assign-delivery', [OrderController::class, 'assignDelivery'])->name('admin.orders.assign-delivery');
 
 Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
+Route::get('/deliveries/men/{user}', [DeliveryController::class, 'show'])->name('admin.deliveries.show');
 
 Route::resource('discounts', DiscountController::class)
     ->names('admin.discounts')
