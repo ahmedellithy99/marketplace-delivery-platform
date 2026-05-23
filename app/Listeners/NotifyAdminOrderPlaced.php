@@ -18,6 +18,7 @@ class NotifyAdminOrderPlaced
     public function handle(OrderPlaced $event): void
     {
         $order = $event->order;
+        $customerName = $order->user->name ?? 'عميل';
 
         $admins = User::where('role', 'admin')->get();
 
@@ -25,8 +26,8 @@ class NotifyAdminOrderPlaced
             $this->notificationService->createNotification(
                 user: $admin,
                 type: 'new_order',
-                title: 'New Order Received',
-                body: "A new order #{$order->order_number} has been placed.",
+                title: 'طلب جديد',
+                body: "طلب جديد #{$order->order_number} من {$customerName}",
                 link: "/admin/orders/{$order->id}",
             );
         }

@@ -19,11 +19,21 @@ class NotifyCustomerOrderStatusChanged
         $order = $event->order;
         $customer = $order->user;
 
+        $statusLabels = [
+            'accepted' => 'تم قبول',
+            'preparing' => 'جاري تحضير',
+            'on_the_way' => 'في الطريق',
+            'delivered' => 'تم توصيل',
+            'cancelled' => 'تم إلغاء',
+        ];
+
+        $label = $statusLabels[$event->newStatus] ?? $event->newStatus;
+
         $this->notificationService->createNotification(
             user: $customer,
             type: 'order_' . $event->newStatus,
-            title: 'Order Status Updated',
-            body: "Your order #{$order->order_number} has been updated to {$event->newStatus}.",
+            title: "{$label} طلبك",
+            body: "طلبك #{$order->order_number} — {$label}",
             link: "/orders/{$order->id}",
         );
     }

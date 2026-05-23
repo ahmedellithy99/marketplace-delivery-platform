@@ -19,12 +19,13 @@ class NotifyDeliveryManAssigned
         $delivery = $event->delivery;
         $deliveryMan = $delivery->deliveryMan;
         $order = $delivery->order;
+        $customerName = $order->user->name ?? 'عميل';
 
         $this->notificationService->createNotification(
             user: $deliveryMan,
             type: 'delivery_assigned',
-            title: 'New Delivery Assigned',
-            body: "You have been assigned to deliver order #{$order->order_number}.",
+            title: 'توصيل جديد',
+            body: "تم تعيينك لتوصيل طلب #{$order->order_number} للعميل {$customerName}",
             link: "/delivery/assignments/{$delivery->id}",
         );
     }
