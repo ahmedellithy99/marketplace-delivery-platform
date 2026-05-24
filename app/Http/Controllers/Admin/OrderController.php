@@ -37,11 +37,7 @@ class OrderController extends Controller
         return Inertia::render('Admin/Orders/Show', [
             'order' => $this->orderService->getOrder($order),
             'groupedItems' => $this->orderService->getOrderGroupedByStore($order),
-            'deliveryPersonnel' => User::where('role', 'delivery')
-                ->withCount(['deliveries as active_deliveries_count' => function ($q) {
-                    $q->whereNull('delivered_at');
-                }])
-                ->get(['id', 'name', 'phone']),
+            'deliveryPersonnel' => $this->orderService->getDeliveryPersonnel(),
         ]);
     }
 
@@ -85,13 +81,7 @@ class OrderController extends Controller
      */
     public function destroy(Order $order): RedirectResponse
     {
-        // Cancel the order instead of deleting
-        $order->update(['status' => 'cancelled']);
-
-        // Remove delivery assignment if exists
-        if ($order->delivery) {
-            $order->delivery()->delete();
-        }
+        $this->orderService->cancelOrder($order);
 
         return redirect()->route('admin.orders.index')
             ->with('success', 'تم إلغاء الطلب بنجاح.');

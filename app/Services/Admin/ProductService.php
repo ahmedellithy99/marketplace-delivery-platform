@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Filters\Admin\ProductFilter;
 use App\Models\Category;
+use App\Models\Discount;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Store;
@@ -204,5 +205,39 @@ class ProductService
                 'category_id' => ['The selected category does not exist.'],
             ]);
         }
+    }
+
+    /**
+     * Set a variant as the default for its product.
+     */
+    public function setDefaultVariant(Product $product, ProductVariant $variant): void
+    {
+        $product->variants()->update(['is_default' => false]);
+        $variant->update(['is_default' => true]);
+    }
+
+    /**
+     * Add a discount to a product.
+     */
+    public function addProductDiscount(Product $product, array $data): Discount
+    {
+        $discount = Discount::create([
+            ...$data,
+            'scope' => 'product',
+            'is_active' => true,
+        ]);
+
+        $product->discounts()->attach($discount->id);
+
+        return $discount;
+    }
+
+    /**
+     * Remove a discount from a product.
+     */
+    public function removeProductDiscount(Product $product, Discount $discount): void
+    {
+        $product->discounts()->detach($discount->id);
+        $discount->delete();
     }
 }

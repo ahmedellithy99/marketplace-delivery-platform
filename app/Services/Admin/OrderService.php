@@ -174,4 +174,16 @@ class OrderService
 
         return $delivery;
     }
+
+    /**
+     * Get delivery personnel with their active delivery counts.
+     */
+    public function getDeliveryPersonnel(): \Illuminate\Database\Eloquent\Collection
+    {
+        return User::where('role', 'delivery')
+            ->withCount(['deliveries as active_deliveries_count' => function ($q) {
+                $q->whereNull('delivered_at');
+            }])
+            ->get(['id', 'name', 'phone']);
+    }
 }

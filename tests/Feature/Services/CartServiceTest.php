@@ -69,7 +69,7 @@ class CartServiceTest extends TestCase
     {
         $product = Product::factory()->create(['base_price' => 20.00]);
 
-        $cartItem = $this->service->addCartItem($this->customer, $product, null, 2);
+        $cartItem = $this->service->addCartItem($this->customer, $product->id, null, 2);
 
         $this->assertInstanceOf(CartItem::class, $cartItem);
         $this->assertEquals($product->id, $cartItem->product_id);
@@ -83,7 +83,7 @@ class CartServiceTest extends TestCase
     {
         $product = Product::factory()->create(['base_price' => 30.00]);
 
-        $cartItem = $this->service->addCartItem($this->customer, $product, null, 3);
+        $cartItem = $this->service->addCartItem($this->customer, $product->id, null, 3);
 
         $this->assertEquals(30.00, (float) $cartItem->unit_price);
         $this->assertEquals(90.00, (float) $cartItem->total_price);
@@ -97,7 +97,7 @@ class CartServiceTest extends TestCase
             'price' => 35.00,
         ]);
 
-        $cartItem = $this->service->addCartItem($this->customer, $product, $variant, 2);
+        $cartItem = $this->service->addCartItem($this->customer, $product->id, $variant->id, 2);
 
         $this->assertEquals($variant->id, $cartItem->variant_id);
         $this->assertEquals(35.00, (float) $cartItem->unit_price);
@@ -110,7 +110,7 @@ class CartServiceTest extends TestCase
 
         $this->expectException(ProductUnavailableException::class);
 
-        $this->service->addCartItem($this->customer, $product, null, 1);
+        $this->service->addCartItem($this->customer, $product->id, null, 1);
     }
 
     // ─── updateCartItem Tests ──────────────────────────────────────────
@@ -168,8 +168,8 @@ class CartServiceTest extends TestCase
         $product1 = Product::factory()->create(['store_id' => $store1->id, 'base_price' => 10.00]);
         $product2 = Product::factory()->create(['store_id' => $store2->id, 'base_price' => 20.00]);
 
-        $item1 = $this->service->addCartItem($this->customer, $product1, null, 1);
-        $item2 = $this->service->addCartItem($this->customer, $product2, null, 1);
+        $item1 = $this->service->addCartItem($this->customer, $product1->id, null, 1);
+        $item2 = $this->service->addCartItem($this->customer, $product2->id, null, 1);
 
         $cart = $this->service->getCart($this->customer);
 

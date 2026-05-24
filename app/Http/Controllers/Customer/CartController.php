@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\CartItemStoreRequest;
 use App\Http\Requests\Customer\CartItemUpdateRequest;
 use App\Models\CartItem;
-use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Services\Customer\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,20 +39,10 @@ class CartController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $product = Product::findOrFail($request->validated('product_id'));
-        $variant = $request->validated('variant_id')
-            ? ProductVariant::findOrFail($request->validated('variant_id'))
-            : null;
-
-        // Validate variant belongs to this product
-        if ($variant && $variant->product_id !== $product->id) {
-            abort(422, 'Variant does not belong to this product.');
-        }
-
         $this->cartService->addCartItem(
             $user,
-            $product,
-            $variant,
+            $request->validated('product_id'),
+            $request->validated('variant_id'),
             $request->validated('quantity')
         );
 

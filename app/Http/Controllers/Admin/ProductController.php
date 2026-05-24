@@ -118,10 +118,7 @@ class ProductController extends Controller
 
     public function setDefaultVariant(Product $product, ProductVariant $variant): RedirectResponse
     {
-        // Unset all defaults for this product
-        $product->variants()->update(['is_default' => false]);
-        // Set the selected one as default
-        $variant->update(['is_default' => true]);
+        $this->productService->setDefaultVariant($product, $variant);
 
         return redirect()->back()
             ->with('success', 'تم تعيين المتغير الافتراضي.');
@@ -137,13 +134,7 @@ class ProductController extends Controller
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ]);
 
-        $discount = \App\Models\Discount::create([
-            ...$validated,
-            'scope' => 'product',
-            'is_active' => true,
-        ]);
-
-        $product->discounts()->attach($discount->id);
+        $this->productService->addProductDiscount($product, $validated);
 
         return redirect()->back()
             ->with('success', 'تم إضافة الخصم بنجاح.');
@@ -151,8 +142,7 @@ class ProductController extends Controller
 
     public function destroyDiscount(Product $product, \App\Models\Discount $discount): RedirectResponse
     {
-        $product->discounts()->detach($discount->id);
-        $discount->delete();
+        $this->productService->removeProductDiscount($product, $discount);
 
         return redirect()->back()
             ->with('success', 'تم حذف الخصم.');

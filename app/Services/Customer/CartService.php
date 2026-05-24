@@ -39,8 +39,16 @@ class CartService
      *
      * @throws ProductUnavailableException
      */
-    public function addCartItem(User $user, Product $product, ?ProductVariant $variant, float $quantity = 1): CartItem
+    public function addCartItem(User $user, int $productId, ?int $variantId, float $quantity = 1): CartItem
     {
+        $product = Product::findOrFail($productId);
+        $variant = $variantId ? ProductVariant::findOrFail($variantId) : null;
+
+        // Validate variant belongs to this product
+        if ($variant && $variant->product_id !== $product->id) {
+            abort(422, 'Variant does not belong to this product.');
+        }
+
         if (!$product->is_available) {
             throw new ProductUnavailableException($product->name);
         }
