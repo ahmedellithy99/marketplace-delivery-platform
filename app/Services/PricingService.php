@@ -103,26 +103,31 @@ class PricingService
             }
         }
 
-        // 3. Category-level discounts (skip if not loaded to avoid N+1)
+        // 3. Category-level discounts (only if category AND its discounts are loaded)
         if ($product->relationLoaded('category') && $product->category) {
-            $categoryDiscounts = $product->category->discounts()->active()->get();
-            foreach ($categoryDiscounts as $discount) {
-                $savings = $discount->calculateAmount($unitPrice);
-                if ($savings > $bestSavings) {
-                    $bestSavings = $savings;
-                    $bestDiscount = $discount;
+            if ($product->category->relationLoaded('discounts')) {
+                $now = now();
+                foreach ($product->category->discounts as $discount) {
+                    if (!$isActive($discount)) continue;
+                    $savings = $discount->calculateAmount($unitPrice);
+                    if ($savings > $bestSavings) {
+                        $bestSavings = $savings;
+                        $bestDiscount = $discount;
+                    }
                 }
             }
         }
 
-        // 4. Store-level discounts (skip if not loaded to avoid N+1)
+        // 4. Store-level discounts (only if store AND its discounts are loaded)
         if ($product->relationLoaded('store') && $product->store) {
-            $storeDiscounts = $product->store->discounts()->active()->get();
-            foreach ($storeDiscounts as $discount) {
-                $savings = $discount->calculateAmount($unitPrice);
-                if ($savings > $bestSavings) {
-                    $bestSavings = $savings;
-                    $bestDiscount = $discount;
+            if ($product->store->relationLoaded('discounts')) {
+                foreach ($product->store->discounts as $discount) {
+                    if (!$isActive($discount)) continue;
+                    $savings = $discount->calculateAmount($unitPrice);
+                    if ($savings > $bestSavings) {
+                        $bestSavings = $savings;
+                        $bestDiscount = $discount;
+                    }
                 }
             }
         }

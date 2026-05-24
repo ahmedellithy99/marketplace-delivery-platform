@@ -45,20 +45,16 @@ class ProductVariant extends Model
         if ($this->relationLoaded('product') && $this->product) {
             $product = $this->product;
         } else {
-            $product = Product::with('discounts')->find($this->product_id);
-        }
-
-        if (!$product) {
-            $this->cachedPricing = ['unit_price' => (float) $this->price, 'effective_price' => (float) $this->price, 'discount_amount' => 0, 'has_discount' => false, 'discount_label' => null, 'total' => (float) $this->price];
+            // Fallback: skip pricing if product not loaded (avoid N+1)
+            $this->cachedPricing = [
+                'unit_price' => (float) $this->price,
+                'effective_price' => (float) $this->price,
+                'discount_amount' => 0,
+                'has_discount' => false,
+                'discount_label' => null,
+                'total' => (float) $this->price,
+            ];
             return $this->cachedPricing;
-        }
-
-        if (!$product->relationLoaded('discounts')) {
-            $product->load('discounts');
-        }
-
-        if (!$this->relationLoaded('discounts')) {
-            $this->load('discounts');
         }
 
         $pricingService = app(\App\Services\PricingService::class);
