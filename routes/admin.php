@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\DeliveryManController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -59,6 +60,10 @@ Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('adm
 
 Route::get('/deliveries', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
 Route::get('/deliveries/men/{user}', [DeliveryController::class, 'show'])->name('admin.deliveries.show');
+
+Route::resource('delivery-men', DeliveryManController::class)
+    ->names('admin.delivery-men')
+    ->except(['show']);
 
 Route::resource('discounts', DiscountController::class)
     ->names('admin.discounts')
