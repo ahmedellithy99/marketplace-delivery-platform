@@ -114,6 +114,17 @@ class ProductFilter extends BaseFilter
             return;
         }
 
+        // For price sorting, use effective price (base_price for simple/measured, min variant price for variant products)
+        if ($column === 'base_price') {
+            $this->builder->orderByRaw("
+                COALESCE(
+                    products.base_price,
+                    (SELECT MIN(pv.price) FROM product_variants pv WHERE pv.product_id = products.id)
+                ) {$direction}
+            ");
+            return;
+        }
+
         $this->builder->orderBy($column, $direction);
     }
 }
