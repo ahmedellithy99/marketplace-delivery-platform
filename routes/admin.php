@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Admin\StoreTypeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +39,17 @@ Route::get('/deliveries/men/{user}', [DeliveryController::class, 'show'])->name(
 
 // ─── Admin-Only Routes (not customer_service) ─────────────────────────
 Route::middleware('role:admin')->group(function () {
+
+    // Store Types (use ID binding for admin CRUD)
+    Route::prefix('store-types')->group(function () {
+        Route::get('/', [StoreTypeController::class, 'index'])->name('admin.store-types.index');
+        Route::get('/create', [StoreTypeController::class, 'create'])->name('admin.store-types.create');
+        Route::post('/', [StoreTypeController::class, 'store'])->name('admin.store-types.store');
+        Route::get('/{store_type}/edit', [StoreTypeController::class, 'edit'])->name('admin.store-types.edit');
+        Route::put('/{store_type}', [StoreTypeController::class, 'update'])->name('admin.store-types.update');
+        Route::delete('/{store_type}', [StoreTypeController::class, 'destroy'])->name('admin.store-types.destroy');
+        Route::patch('/{store_type}/toggle-active', [StoreTypeController::class, 'toggleActive'])->name('admin.store-types.toggle-active');
+    });
 
     // Stores
     Route::resource('stores', StoreController::class)
@@ -98,4 +110,7 @@ Route::middleware('role:super_admin')->group(function () {
     Route::resource('staff', StaffController::class)
         ->names('admin.staff')
         ->except(['show']);
+
+    Route::get('/change-password', [StaffController::class, 'changePassword'])->name('admin.change-password');
+    Route::put('/change-password', [StaffController::class, 'updatePassword'])->name('admin.update-password');
 });

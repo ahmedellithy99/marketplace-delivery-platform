@@ -18,6 +18,7 @@ defineProps({
 
 const navLinks = [
     { href: "/admin/dashboard", label: "لوحة التحكم", icon: "dashboard" },
+    { href: "/admin/store-types", label: "أنواع المتاجر", icon: "store-type" },
     { href: "/admin/stores", label: "المتاجر", icon: "store" },
     { href: "/admin/categories", label: "الأقسام", icon: "category" },
     { href: "/admin/products", label: "المنتجات", icon: "product" },
@@ -202,6 +203,21 @@ function handleNotifClick(notif) {
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                         />
                     </svg>
+                    <!-- Store Type Icon -->
+                    <svg
+                        v-else-if="link.icon === 'store-type'"
+                        class="w-5 h-5 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"
+                        />
+                    </svg>
                     <!-- Store Icon -->
                     <svg
                         v-else-if="link.icon === 'store'"
@@ -328,7 +344,27 @@ function handleNotifClick(notif) {
                         </div>
                     </div>
                 </div>
-                <div class="px-4 pb-4">
+                <div class="px-4 pb-4 space-y-1">
+                    <Link
+                        v-if="user?.role === 'super_admin'"
+                        href="/admin/change-password"
+                        class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white/50 hover:bg-white/5 hover:text-white transition-all duration-200"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                            />
+                        </svg>
+                        <span>تغيير كلمة المرور</span>
+                    </Link>
                     <button
                         @click="logout"
                         class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white/50 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"

@@ -64,4 +64,20 @@ class StaffService
     {
         $user->delete();
     }
+
+    /**
+     * Update the user's password after verifying the current one.
+     */
+    public function updatePassword(User $user, string $currentPassword, string $newPassword): void
+    {
+        if (!Hash::check($currentPassword, $user->password)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'current_password' => ['كلمة المرور الحالية غير صحيحة.'],
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($newPassword),
+        ]);
+    }
 }

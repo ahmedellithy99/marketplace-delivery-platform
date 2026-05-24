@@ -60,4 +60,31 @@ class StaffController extends Controller
         return redirect()->route('admin.staff.index')
             ->with('success', 'تم حذف الموظف بنجاح.');
     }
+
+    public function changePassword(): Response
+    {
+        return Inertia::render('Admin/Staff/ChangePassword');
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'كلمة المرور الحالية مطلوبة.',
+            'password.required' => 'كلمة المرور الجديدة مطلوبة.',
+            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ]);
+
+        $this->staffService->updatePassword(
+            $request->user(),
+            $request->input('current_password'),
+            $request->input('password')
+        );
+
+        return redirect()->route('admin.change-password')
+            ->with('success', 'تم تغيير كلمة المرور بنجاح.');
+    }
 }
