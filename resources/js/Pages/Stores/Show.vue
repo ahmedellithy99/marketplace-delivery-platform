@@ -18,12 +18,28 @@ const props = defineProps({
 // Filters
 const search = ref(props.filters.search || "");
 const category = ref(props.filters.category || "");
+const sort = ref(props.filters.sort || "");
+const onDiscount = ref(props.filters.on_discount || "");
 let searchTimeout = null;
+
+// Sort dropdown
+const sortOpen = ref(false);
+const sortOptions = [
+    { value: "", label: "الأحدث" },
+    { value: "base_price", label: "السعر: من الأقل" },
+    { value: "-base_price", label: "السعر: من الأعلى" },
+    { value: "name", label: "الاسم: أ - ي" },
+];
+const sortLabel = computed(
+    () => sortOptions.find((o) => o.value === sort.value)?.label || "الأحدث",
+);
 
 function applyFilters() {
     const params = {};
     if (search.value) params.search = search.value;
     if (category.value) params.category = category.value;
+    if (sort.value) params.sort = sort.value;
+    if (onDiscount.value) params.on_discount = onDiscount.value;
     router.get(`/stores/${props.store.slug}`, params, {
         preserveState: true,
         preserveScroll: true,
@@ -34,7 +50,7 @@ watch(search, () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(applyFilters, 400);
 });
-watch(category, applyFilters);
+watch([category, sort, onDiscount], applyFilters);
 
 // Helpers
 function getStoreImage(store) {
@@ -280,6 +296,17 @@ function addToCart(product) {
                     الكل
                 </button>
                 <button
+                    @click="onDiscount = onDiscount ? '' : '1'"
+                    class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                    :class="
+                        onDiscount
+                            ? 'bg-red-500 text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                    "
+                >
+                    🏷️ عروض
+                </button>
+                <button
                     v-for="cat in categories"
                     :key="cat.id"
                     @click="category = String(cat.id)"
@@ -294,10 +321,100 @@ function addToCart(product) {
                 </button>
             </div>
 
-            <!-- Results count -->
-            <p class="text-sm text-gray-500 mb-4">
-                {{ products.total || 0 }} منتج
-            </p>
+            <!-- Sort Row -->
+            <div class="flex items-center justify-between mb-5">
+                <p class="text-sm text-gray-500 font-medium">
+                    {{ products.total || 0 }} منتج
+                </p>
+                <!-- Custom Sort Dropdown -->
+                <div class="relative">
+                    <button
+                        @click="sortOpen = !sortOpen"
+                        class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm hover:shadow hover:border-gray-300 transition-all"
+                    >
+                        <svg
+                            class="w-4 h-4 text-primary-900"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+                            />
+                        </svg>
+                        <span class="text-sm font-bold text-gray-900">{{
+                            sortLabel
+                        }}</span>
+                        <svg
+                            class="w-4 h-4 text-gray-400 transition-transform"
+                            :class="{ 'rotate-180': sortOpen }"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </button>
+                    <Transition
+                        enter-active-class="transition-all duration-200 ease-out"
+                        enter-from-class="opacity-0 scale-95 -translate-y-1"
+                        enter-to-class="opacity-100 scale-100 translate-y-0"
+                        leave-active-class="transition-all duration-150 ease-in"
+                        leave-from-class="opacity-100 scale-100 translate-y-0"
+                        leave-to-class="opacity-0 scale-95 -translate-y-1"
+                    >
+                        <div
+                            v-if="sortOpen"
+                            class="absolute inset-e-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 overflow-hidden"
+                        >
+                            <button
+                                v-for="option in sortOptions"
+                                :key="option.value"
+                                @click="
+                                    sort = option.value;
+                                    sortOpen = false;
+                                "
+                                class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors text-start"
+                                :class="
+                                    sort === option.value
+                                        ? 'bg-primary-50 text-primary-900 font-semibold'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                "
+                            >
+                                <svg
+                                    v-if="sort === option.value"
+                                    class="w-4 h-4 text-primary-600 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2.5"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                                <span v-else class="w-4 shrink-0"></span>
+                                <span>{{ option.label }}</span>
+                            </button>
+                        </div>
+                    </Transition>
+                    <div
+                        v-if="sortOpen"
+                        @click="sortOpen = false"
+                        class="fixed inset-0 z-40"
+                    ></div>
+                </div>
+            </div>
 
             <!-- Products Grid (same as products page) -->
             <div
