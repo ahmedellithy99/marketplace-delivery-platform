@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone', 20)->unique();
             $table->string('email')->nullable()->unique();
             $table->string('password');
-            $table->enum('role', ['super_admin', 'admin', 'customer', 'delivery']);
+            $table->enum('role', ['super_admin', 'admin', 'customer_service', 'customer', 'delivery']);
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

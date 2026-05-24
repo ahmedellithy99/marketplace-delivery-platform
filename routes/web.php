@@ -32,8 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:customer', 'throttle:60,1'])
         ->group(base_path('routes/customer.php'));
 
-    // Admin routes
-    Route::middleware('role:admin')
+    // Admin routes (admin + customer_service can access)
+    Route::middleware('role:admin,customer_service')
         ->prefix('admin')
         ->group(base_path('routes/admin.php'));
 

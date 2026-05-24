@@ -110,7 +110,11 @@ function handleNotifClick(notification) {
                             طلباتي
                         </Link>
                         <Link
-                            v-if="user?.role === 'admin'"
+                            v-if="
+                                user?.role === 'admin' ||
+                                user?.role === 'super_admin' ||
+                                user?.role === 'customer_service'
+                            "
                             href="/admin/dashboard"
                             class="text-secondary-400 hover:text-secondary-300 transition-colors text-sm font-medium"
                         >
@@ -361,7 +365,11 @@ function handleNotifClick(notification) {
                             طلباتي
                         </Link>
                         <Link
-                            v-if="user?.role === 'admin'"
+                            v-if="
+                                user?.role === 'admin' ||
+                                user?.role === 'super_admin' ||
+                                user?.role === 'customer_service'
+                            "
                             href="/admin/dashboard"
                             class="text-secondary-400 hover:text-secondary-300 text-sm font-medium"
                             @click="mobileMenuOpen = false"

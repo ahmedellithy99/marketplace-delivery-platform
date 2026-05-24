@@ -30,6 +30,35 @@ const navLinks = [
     },
 ];
 
+// Super admin only links
+const superAdminLinks = [
+    { href: "/admin/staff", label: "إدارة الموظفين", icon: "staff" },
+];
+
+// Filter nav links based on role
+const visibleNavLinks = computed(() => {
+    const role = user.value?.role;
+    let links = [];
+
+    if (role === "customer_service") {
+        // Customer service only sees orders and deliveries
+        links = navLinks.filter((l) =>
+            ["/admin/dashboard", "/admin/orders", "/admin/deliveries"].includes(
+                l.href,
+            ),
+        );
+    } else {
+        links = [...navLinks];
+    }
+
+    // Super admin gets staff management
+    if (role === "super_admin") {
+        links = [...links, ...superAdminLinks];
+    }
+
+    return links;
+});
+
 function isActive(href) {
     return page.url.startsWith(href);
 }
@@ -141,7 +170,7 @@ function handleNotifClick(notif) {
             <!-- Navigation -->
             <nav class="flex-1 py-5 px-4 space-y-1 overflow-y-auto">
                 <Link
-                    v-for="link in navLinks"
+                    v-for="link in visibleNavLinks"
                     :key="link.href"
                     :href="link.href"
                     class="relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200"
@@ -261,6 +290,21 @@ function handleNotifClick(notif) {
                             stroke-linejoin="round"
                             stroke-width="1.5"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                    </svg>
+                    <!-- Staff Icon -->
+                    <svg
+                        v-else-if="link.icon === 'staff'"
+                        class="w-5 h-5 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                         />
                     </svg>
                     <span>{{ link.label }}</span>
