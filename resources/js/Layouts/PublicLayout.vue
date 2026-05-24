@@ -382,7 +382,7 @@ function handleNotifClick(notification) {
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1">
+        <main class="flex-1 overflow-x-hidden">
             <slot />
         </main>
 
