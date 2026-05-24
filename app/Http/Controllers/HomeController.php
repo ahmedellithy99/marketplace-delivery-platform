@@ -16,7 +16,7 @@ class HomeController extends Controller
     {
         return Inertia::render('Home', [
             'featuredStores' => $this->storeService->getFeaturedStores(),
-            'featuredProducts' => $this->storeService->getFeaturedProducts(),
+            'featuredProducts' => $this->storeService->getFeaturedProducts(10),
         ]);
     }
 }

@@ -26,13 +26,37 @@ class StoreService
     /**
      * Get featured products for the home page.
      */
+    /**
+     * Get featured products for the home page (highest discount value first).
+     */
     public function getFeaturedProducts(int $limit = 8): Collection
     {
-        return Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'variants.product', 'discounts'])
-            ->where('is_available', true)
-            ->latest()
-            ->take($limit)
-            ->get();
+        $productIds = \DB::table('products')
+            ->join('discountables', function ($join) {
+                $join->on('products.id', '=', 'discountables.discountable_id')
+                    ->where('discountables.discountable_type', '=', 'App\\Models\\Product');
+            })
+            ->join('discounts', function ($join) {
+                $join->on('discountables.discount_id', '=', 'discounts.id')
+                    ->where('discounts.is_active', true)
+                    ->where(function ($q) {
+                        $q->whereNull('discounts.starts_at')->orWhere('discounts.starts_at', '<=', now());
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('discounts.ends_at')->orWhere('discounts.ends_at', '>=', now());
+                    });
+            })
+            ->where('products.is_available', true)
+            ->whereNull('products.deleted_at')
+            ->orderByDesc('discounts.value')
+            ->limit($limit)
+            ->pluck('products.id');
+
+        return Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'discounts'])
+            ->whereIn('id', $productIds)
+            ->get()
+            ->sortByDesc(fn ($p) => $p->discounts->max('value'))
+            ->values();
     }
 
     /**
