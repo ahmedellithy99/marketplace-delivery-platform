@@ -24,6 +24,8 @@ return new class extends Migration
             $table->time('closing_time');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('store_type_id');
         });
     }
 

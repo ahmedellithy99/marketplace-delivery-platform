@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedInteger('usage_limit')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['is_active', 'starts_at', 'ends_at'], 'idx_discounts_active_dates');
         });
 
         Schema::create('discountables', function (Blueprint $table) {

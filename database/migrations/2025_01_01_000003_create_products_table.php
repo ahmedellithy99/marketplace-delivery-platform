@@ -28,6 +28,9 @@ return new class extends Migration
             $table->index('store_id');
             $table->index('category_id');
             $table->index('type');
+            $table->index(['store_id', 'is_available', 'created_at'], 'idx_products_store_available');
+            $table->index(['is_available', 'created_at'], 'idx_products_available_date');
+            $table->index(['category_id', 'is_available'], 'idx_products_category_available');
         });
     }
 

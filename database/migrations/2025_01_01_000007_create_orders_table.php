@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('order_number', 50)->unique();
             $table->enum('status', ['pending', 'accepted', 'preparing', 'on_the_way', 'delivered', 'cancelled'])->default('pending');
             $table->text('delivery_address');
-            $table->decimal('latitude', 10, 7);
-            $table->decimal('longitude', 10, 7);
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->text('notes')->nullable();
             $table->decimal('subtotal', 10, 2);
             $table->decimal('delivery_fee_min', 10, 2);
@@ -29,6 +29,7 @@ return new class extends Migration
 
             $table->index('user_id');
             $table->index('status');
+            $table->index(['user_id', 'status', 'created_at'], 'idx_orders_user_status_date');
         });
     }
 

@@ -23,6 +23,7 @@ return new class extends Migration
 
             $table->index('user_id');
             $table->index('is_read');
+            $table->index(['user_id', 'is_read', 'created_at'], 'idx_notifications_user_unread');
         });
     }
 

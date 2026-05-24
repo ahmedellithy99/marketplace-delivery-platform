@@ -23,6 +23,8 @@ return new class extends Migration
 
             $table->index('delivery_man_id');
             $table->index('order_id');
+            $table->index(['delivery_man_id', 'delivered_at'], 'idx_deliveries_man_delivered');
+            $table->index('assigned_at');
         });
     }
 
