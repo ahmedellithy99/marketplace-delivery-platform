@@ -57,6 +57,11 @@ class ProductVariant extends Model
             return $this->cachedPricing;
         }
 
+        // Ensure product discounts are loaded to avoid N+1 in PricingService
+        if (!$product->relationLoaded('discounts')) {
+            $product->load('discounts');
+        }
+
         $pricingService = app(\App\Services\PricingService::class);
         $result = $pricingService->calculate($product, $this);
         $this->cachedPricing = $result->toArray();
