@@ -20,6 +20,7 @@ const category = ref(props.filters.category || "");
 const priceMin = ref(props.filters.price_min || "");
 const priceMax = ref(props.filters.price_max || "");
 const sort = ref(props.filters.sort || "");
+const onDiscount = ref(props.filters.on_discount || "");
 
 let searchTimeout = null;
 
@@ -30,6 +31,7 @@ function applyFilters() {
     if (priceMin.value) params.price_min = priceMin.value;
     if (priceMax.value) params.price_max = priceMax.value;
     if (sort.value) params.sort = sort.value;
+    if (onDiscount.value) params.on_discount = onDiscount.value;
     router.get("/products", params, {
         preserveState: true,
         preserveScroll: true,
@@ -42,6 +44,7 @@ function resetFilters() {
     priceMin.value = "";
     priceMax.value = "";
     sort.value = "";
+    onDiscount.value = "";
     router.get("/products", {}, { preserveState: false });
 }
 
@@ -49,7 +52,7 @@ watch(search, () => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(applyFilters, 400);
 });
-watch([category, priceMin, priceMax, sort], applyFilters);
+watch([category, priceMin, priceMax, sort, onDiscount], applyFilters);
 
 const hasActiveFilters = computed(
     () =>
@@ -57,7 +60,8 @@ const hasActiveFilters = computed(
         category.value ||
         priceMin.value ||
         priceMax.value ||
-        sort.value,
+        sort.value ||
+        onDiscount.value,
 );
 
 // Sort dropdown
@@ -171,6 +175,17 @@ function addToCart(product) {
                     "
                 >
                     الكل
+                </button>
+                <button
+                    @click="onDiscount = onDiscount ? '' : '1'"
+                    class="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                    :class="
+                        onDiscount
+                            ? 'bg-red-500 text-white shadow-sm'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                    "
+                >
+                    🏷️ عروض
                 </button>
                 <button
                     v-for="cat in categories"

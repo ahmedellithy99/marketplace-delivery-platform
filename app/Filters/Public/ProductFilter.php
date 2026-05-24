@@ -15,6 +15,7 @@ class ProductFilter extends BaseFilter
         'price_max',
         'type',
         'is_available',
+        'on_discount',
         'sort',
     ];
 
@@ -97,6 +98,24 @@ class ProductFilter extends BaseFilter
     public function is_available($value): void
     {
         $this->builder->where('is_available', $value);
+    }
+
+    /**
+     * Filter products that have an active discount
+     */
+    public function on_discount($value): void
+    {
+        if ($value) {
+            $this->builder->whereHas('discounts', function ($q) {
+                $q->where('is_active', true)
+                    ->where(function ($q2) {
+                        $q2->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+                    })
+                    ->where(function ($q2) {
+                        $q2->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+                    });
+            });
+        }
     }
 
     /**

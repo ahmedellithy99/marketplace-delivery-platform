@@ -18,7 +18,7 @@ class ProductController extends Controller
     {
         return Inertia::render('Products/Index', [
             'products' => $this->storeService->getProducts($request),
-            'filters' => $request->only(['search', 'category', 'store', 'price_min', 'price_max', 'sort']),
+            'filters' => $request->only(['search', 'category', 'store', 'price_min', 'price_max', 'sort', 'on_discount']),
             'categories' => \App\Models\Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
