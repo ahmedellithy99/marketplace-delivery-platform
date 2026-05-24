@@ -3,7 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Marketplace Delivery Platform') }}</title>
+    <meta name="description" content="ماركت بليس - منصة التوصيل الأولى. اطلب من متاجرك المفضلة واحصل على توصيل سريع وآمن.">
+    <title>{{ config('app.name', 'ماركت بليس') }}</title>
+    {{-- Critical inline CSS: paint background immediately while main CSS loads --}}
+    <style>body{margin:0;background:#f9fafb;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif}[data-page]{min-height:100vh}</style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">

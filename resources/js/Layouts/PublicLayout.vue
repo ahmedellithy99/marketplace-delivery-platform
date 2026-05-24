@@ -133,6 +133,7 @@ function handleNotifClick(notification) {
                                 <button
                                     @click="notifOpen = !notifOpen"
                                     class="relative p-2 text-white/90 hover:text-white transition-colors"
+                                    aria-label="الإشعارات"
                                 >
                                     <svg
                                         class="w-5 h-5"
@@ -251,6 +252,7 @@ function handleNotifClick(notification) {
                                 <button
                                     @click="userMenuOpen = !userMenuOpen"
                                     class="flex items-center gap-2 text-sm text-white/90 hover:text-white transition-colors"
+                                    aria-label="قائمة الحساب"
                                 >
                                     <div
                                         class="w-8 h-8 bg-primary-700 rounded-full flex items-center justify-center"
@@ -296,6 +298,7 @@ function handleNotifClick(notification) {
                         <button
                             @click="mobileMenuOpen = !mobileMenuOpen"
                             class="md:hidden p-2 text-white/90 hover:text-white"
+                            aria-label="القائمة"
                         >
                             <svg
                                 class="w-6 h-6"

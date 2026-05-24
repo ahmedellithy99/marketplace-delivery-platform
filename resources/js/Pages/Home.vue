@@ -14,10 +14,10 @@ const user = computed(() => page.props.auth?.user);
 const isCustomer = computed(() => user.value?.role === "customer");
 
 function getStoreImage(store) {
-    return (
-        store.media?.find((m) => m.collection_name === "logo")?.original_url ||
-        null
-    );
+    const logo = store.media?.find((m) => m.collection_name === "logo");
+    if (!logo) return null;
+    // Use thumb conversion (96×96 display) if available, fallback to original
+    return logo.preview_url || logo.original_url;
 }
 
 function getProductImage(product) {
@@ -83,9 +83,9 @@ const storesVisible = ref(false);
 const productsVisible = ref(false);
 
 onMounted(() => {
-    setTimeout(() => (heroVisible.value = true), 100);
-    setTimeout(() => (storesVisible.value = true), 400);
-    setTimeout(() => (productsVisible.value = true), 700);
+    heroVisible.value = true;
+    setTimeout(() => (storesVisible.value = true), 150);
+    setTimeout(() => (productsVisible.value = true), 300);
 });
 </script>
 
