@@ -41,7 +41,7 @@ class NotifyCustomerOrderStatusChanged implements ShouldQueue
         );
 
         $this->waClient->sendText(
-            phone: $customer->phone,
+            phone: '2' . $customer->phone,
             message: "🛵 طلبك #{$order->order_number} — {$label}\n" . config('app.url') . "/orders/{$order->id}",
         );
     }

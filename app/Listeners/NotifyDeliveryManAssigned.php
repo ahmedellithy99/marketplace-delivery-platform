@@ -33,7 +33,7 @@ class NotifyDeliveryManAssigned implements ShouldQueue
         );
 
         $this->waClient->sendText(
-            phone: $deliveryMan->phone,
+            phone: '2' . $deliveryMan->phone,
             message: "🛵 تم تعيينك لتوصيل طلب #{$order->order_number} للعميل {$customerName}\n" . config('app.url') . "/delivery/assignments/{$delivery->id}",
         );
     }

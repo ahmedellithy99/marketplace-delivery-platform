@@ -38,6 +38,8 @@ return [
     'waclient' => [
         'access_token' => env('WACLIENT_ACCESS_TOKEN'),
         'instance_id' => env('WACLIENT_INSTANCE_ID'),
+        'timeout' => env('WACLIENT_TIMEOUT', 30),
+        'log_success' => env('WACLIENT_LOG_SUCCESS', true),
     ],
 
 ];
