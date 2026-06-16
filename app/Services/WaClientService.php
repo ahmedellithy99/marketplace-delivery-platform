@@ -22,9 +22,11 @@ class WaClientService
     public function sendText(string $phone, string $message): bool
     {
         if (empty($this->accessToken) || empty($this->instanceId)) {
-            Log::warning('WaClient not configured — skipping WhatsApp message', [
-                'phone' => $phone,
-            ]);
+            if (!app()->environment('testing')) {
+                Log::warning('WaClient not configured — skipping WhatsApp message', [
+                    'phone' => $phone,
+                ]);
+            }
 
             return false;
         }
@@ -40,11 +42,13 @@ class WaClientService
         ]);
 
         if ($response->failed()) {
-            Log::error('WaClient send failed', [
-                'phone' => $phone,
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            if (!app()->environment('testing')) {
+                Log::error('WaClient send failed', [
+                    'phone' => $phone,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
 
             return false;
         }
