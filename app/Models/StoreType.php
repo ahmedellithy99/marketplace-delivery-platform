@@ -11,7 +11,10 @@ class StoreType extends Model
 {
     use HasFactory, HasArabicSlug;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'is_active',
+    ];
 
     protected function casts(): array
     {

@@ -12,7 +12,13 @@ class ProductVariant extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'product_id',
+        'name',
+        'price',
+        'is_default',
+        'sort_order',
+    ];
 
     protected $appends = ['pricing'];
 

@@ -17,7 +17,19 @@ class Product extends Model implements HasMedia
 {
     use HasFactory, HasArabicSlug, SoftDeletes, InteractsWithMedia, Filterable;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'store_id',
+        'category_id',
+        'name',
+        'description',
+        'type',
+        'base_price',
+        'measurement_unit',
+        'min_quantity',
+        'max_quantity',
+        'quantity_step',
+        'is_available',
+    ];
 
     /**
      * The accessors to append to the model's array form.

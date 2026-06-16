@@ -19,7 +19,16 @@ class Store extends Model implements HasMedia
 {
     use HasFactory, HasArabicSlug, SoftDeletes, InteractsWithMedia, Filterable;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'store_type_id',
+        'name',
+        'phone',
+        'address',
+        'latitude',
+        'longitude',
+        'opening_time',
+        'closing_time',
+    ];
 
     /**
      * The accessors to append to the model's array form.

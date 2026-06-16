@@ -10,7 +10,14 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'cart_id',
+        'product_id',
+        'variant_id',
+        'quantity',
+        'unit_price',
+        'total_price',
+    ];
 
     /**
      * Get the attributes that should be cast.

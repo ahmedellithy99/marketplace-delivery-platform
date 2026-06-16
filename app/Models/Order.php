@@ -14,7 +14,20 @@ class Order extends Model
 {
     use HasFactory, Filterable;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'order_number',
+        'status',
+        'delivery_address',
+        'latitude',
+        'longitude',
+        'notes',
+        'subtotal',
+        'delivery_fee_min',
+        'delivery_fee_max',
+        'delivery_fee',
+        'total',
+    ];
 
     /**
      * Get the attributes that should be cast.

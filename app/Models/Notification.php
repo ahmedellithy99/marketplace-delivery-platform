@@ -10,7 +10,14 @@ class Notification extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'type',
+        'title',
+        'body',
+        'link',
+        'is_read',
+    ];
 
     /**
      * Get the attributes that should be cast.

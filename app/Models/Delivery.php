@@ -10,7 +10,14 @@ class Delivery extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'order_id',
+        'delivery_man_id',
+        'assigned_by',
+        'assigned_at',
+        'picked_up_at',
+        'delivered_at',
+    ];
 
     /**
      * Get the attributes that should be cast.

@@ -10,7 +10,16 @@ class Discount extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'type',
+        'value',
+        'scope',
+        'starts_at',
+        'ends_at',
+        'usage_limit',
+        'is_active',
+    ];
 
     protected function casts(): array
     {

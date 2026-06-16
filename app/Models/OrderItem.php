@@ -10,7 +10,18 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'order_id',
+        'store_id',
+        'product_id',
+        'variant_id',
+        'product_name',
+        'variant_name',
+        'quantity',
+        'unit_price',
+        'discount_amount',
+        'total',
+    ];
 
     /**
      * Get the attributes that should be cast.

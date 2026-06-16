@@ -16,7 +16,10 @@ class Category extends Model implements HasMedia
 {
     use HasFactory, HasArabicSlug, SoftDeletes, InteractsWithMedia, Filterable;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'parent_id',
+        'name',
+    ];
 
     // ─── Spatie MediaLibrary ───────────────────────────────────────────
 
