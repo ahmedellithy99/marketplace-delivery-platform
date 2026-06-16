@@ -4,12 +4,14 @@ namespace App\Listeners;
 
 use App\Events\OrderStatusChanged;
 use App\Services\NotificationService;
+use App\Services\WaClientService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class NotifyCustomerOrderStatusChanged implements ShouldQueue
 {
     public function __construct(
         private readonly NotificationService $notificationService,
+        private readonly WaClientService $waClient,
     ) {}
 
     /**
@@ -36,6 +38,11 @@ class NotifyCustomerOrderStatusChanged implements ShouldQueue
             title: "{$label} طلبك",
             body: "طلبك #{$order->order_number} — {$label}",
             link: "/orders/{$order->id}",
+        );
+
+        $this->waClient->sendText(
+            phone: $customer->phone,
+            message: "🛵 طلبك #{$order->order_number} — {$label}\n" . config('app.url') . "/orders/{$order->id}",
         );
     }
 }

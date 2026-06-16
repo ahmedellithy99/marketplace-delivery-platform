@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'waclient' => [
+        'access_token' => env('WACLIENT_ACCESS_TOKEN'),
+        'instance_id' => env('WACLIENT_INSTANCE_ID'),
+    ],
+
 ];
