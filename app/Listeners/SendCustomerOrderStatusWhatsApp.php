@@ -3,14 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\OrderStatusChanged;
-use App\Services\NotificationService;
+use App\Jobs\SendWhatsAppMessageJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NotifyCustomerOrderStatusChanged implements ShouldQueue
+class SendCustomerOrderStatusWhatsApp implements ShouldQueue
 {
-    public function __construct(
-        private readonly NotificationService $notificationService,
-    ) {}
+    public $queue = 'whatsapp';
 
     /**
      * Handle the event.
@@ -19,6 +17,10 @@ class NotifyCustomerOrderStatusChanged implements ShouldQueue
     {
         $order = $event->order;
         $customer = $order->user;
+
+        if (!$customer) {
+            return;
+        }
 
         $statusLabels = [
             'accepted' => 'تم قبول',
@@ -30,12 +32,9 @@ class NotifyCustomerOrderStatusChanged implements ShouldQueue
 
         $label = $statusLabels[$event->newStatus] ?? $event->newStatus;
 
-        $this->notificationService->createNotification(
-            user: $customer,
-            type: 'order_' . $event->newStatus,
-            title: "{$label} طلبك",
-            body: "طلبك #{$order->order_number} — {$label}",
-            link: "/orders/{$order->id}",
+        SendWhatsAppMessageJob::dispatch(
+            phone: '2' . $customer->phone,
+            message: "🛵 طلبك #{$order->order_number} — {$label}\n" . config('app.url') . "/orders/{$order->id}",
         );
     }
 }

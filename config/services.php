@@ -40,6 +40,8 @@ return [
         'instance_id' => env('WACLIENT_INSTANCE_ID'),
         'timeout' => env('WACLIENT_TIMEOUT', 30),
         'log_success' => env('WACLIENT_LOG_SUCCESS', true),
+        'rate_limit_per_minute' => env('WACLIENT_RATE_LIMIT_PER_MINUTE', 20),
+        'rate_limit_per_hour' => env('WACLIENT_RATE_LIMIT_PER_HOUR', 300),
     ],
 
 ];
