@@ -8,6 +8,7 @@ use App\Models\Discount;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Store;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -16,16 +17,23 @@ use Illuminate\Validation\ValidationException;
 
 class ProductService
 {
+    public function __construct(
+        protected PricingService $pricingService
+    ) {}
     /**
      * Get products with optional filtering and pagination.
      */
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Product::with(['store', 'category', 'media', 'variants', 'discounts'])
+        $products = Product::with(['store', 'category', 'media', 'variants', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
+
+        $this->pricingService->loadCollectionPricing($products);
+
+        return $products;
     }
 
     /**
@@ -33,7 +41,16 @@ class ProductService
      */
     public function getProduct(Product $product): Product
     {
-        return $product->load(['store', 'category', 'media', 'variants', 'discounts']);
+        $product->load(['store', 'category', 'media', 'variants', 'discounts']);
+
+        $this->pricingService->loadProductPricing($product);
+        if ($product->relationLoaded('variants')) {
+            foreach ($product->variants as $variant) {
+                $this->pricingService->loadVariantPricing($variant);
+            }
+        }
+
+        return $product;
     }
 
     /**

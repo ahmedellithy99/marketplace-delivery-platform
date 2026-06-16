@@ -31,16 +31,6 @@ class Product extends Model implements HasMedia
         'is_available',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     */
-    protected $appends = ['pricing'];
-
-    /**
-     * Cached pricing result to avoid recomputation during same request.
-     */
-    protected ?array $cachedPricing = null;
-
     protected function casts(): array
     {
         return [
@@ -67,46 +57,6 @@ class Product extends Model implements HasMedia
     public function isMeasured(): bool
     {
         return $this->type === 'measured';
-    }
-
-    // ─── Pricing Accessor ──────────────────────────────────────────────
-
-    /**
-     * Compute pricing with discount for this product (cached per request).
-     */
-    public function getPricingAttribute(): array
-    {
-        if ($this->cachedPricing !== null) {
-            return $this->cachedPricing;
-        }
-
-        $pricingService = app(\App\Services\PricingService::class);
-
-        if ($this->isVariant()) {
-            $variant = $this->relationLoaded('variants')
-                ? ($this->variants->firstWhere('is_default', true) ?? $this->variants->first())
-                : $this->variants()->where('is_default', true)->first() ?? $this->variants()->first();
-
-            if (!$variant) {
-                $this->cachedPricing = [
-                    'unit_price' => 0, 'discount_amount' => 0, 'effective_price' => 0,
-                    'total' => 0, 'has_discount' => false, 'discount_label' => null, 'starts_from' => true,
-                ];
-                return $this->cachedPricing;
-            }
-
-            $result = $pricingService->calculate($this, $variant);
-            $arr = $result->toArray();
-            $arr['starts_from'] = $this->relationLoaded('variants') ? $this->variants->count() > 1 : true;
-            $this->cachedPricing = $arr;
-            return $this->cachedPricing;
-        }
-
-        $result = $pricingService->calculate($this);
-        $arr = $result->toArray();
-        $arr['starts_from'] = false;
-        $this->cachedPricing = $arr;
-        return $this->cachedPricing;
     }
 
     // ─── Spatie MediaLibrary ───────────────────────────────────────────

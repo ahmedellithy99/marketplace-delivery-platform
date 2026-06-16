@@ -31,7 +31,14 @@ class CartService
     {
         $cart = $this->getOrCreateCart($user);
 
-        return $cart->load(['items.product.media', 'items.product.store', 'items.product.variants', 'items.variant']);
+        $cart->load(['items.product.media', 'items.product.store', 'items.product.variants', 'items.variant']);
+
+        $this->pricingService->loadCollectionPricing($cart->items->pluck('product')->filter());
+        foreach ($cart->items->pluck('variant')->filter() as $variant) {
+            $this->pricingService->loadVariantPricing($variant);
+        }
+
+        return $cart;
     }
 
     /**

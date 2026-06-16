@@ -142,4 +142,84 @@ class PricingService
         $result = $this->calculate($product, $variant);
         return $result->toArray();
     }
+
+    /**
+     * Compute and set the 'pricing' attribute on a Product model.
+     */
+    public function loadProductPricing(Product $product): void
+    {
+        if ($product->isVariant()) {
+            $variant = $product->relationLoaded('variants')
+                ? ($product->variants->firstWhere('is_default', true) ?? $product->variants->first())
+                : $product->variants()->where('is_default', true)->first() ?? $product->variants()->first();
+
+            if (!$variant) {
+                $product->setAttribute('pricing', [
+                    'unit_price' => 0,
+                    'discount_amount' => 0,
+                    'effective_price' => 0,
+                    'total' => 0,
+                    'has_discount' => false,
+                    'discount_label' => null,
+                    'starts_from' => true,
+                ]);
+                return;
+            }
+
+            $result = $this->calculate($product, $variant);
+            $arr = $result->toArray();
+            $arr['starts_from'] = $product->relationLoaded('variants') ? $product->variants->count() > 1 : true;
+            $product->setAttribute('pricing', $arr);
+            return;
+        }
+
+        $result = $this->calculate($product);
+        $arr = $result->toArray();
+        $arr['starts_from'] = false;
+        $product->setAttribute('pricing', $arr);
+    }
+
+    /**
+     * Compute and set the 'pricing' attribute on a ProductVariant model.
+     */
+    public function loadVariantPricing(ProductVariant $variant): void
+    {
+        if ($variant->relationLoaded('product') && $variant->product) {
+            $product = $variant->product;
+        } else {
+            $variant->setAttribute('pricing', [
+                'unit_price' => (float) $variant->price,
+                'effective_price' => (float) $variant->price,
+                'discount_amount' => 0,
+                'has_discount' => false,
+                'discount_label' => null,
+                'total' => (float) $variant->price,
+            ]);
+            return;
+        }
+
+        if (!$product->relationLoaded('discounts')) {
+            $product->load('discounts');
+        }
+
+        $result = $this->calculate($product, $variant);
+        $variant->setAttribute('pricing', $result->toArray());
+    }
+
+    /**
+     * Compute and set 'pricing' on a collection of products and their variants.
+     */
+    public function loadCollectionPricing(iterable $products): void
+    {
+        foreach ($products as $product) {
+            if ($product instanceof Product) {
+                $this->loadProductPricing($product);
+                if ($product->relationLoaded('variants')) {
+                    foreach ($product->variants as $variant) {
+                        $this->loadVariantPricing($variant);
+                    }
+                }
+            }
+        }
+    }
 }

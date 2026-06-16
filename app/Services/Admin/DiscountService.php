@@ -7,12 +7,16 @@ use App\Models\Discount;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Store;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class DiscountService
 {
+    public function __construct(
+        protected PricingService $pricingService
+    ) {}
     /**
      * Get discounts with pagination.
      */
@@ -28,7 +32,11 @@ class DiscountService
      */
     public function getDiscount(Discount $discount): Discount
     {
-        return $discount->load(['products', 'variants.product', 'stores', 'categories']);
+        $discount->load(['products', 'variants.product', 'stores', 'categories']);
+
+        $this->pricingService->loadCollectionPricing($discount->products);
+
+        return $discount;
     }
 
     /**

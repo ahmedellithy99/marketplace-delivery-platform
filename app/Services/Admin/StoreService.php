@@ -7,6 +7,7 @@ use App\Filters\Public\StoreFilter;
 use App\Models\Category;
 use App\Models\Store;
 use App\Models\StoreType;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,6 +16,9 @@ use Illuminate\Validation\ValidationException;
 
 class StoreService
 {
+    public function __construct(
+        protected PricingService $pricingService
+    ) {}
     /**
      * Get stores with optional filtering and pagination.
      */
@@ -32,7 +36,11 @@ class StoreService
      */
     public function getStore(Store $store): Store
     {
-        return $store->load(['storeType', 'media', 'products']);
+        $store->load(['storeType', 'media', 'products']);
+
+        $this->pricingService->loadCollectionPricing($store->products);
+
+        return $store;
     }
 
     /**
@@ -46,6 +54,8 @@ class StoreService
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
+
+        $this->pricingService->loadCollectionPricing($products);
 
         $categories = Category::orderBy('name')->get(['id', 'name']);
 

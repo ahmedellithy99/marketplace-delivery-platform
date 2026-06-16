@@ -10,12 +10,17 @@ use App\Filters\Admin\OrderFilter;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\PricingService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
+    public function __construct(
+        protected PricingService $pricingService,
+    ) {}
+
     /**
      * Allowed status transitions.
      * 'cancelled' is reachable from any active status (admin only).
@@ -46,7 +51,11 @@ class OrderService
      */
     public function getOrder(Order $order): Order
     {
-        return $order->load(['items.store', 'delivery.deliveryMan', 'user']);
+        $order->load(['items.store', 'delivery.deliveryMan', 'user']);
+
+        $this->pricingService->loadCollectionPricing($order->items->pluck('product')->filter());
+
+        return $order;
     }
 
     /**
@@ -62,6 +71,8 @@ class OrderService
     public function getOrderGroupedByStore(Order $order): array
     {
         $order->loadMissing(['items.product.store', 'items.store']);
+
+        $this->pricingService->loadCollectionPricing($order->items->pluck('product')->filter());
 
         return $order->items
             ->groupBy('store_id')

@@ -8,12 +8,16 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\StoreType;
+use App\Services\PricingService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class StoreService
 {
+    public function __construct(
+        protected PricingService $pricingService
+    ) {}
     /**
      * Get featured stores for the home page.
      */
@@ -54,11 +58,15 @@ class StoreService
             ->limit($limit)
             ->pluck('products.id');
 
-        return Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'discounts'])
+        $products = Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'discounts'])
             ->whereIn('id', $productIds)
             ->get()
             ->sortByDesc(fn ($p) => $p->discounts->max('value'))
             ->values();
+
+        $this->pricingService->loadCollectionPricing($products);
+
+        return $products;
     }
 
     /**
@@ -93,6 +101,8 @@ class StoreService
             ])
             ->values();
 
+        $this->pricingService->loadCollectionPricing($products);
+
         $store->setAttribute('grouped_products', $groupedProducts);
 
         return $store;
@@ -103,11 +113,15 @@ class StoreService
      */
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'variants.product', 'discounts'])
+        $products = Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'variants.product', 'discounts'])
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
+
+        $this->pricingService->loadCollectionPricing($products);
+
+        return $products;
     }
 
     /**
@@ -175,6 +189,8 @@ class StoreService
         }
 
         $products = $query->paginate(20)->appends($request->query());
+
+        $this->pricingService->loadCollectionPricing($products);
 
         return [
             'store' => $store,

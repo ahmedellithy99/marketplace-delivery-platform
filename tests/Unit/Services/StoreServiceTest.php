@@ -20,7 +20,7 @@ class StoreServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new StoreService();
+        $this->service = $this->app->make(StoreService::class);
     }
 
     // ─── Create Tests ──────────────────────────────────────────────────
