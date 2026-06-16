@@ -92,7 +92,7 @@ const deliveryMan = computed(() => {
 </script>
 
 <template>
-    <PublicLayout>
+    <PublicLayout title="تفاصيل الطلب">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Back Link -->
             <Link

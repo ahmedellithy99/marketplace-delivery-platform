@@ -16,7 +16,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout title="تسجيل الدخول">
         <h1 class="text-2xl font-bold text-primary-900 text-center mb-2">
             تسجيل الدخول
         </h1>

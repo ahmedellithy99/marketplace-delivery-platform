@@ -90,7 +90,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <PublicLayout>
+    <PublicLayout title="الرئيسية">
         <!-- Hero Section — Immersive gradient with pattern overlay -->
         <section class="relative overflow-hidden bg-primary-900">
             <!-- Decorative background elements -->

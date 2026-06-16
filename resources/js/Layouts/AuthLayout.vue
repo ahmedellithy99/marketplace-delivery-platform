@@ -1,8 +1,16 @@
 <script setup>
-import { Link } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
+
+defineProps({
+    title: {
+        type: String,
+        default: "",
+    },
+});
 </script>
 
 <template>
+    <Head :title="title" />
     <div
         class="min-h-screen flex items-center justify-center bg-linear-to-br from-primary-900 to-primary-950 px-4 py-12"
     >

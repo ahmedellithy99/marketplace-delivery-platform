@@ -1,5 +1,5 @@
 <script setup>
-import { Link, usePage, router } from "@inertiajs/vue3";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 const page = usePage();
@@ -11,6 +11,13 @@ const cartSubtotal = computed(() => page.props.cart?.subtotal || 0);
 const mobileMenuOpen = ref(false);
 const userMenuOpen = ref(false);
 const notifOpen = ref(false);
+
+defineProps({
+    title: {
+        type: String,
+        default: "",
+    },
+});
 
 function formatCartTotal(amount) {
     return Number(amount).toFixed(2);
@@ -53,6 +60,7 @@ function handleNotifClick(notification) {
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="min-h-screen flex flex-col bg-gray-50">
         <!-- Header -->
         <header class="bg-primary-900 text-white shadow-lg sticky top-0 z-50">

@@ -18,7 +18,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout title="إنشاء حساب">
         <h1 class="text-2xl font-bold text-primary-900 text-center mb-2">
             إنشاء حساب
         </h1>

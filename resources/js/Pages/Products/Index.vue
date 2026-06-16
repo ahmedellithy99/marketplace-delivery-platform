@@ -112,7 +112,7 @@ function addToCart(product) {
 </script>
 
 <template>
-    <PublicLayout>
+    <PublicLayout title="المنتجات">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
             <!-- Page Header -->
             <div class="flex items-end justify-between mb-6">

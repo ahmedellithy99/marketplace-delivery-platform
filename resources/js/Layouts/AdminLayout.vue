@@ -1,5 +1,5 @@
 <script setup>
-import { Link, usePage, router } from "@inertiajs/vue3";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 const page = usePage();
@@ -104,6 +104,7 @@ function handleNotifClick(notif) {
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="min-h-screen lg:flex bg-gray-50">
         <!-- Mobile Backdrop -->
         <Transition
@@ -133,7 +134,7 @@ function handleNotifClick(notif) {
             <!-- Logo Section -->
             <div class="px-6 py-5">
                 <Link
-                    href="/admin/dashboard"
+                    href="/"
                     class="flex items-center gap-3 group"
                 >
                     <div

@@ -1,5 +1,5 @@
 <script setup>
-import { Link, usePage, router } from "@inertiajs/vue3";
+import { Head, Link, usePage, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 const page = usePage();
@@ -48,6 +48,7 @@ function handleNotifClick(notification) {
 </script>
 
 <template>
+    <Head :title="title" />
     <div class="min-h-screen bg-gray-50">
         <!-- Top Bar -->
         <header class="bg-primary-900 text-white sticky top-0 z-30 shadow-md">

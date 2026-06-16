@@ -67,7 +67,7 @@ const isEmpty = computed(() => ordersList.value.length === 0);
 </script>
 
 <template>
-    <PublicLayout>
+    <PublicLayout title="طلباتي">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Page Header -->
             <div class="flex items-center justify-between mb-8">

@@ -112,7 +112,7 @@ function addToCart(product) {
 </script>
 
 <template>
-    <PublicLayout>
+    <PublicLayout :title="store.name">
         <!-- Store Header -->
         <div class="relative">
             <!-- Cover -->
