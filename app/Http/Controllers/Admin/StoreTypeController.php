@@ -38,39 +38,31 @@ class StoreTypeController extends Controller
             ->with('success', 'تم إضافة نوع المتجر بنجاح.');
     }
 
-    public function edit(int $store_type): Response
+    public function edit(StoreType $storeType): Response
     {
-        $storeType = StoreType::findOrFail($store_type);
-
         return Inertia::render('Admin/StoreTypes/Edit', [
             'storeType' => $storeType,
         ]);
     }
 
-    public function update(StoreTypeUpdateRequest $request, int $store_type): RedirectResponse
+    public function update(StoreTypeUpdateRequest $request, StoreType $storeType): RedirectResponse
     {
-        $storeType = StoreType::findOrFail($store_type);
-
         $this->storeTypeService->updateStoreType($storeType, $request->validated());
 
         return redirect()->route('admin.store-types.index')
             ->with('success', 'تم تحديث نوع المتجر بنجاح.');
     }
 
-    public function destroy(int $store_type): RedirectResponse
+    public function destroy(StoreType $storeType): RedirectResponse
     {
-        $storeType = StoreType::findOrFail($store_type);
-
         $this->storeTypeService->deleteStoreType($storeType);
 
         return redirect()->route('admin.store-types.index')
             ->with('success', 'تم حذف نوع المتجر بنجاح.');
     }
 
-    public function toggleActive(int $store_type): RedirectResponse
+    public function toggleActive(StoreType $storeType): RedirectResponse
     {
-        $storeType = StoreType::findOrFail($store_type);
-
         $this->storeTypeService->toggleActive($storeType);
 
         return redirect()->back()
