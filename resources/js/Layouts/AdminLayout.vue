@@ -155,11 +155,11 @@ function handleNotifClick(notif) {
                     </div>
                     <div>
                         <span class="text-lg font-bold tracking-tight"
-                            >ماركت بليس</span
+                            >ماي واي</span
                         >
                         <span
                             class="block text-[10px] text-white/50 font-medium tracking-wider"
-                            >MARKETPLACE</span
+                            >MAYWAY</span
                         >
                     </div>
                 </Link>

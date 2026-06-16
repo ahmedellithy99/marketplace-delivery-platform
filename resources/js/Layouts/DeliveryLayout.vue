@@ -75,7 +75,7 @@ function handleNotifClick(notification) {
                             </svg>
                         </div>
                         <span class="text-lg font-bold hidden sm:block"
-                            >ماركت بليس</span
+                            >ماي واي</span
                         >
                     </Link>
 

@@ -78,7 +78,7 @@ function handleNotifClick(notification) {
                             </svg>
                         </div>
                         <span class="text-lg font-bold hidden sm:block"
-                            >ماركت بليس</span
+                            >ماي واي</span
                         >
                     </Link>
 
@@ -400,7 +400,7 @@ function handleNotifClick(notification) {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
                         <h3 class="text-white font-bold text-lg mb-3">
-                            ماركت بليس
+                            ماي واي
                         </h3>
                         <p class="text-sm text-white/60">
                             منصة التوصيل الأولى - نوصل لك كل ما تحتاجه من متاجرك
@@ -429,14 +429,14 @@ function handleNotifClick(notification) {
                             تواصل معنا
                         </h4>
                         <p class="text-sm text-white/60">
-                            support@marketplace.com
+                            support@mayway.com
                         </p>
                     </div>
                 </div>
                 <div
                     class="border-t border-white/10 mt-8 pt-6 text-center text-sm text-white/40"
                 >
-                    &copy; {{ new Date().getFullYear() }} ماركت بليس. جميع
+                    &copy; {{ new Date().getFullYear() }} ماي واي. جميع
                     الحقوق محفوظة.
                 </div>
             </div>

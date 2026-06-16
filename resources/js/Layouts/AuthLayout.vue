@@ -28,7 +28,7 @@ import { Link } from "@inertiajs/vue3";
                         </svg>
                     </div>
                     <span class="text-2xl font-bold text-white"
-                        >ماركت بليس</span
+                        >ماي واي</span
                     >
                 </Link>
             </div>
