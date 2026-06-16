@@ -106,7 +106,6 @@ class PricingService
         // 3. Category-level discounts (only if category AND its discounts are loaded)
         if ($product->relationLoaded('category') && $product->category) {
             if ($product->category->relationLoaded('discounts')) {
-                $now = now();
                 foreach ($product->category->discounts as $discount) {
                     if (!$isActive($discount)) continue;
                     $savings = $discount->calculateAmount($unitPrice);
