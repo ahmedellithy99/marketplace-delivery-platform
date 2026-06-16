@@ -64,6 +64,12 @@ class WaClientService
             return false;
         }
 
+        if (!app()->environment('testing')) {
+            Log::info('WaClient message sent', [
+                'phone' => $phone,
+            ]);
+        }
+
         return true;
     }
 }
