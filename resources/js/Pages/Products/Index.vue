@@ -54,6 +54,10 @@ watch(search, () => {
 });
 watch([category, priceMin, priceMax, sort, onDiscount], applyFilters);
 
+function setSort(value) {
+    sort.value = value;
+}
+
 const hasActiveFilters = computed(
     () =>
         search.value ||
@@ -264,7 +268,7 @@ function addToCart(product) {
                                 v-for="option in sortOptions"
                                 :key="option.value"
                                 @click="
-                                    sort = option.value;
+                                    setSort(option.value);
                                     sortOpen = false;
                                 "
                                 class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors text-start"
