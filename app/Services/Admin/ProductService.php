@@ -72,13 +72,13 @@ class ProductService
     /**
      * Create a new product.
      */
-    public function createProduct(array $data, array $images = []): Product
+    public function createProduct(array $data): Product
     {
         $this->validateStoreExists($data['store_id']);
         $this->validateCategoryExists($data['category_id']);
         $this->validateProductData($data);
 
-        $product = DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data) {
             $productData = collect($data)->except(['images', 'variants'])->toArray();
             $product = Product::create($productData);
 
@@ -94,20 +94,14 @@ class ProductService
                 }
             }
 
-            return $product;
+            return $product->load(['store', 'category', 'media', 'variants']);
         });
-
-        foreach ($images as $image) {
-            $product->addMedia($image)->toMediaCollection('images');
-        }
-
-        return $product->load(['store', 'category', 'media', 'variants']);
     }
 
     /**
      * Update an existing product.
      */
-    public function updateProduct(Product $product, array $data, array $images = []): Product
+    public function updateProduct(Product $product, array $data): Product
     {
         if (isset($data['store_id'])) {
             $this->validateStoreExists($data['store_id']);
@@ -121,10 +115,6 @@ class ProductService
             $productData = collect($data)->except(['images', 'variants'])->toArray();
             $product->update($productData);
         });
-
-        foreach ($images as $image) {
-            $product->addMedia($image)->toMediaCollection('images');
-        }
 
         $product->refresh();
         return $product->load(['store', 'category', 'media', 'variants']);

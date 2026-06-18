@@ -46,8 +46,7 @@ class Category extends Model implements HasMedia
             ->width(600)
             ->height(600)
             ->format('webp')
-            ->quality(85)
-            ->nonQueued();
+            ->quality(85);
     }
 
     // ─── Relationships ─────────────────────────────────────────────────

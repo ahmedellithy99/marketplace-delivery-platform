@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductStoreRequest;
 use App\Http\Requests\Admin\ProductUpdateRequest;
+use App\Jobs\UploadProductImagesJob;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Admin\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,13 +39,12 @@ class ProductController extends Controller
 
     public function store(ProductStoreRequest $request): RedirectResponse
     {
-        $this->productService->createProduct(
-            $request->validated(),
-            $request->file('images', [])
-        );
+        $product = $this->productService->createProduct($request->validated());
+
+        $this->dispatchProductImageUploads($product, $request->file('images', []));
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'تم إنشاء المنتج بنجاح.');
+            ->with('success', 'تم إنشاء المنتج بنجاح. جاري معالجة الصور في الخلفية.');
     }
 
     public function edit(Product $product): Response
@@ -56,14 +58,12 @@ class ProductController extends Controller
 
     public function update(ProductUpdateRequest $request, Product $product): RedirectResponse
     {
-        $this->productService->updateProduct(
-            $product,
-            $request->validated(),
-            $request->file('images', [])
-        );
+        $this->productService->updateProduct($product, $request->validated());
+
+        $this->dispatchProductImageUploads($product, $request->file('images', []));
 
         return redirect()->route('admin.products.index')
-            ->with('success', 'تم تحديث المنتج بنجاح.');
+            ->with('success', 'تم تحديث المنتج بنجاح. جاري معالجة الصور في الخلفية.');
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -72,6 +72,28 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'تم حذف المنتج بنجاح.');
+    }
+
+    protected function dispatchProductImageUploads(Product $product, array $images): void
+    {
+        if (empty($images)) {
+            return;
+        }
+
+        $tempPaths = [];
+
+        /** @var UploadedFile $image */
+        foreach ($images as $image) {
+            $tempPaths[] = $image->store('temp/product-images');
+        }
+
+        Cache::put(
+            "product_images_processing_{$product->id}",
+            true,
+            now()->addMinutes(10),
+        );
+
+        UploadProductImagesJob::dispatch($product->id, $tempPaths);
     }
 
     public function toggleAvailability(Product $product): RedirectResponse

@@ -6,10 +6,12 @@ use App\Traits\Filterable;
 use App\Traits\HasArabicSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -31,6 +33,8 @@ class Product extends Model implements HasMedia
         'is_available',
     ];
 
+    protected $appends = ['is_processing_images'];
+
     protected function casts(): array
     {
         return [
@@ -40,6 +44,13 @@ class Product extends Model implements HasMedia
             'quantity_step' => 'decimal:3',
             'is_available' => 'boolean',
         ];
+    }
+
+    protected function isProcessingImages(): Attribute
+    {
+        return Attribute::get(
+            fn () => Cache::get("product_images_processing_{$this->id}", false),
+        );
     }
 
     // ─── Type Helpers ──────────────────────────────────────────────────
@@ -76,7 +87,7 @@ class Product extends Model implements HasMedia
             ->width(200)->height(200)->format('webp')->quality(80)->sharpen(10);
 
         $this->addMediaConversion('optimized')
-            ->width(800)->height(800)->format('webp')->quality(85)->nonQueued();
+            ->width(800)->height(800)->format('webp')->quality(85);
     }
 
     // ─── Relationships ─────────────────────────────────────────────────

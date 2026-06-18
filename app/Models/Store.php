@@ -82,8 +82,7 @@ class Store extends Model implements HasMedia
             ->width(800)
             ->height(600)
             ->format('webp')
-            ->quality(85)
-            ->nonQueued();
+            ->quality(85);
     }
 
     // ─── Accessors ───────────────────────────────────────────────────────
