@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Services\Customer\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,7 +36,12 @@ class OrderController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $order = $this->orderService->placeOrder($user, $request->validated());
+        try {
+            $order = $this->orderService->placeOrder($user, $request->validated());
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()
+                ->with('error', 'السلة فارغة. يرجى إضافة منتجات قبل الطلب.');
+        }
 
         return redirect()->route('customer.orders.show', $order)
             ->with('success', 'تم تقديم الطلب بنجاح.');
