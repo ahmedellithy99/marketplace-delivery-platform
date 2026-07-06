@@ -93,6 +93,12 @@ function handleNotifClick(notification) {
                             المتاجر
                         </Link>
                         <Link
+                            href="/offers"
+                            class="text-white/90 hover:text-white transition-colors text-sm font-medium"
+                        >
+                            العروض
+                        </Link>
+                        <Link
                             v-if="user?.role === 'customer'"
                             href="/orders"
                             class="text-white/90 hover:text-white transition-colors text-sm font-medium"
@@ -338,6 +344,13 @@ function handleNotifClick(notification) {
                             @click="mobileMenuOpen = false"
                         >
                             المتاجر
+                        </Link>
+                        <Link
+                            href="/offers"
+                            class="text-white/90 hover:text-white text-sm font-medium"
+                            @click="mobileMenuOpen = false"
+                        >
+                            العروض
                         </Link>
                         <Link
                             v-if="user?.role === 'customer'"
