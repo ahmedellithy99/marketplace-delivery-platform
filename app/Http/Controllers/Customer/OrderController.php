@@ -69,7 +69,7 @@ class OrderController extends Controller
         ]);
 
         // Verify ownership
-        abort_unless($order->user_id === $authUser?->id, 403);
+        abort_unless((int) $order->user_id === (int) $authUser?->id, 403);
 
         $order = $this->orderService->getOrder($order);
 
