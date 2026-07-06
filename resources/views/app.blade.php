@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="ماي واي - منصة التوصيل الأولى. اطلب من متاجرك المفضلة واحصل على توصيل سريع وآمن.">
     <title inertia>{{ config('app.name', 'ماي واي') }}</title>
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg">
     {{-- Critical inline CSS: paint background immediately while main CSS loads --}}
     <style>body{margin:0;background:#f9fafb;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif}[data-page]{min-height:100vh}</style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
