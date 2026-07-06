@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Services\Customer\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,14 +44,32 @@ class OrderController extends Controller
                 ->with('error', 'السلة فارغة. يرجى إضافة منتجات قبل الطلب.');
         }
 
+        Log::debug('Order placed - redirecting', [
+            'order_id' => $order->id,
+            'order_user_id' => $order->user_id,
+            'auth_user_id' => $user?->id,
+            'session_id' => $request->session()->getId(),
+        ]);
+
         return redirect()->route('customer.orders.show', $order)
             ->with('success', 'تم تقديم الطلب بنجاح.');
     }
 
     public function show(Request $request, Order $order): Response
     {
+        $authUser = $request->user();
+        Log::debug('Order show ownership check', [
+            'order_id' => $order->id,
+            'order_user_id' => $order->user_id,
+            'auth_user_id' => $authUser?->id,
+            'user_is_null' => $authUser === null,
+            'session_id' => $request->session()->getId(),
+            'intended_url' => session()->get('url.intended'),
+            'previous_url' => url()->previous(),
+        ]);
+
         // Verify ownership
-        abort_unless($order->user_id === $request->user()->id, 403);
+        abort_unless($order->user_id === $authUser?->id, 403);
 
         $order = $this->orderService->getOrder($order);
 
