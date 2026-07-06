@@ -45,10 +45,10 @@ Route::middleware('role:admin')->group(function () {
         Route::get('/', [StoreTypeController::class, 'index'])->name('admin.store-types.index');
         Route::get('/create', [StoreTypeController::class, 'create'])->name('admin.store-types.create');
         Route::post('/', [StoreTypeController::class, 'store'])->name('admin.store-types.store');
-        Route::get('/{store_type}/edit', [StoreTypeController::class, 'edit'])->name('admin.store-types.edit');
-        Route::put('/{store_type}', [StoreTypeController::class, 'update'])->name('admin.store-types.update');
-        Route::delete('/{store_type}', [StoreTypeController::class, 'destroy'])->name('admin.store-types.destroy');
-        Route::patch('/{store_type}/toggle-active', [StoreTypeController::class, 'toggleActive'])->name('admin.store-types.toggle-active');
+        Route::get('/{store_type:id}/edit', [StoreTypeController::class, 'edit'])->name('admin.store-types.edit');
+        Route::put('/{store_type:id}', [StoreTypeController::class, 'update'])->name('admin.store-types.update');
+        Route::delete('/{store_type:id}', [StoreTypeController::class, 'destroy'])->name('admin.store-types.destroy');
+        Route::patch('/{store_type:id}/toggle-active', [StoreTypeController::class, 'toggleActive'])->name('admin.store-types.toggle-active');
     });
 
     // Stores
