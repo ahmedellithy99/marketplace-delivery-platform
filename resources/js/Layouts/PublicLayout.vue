@@ -87,12 +87,6 @@ function handleNotifClick(notification) {
                             الرئيسية
                         </Link>
                         <Link
-                            href="/products"
-                            class="text-white/90 hover:text-white transition-colors text-sm font-medium"
-                        >
-                            المنتجات
-                        </Link>
-                        <Link
                             href="/stores"
                             class="text-white/90 hover:text-white transition-colors text-sm font-medium"
                         >
@@ -339,13 +333,6 @@ function handleNotifClick(notification) {
                             الرئيسية
                         </Link>
                         <Link
-                            href="/products"
-                            class="text-white/90 hover:text-white text-sm font-medium"
-                            @click="mobileMenuOpen = false"
-                        >
-                            المنتجات
-                        </Link>
-                        <Link
                             href="/stores"
                             class="text-white/90 hover:text-white text-sm font-medium"
                             @click="mobileMenuOpen = false"
@@ -408,11 +395,6 @@ function handleNotifClick(notification) {
                             روابط سريعة
                         </h4>
                         <nav class="flex flex-col gap-2">
-                            <Link
-                                href="/products"
-                                class="text-sm text-white/60 hover:text-white transition-colors"
-                                >المنتجات</Link
-                            >
                             <Link
                                 href="/stores"
                                 class="text-sm text-white/60 hover:text-white transition-colors"

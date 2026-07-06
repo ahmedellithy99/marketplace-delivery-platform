@@ -22,4 +22,15 @@ class ProductController extends Controller
             'categories' => $this->storeService->getCategoryOptions(),
         ]);
     }
+
+    public function offers(Request $request): Response
+    {
+        $request->merge(['on_discount' => '1']);
+
+        return Inertia::render('Products/Index', [
+            'products' => $this->storeService->getProducts($request),
+            'filters' => $request->only(['search', 'category', 'store', 'price_min', 'price_max', 'sort', 'on_discount']),
+            'categories' => $this->storeService->getCategoryOptions(),
+        ]);
+    }
 }

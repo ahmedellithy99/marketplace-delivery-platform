@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 // Public routes (no auth required)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/offers', [ProductController::class, 'offers'])->name('offers.index');
 Route::get('/stores', [StoreController::class, 'index'])->name('stores.index');
 Route::get('/stores/{store:slug}', [StoreController::class, 'show'])->name('stores.show');
 

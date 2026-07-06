@@ -153,11 +153,11 @@ onMounted(() => {
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
-                        href="/products"
+                        href="/stores"
                         class="group relative bg-secondary-500 hover:bg-secondary-600 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg shadow-secondary-500/25 hover:shadow-xl hover:shadow-secondary-500/30 hover:-translate-y-0.5"
                     >
                         <span class="flex items-center justify-center gap-2">
-                            تصفح المنتجات
+                            تصفح المتاجر
                             <svg
                                 class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1"
                                 fill="none"
@@ -409,10 +409,10 @@ onMounted(() => {
                             </h2>
                         </div>
                         <Link
-                            href="/products"
+                            href="/offers"
                             class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary-900 hover:text-secondary-500 transition-colors group"
                         >
-                            عرض الكل
+                            عرض العروض
                             <svg
                                 class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1"
                                 fill="none"
@@ -583,13 +583,13 @@ onMounted(() => {
                         </p>
                     </div>
 
-                    <!-- Mobile "View All" -->
+                    <!-- Mobile "View Offers" -->
                     <div class="sm:hidden mt-6 text-center">
                         <Link
-                            href="/products"
+                            href="/offers"
                             class="inline-flex items-center gap-2 text-sm font-semibold text-primary-900 hover:text-secondary-500 transition-colors"
                         >
-                            عرض كل المنتجات
+                            عرض العروض
                             <svg
                                 class="w-4 h-4"
                                 fill="none"
