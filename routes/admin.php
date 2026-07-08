@@ -106,6 +106,9 @@ Route::middleware('role:admin')->group(function () {
         ->except(['show']);
 
     // Customers
+    Route::get('/customers/trash', [CustomerController::class, 'trash'])->name('admin.customers.trash');
+    Route::patch('/customers/{customer}/restore', [CustomerController::class, 'restore'])->name('admin.customers.restore');
+    Route::delete('/customers/{customer}/force', [CustomerController::class, 'forceDestroy'])->name('admin.customers.force-destroy');
     Route::resource('customers', CustomerController::class)
         ->names('admin.customers')
         ->only(['index', 'show', 'destroy']);

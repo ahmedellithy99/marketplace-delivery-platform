@@ -23,6 +23,13 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function trash(Request $request): Response
+    {
+        return Inertia::render('Admin/Customers/Trash', [
+            'customers' => $this->customerService->getTrashedCustomers($request),
+        ]);
+    }
+
     public function show(Request $request, User $customer): Response
     {
         $customer->loadCount('orders');
@@ -39,5 +46,21 @@ class CustomerController extends Controller
 
         return redirect()->route('admin.customers.index')
             ->with('success', 'تم حذف العميل بنجاح.');
+    }
+
+    public function restore(int $customer): RedirectResponse
+    {
+        $this->customerService->restoreCustomer($customer);
+
+        return redirect()->route('admin.customers.trash')
+            ->with('success', 'تم استعادة العميل بنجاح.');
+    }
+
+    public function forceDestroy(int $customer): RedirectResponse
+    {
+        $this->customerService->forceDeleteCustomer($customer);
+
+        return redirect()->route('admin.customers.trash')
+            ->with('success', 'تم حذف العميل نهائياً.');
     }
 }
