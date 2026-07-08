@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Filters\Admin\CustomerFilter;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\User;
@@ -13,18 +14,9 @@ class CustomerService
 {
     public function getCustomers(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        $query = User::where('role', 'customer');
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->withCount('orders')
+        return User::where('role', 'customer')
+            ->filter(new CustomerFilter($request))
+            ->withCount('orders')
             ->latest()
             ->paginate($perPage)
             ->appends($request->query());
@@ -32,18 +24,10 @@ class CustomerService
 
     public function getTrashedCustomers(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        $query = User::where('role', 'customer')->onlyTrashed();
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->withCount('orders')
+        return User::where('role', 'customer')
+            ->onlyTrashed()
+            ->filter(new CustomerFilter($request))
+            ->withCount('orders')
             ->orderByDesc('deleted_at')
             ->paginate($perPage)
             ->appends($request->query());
