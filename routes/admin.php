@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\DeliveryManController;
@@ -103,6 +104,11 @@ Route::middleware('role:admin')->group(function () {
     Route::resource('delivery-men', DeliveryManController::class)
         ->names('admin.delivery-men')
         ->except(['show']);
+
+    // Customers
+    Route::resource('customers', CustomerController::class)
+        ->names('admin.customers')
+        ->only(['index', 'show', 'destroy']);
 });
 
 // ─── Super Admin Only (staff management) ──────────────────────────────
