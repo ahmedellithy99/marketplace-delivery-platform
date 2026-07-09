@@ -57,6 +57,7 @@ Route::middleware('role:admin')->group(function () {
         ->names('admin.stores')
         ->except(['show']);
     Route::get('/stores/{store}', [StoreController::class, 'show'])->name('admin.stores.show');
+    Route::patch('/stores/{store}/toggle-availability', [StoreController::class, 'toggleAvailability'])->name('admin.stores.toggle-availability');
 
     // Categories
     Route::resource('categories', CategoryController::class)

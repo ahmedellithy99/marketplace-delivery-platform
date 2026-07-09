@@ -28,6 +28,7 @@ class Store extends Model implements HasMedia
         'longitude',
         'opening_time',
         'closing_time',
+        'is_available',
     ];
 
     /**
@@ -47,6 +48,7 @@ class Store extends Model implements HasMedia
             'longitude' => 'decimal:7',
             'opening_time' => 'datetime:H:i',
             'closing_time' => 'datetime:H:i',
+            'is_available' => 'boolean',
         ];
     }
 

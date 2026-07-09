@@ -79,4 +79,12 @@ class StoreController extends Controller
         return redirect()->route('admin.stores.index')
             ->with('success', 'تم حذف المتجر بنجاح.');
     }
+
+    public function toggleAvailability(Store $store): RedirectResponse
+    {
+        $this->storeService->toggleAvailability($store);
+
+        return redirect()->back()
+            ->with('success', 'تم تحديث حالة المتجر.');
+    }
 }

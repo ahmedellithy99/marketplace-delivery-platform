@@ -89,6 +89,11 @@ function getLogoUrl(store) {
                             <th
                                 class="px-5 py-3.5 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
                             >
+                                متاح
+                            </th>
+                            <th
+                                class="px-5 py-3.5 text-start text-xs font-semibold uppercase tracking-wider text-gray-500"
+                            >
                                 الإجراءات
                             </th>
                         </tr>
@@ -164,6 +169,35 @@ function getLogoUrl(store) {
                                 </span>
                             </td>
                             <td class="px-5 py-4">
+                                <button
+                                    @click="
+                                        router.patch(
+                                            `/admin/stores/${store.slug}/toggle-availability`,
+                                        )
+                                    "
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                                    :class="
+                                        store.is_available
+                                            ? 'bg-green-500'
+                                            : 'bg-gray-300'
+                                    "
+                                    :title="
+                                        store.is_available
+                                            ? 'اضغط لإخفاء المتجر'
+                                            : 'اضغط لإظهار المتجر'
+                                    "
+                                >
+                                    <span
+                                        class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform"
+                                        :class="
+                                            store.is_available
+                                                ? '-translate-x-6'
+                                                : '-translate-x-1'
+                                        "
+                                    />
+                                </button>
+                            </td>
+                            <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
                                     <Link
                                         :href="`/admin/stores/${store.slug}`"
@@ -233,7 +267,7 @@ function getLogoUrl(store) {
                         </tr>
                         <!-- Empty State -->
                         <tr v-if="storesList.length === 0">
-                            <td colspan="5" class="px-5 py-16 text-center">
+                            <td colspan="6" class="px-5 py-16 text-center">
                                 <div class="flex flex-col items-center gap-4">
                                     <div
                                         class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"

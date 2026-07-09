@@ -150,6 +150,13 @@ class StoreService
         });
     }
 
+    public function toggleAvailability(Store $store): Store
+    {
+        $store->update(['is_available' => !$store->is_available]);
+        $store->refresh();
+        return $store;
+    }
+
     /**
      * Validate that opening_time is strictly earlier than closing_time.
      */

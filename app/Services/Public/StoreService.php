@@ -23,7 +23,8 @@ class StoreService
      */
     public function getFeaturedStores(int $limit = 8): Collection
     {
-        return Store::with(['storeType', 'media'])
+        return Store::where('is_available', true)
+            ->with(['storeType', 'media'])
             ->latest()
             ->take($limit)
             ->get();
@@ -60,6 +61,7 @@ class StoreService
 
         $products = Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'discounts'])
             ->whereIn('id', $productIds)
+            ->whereHas('store', fn ($q) => $q->where('is_available', true))
             ->get()
             ->sortByDesc(fn ($p) => $p->discounts->max('value'))
             ->values();
@@ -74,7 +76,8 @@ class StoreService
      */
     public function getStores(Request $request, int $perPage = 15): LengthAwarePaginator
     {
-        return Store::with(['storeType', 'media'])
+        return Store::where('is_available', true)
+            ->with(['storeType', 'media'])
             ->filter(new StoreFilter($request))
             ->latest()
             ->paginate($perPage)
@@ -114,6 +117,7 @@ class StoreService
     public function getProducts(Request $request, int $perPage = 15): LengthAwarePaginator
     {
         $products = Product::with(['store.discounts', 'category.discounts', 'media', 'variants.discounts', 'variants.product', 'discounts'])
+            ->whereHas('store', fn ($q) => $q->where('is_available', true))
             ->filter(new ProductFilter($request))
             ->latest()
             ->paginate($perPage)
@@ -147,6 +151,10 @@ class StoreService
      */
     public function getStoreShowData(Store $store, Request $request): array
     {
+        if (!$store->is_available) {
+            abort(404);
+        }
+
         $store->load(['storeType', 'media']);
 
         // Get categories for this store's products
