@@ -68,13 +68,21 @@ function addToCart(product) {
             { preserveScroll: true },
         );
     } else {
-        selectedProduct.value = product;
-        showCartModal.value = true;
+        showProductDetailModal(product);
     }
 }
 
+function showProductDetailModal(product) {
+    if (!isCustomer.value) {
+        router.visit("/login");
+        return;
+    }
+    selectedProduct.value = product;
+    showProductDetail.value = true;
+}
+
 // Cart modal state
-const showCartModal = ref(false);
+const showProductDetail = ref(false);
 const selectedProduct = ref(null);
 
 // Animate on mount
@@ -436,7 +444,8 @@ onMounted(() => {
                         <div
                             v-for="(product, index) in featuredProducts"
                             :key="product.id"
-                            class="group bg-white rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-100"
+                            @click="showProductDetailModal(product)"
+                            class="group bg-white rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg border border-gray-100 cursor-pointer"
                         >
                             <!-- Product Image — compact square -->
                             <div
@@ -479,7 +488,7 @@ onMounted(() => {
                                 <!-- Add button — bottom end corner -->
                                 <button
                                     type="button"
-                                    @click="addToCart(product)"
+                                    @click.stop="addToCart(product)"
                                     class="absolute bottom-2 end-2 w-7 h-7 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md transition-all duration-200 hover:bg-primary-800 active:scale-90"
                                     aria-label="أضف للسلة"
                                 >
@@ -654,12 +663,12 @@ onMounted(() => {
                 </div>
             </div>
         </section>
-        <!-- Add to Cart Modal -->
+        <!-- Product Detail Modal -->
         <AddToCartModal
-            :show="showCartModal"
+            :show="showProductDetail"
             :product="selectedProduct"
             @close="
-                showCartModal = false;
+                showProductDetail = false;
                 selectedProduct = null;
             "
         />
