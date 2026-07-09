@@ -94,8 +94,17 @@ function formatTime(time) {
 }
 
 // Cart
-const showCartModal = ref(false);
+const showProductDetail = ref(false);
 const selectedProduct = ref(null);
+
+function showProductDetailModal(product) {
+    if (!isCustomer.value) {
+        router.visit("/login");
+        return;
+    }
+    selectedProduct.value = product;
+    showProductDetail.value = true;
+}
 
 function addToCart(product) {
     if (!isCustomer.value) {
@@ -109,8 +118,7 @@ function addToCart(product) {
             { preserveScroll: true },
         );
     } else {
-        selectedProduct.value = product;
-        showCartModal.value = true;
+        showProductDetailModal(product);
     }
 }
 </script>
@@ -427,7 +435,8 @@ function addToCart(product) {
                 <div
                     v-for="product in products.data"
                     :key="product.id"
-                    class="group bg-white rounded-xl overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+                    @click="showProductDetailModal(product)"
+                    class="group bg-white rounded-xl overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
                 >
                     <div
                         class="relative aspect-square overflow-hidden bg-gray-50"
@@ -473,7 +482,7 @@ function addToCart(product) {
                             >متعدد</span
                         >
                         <button
-                            @click="addToCart(product)"
+                            @click.stop="addToCart(product)"
                             class="absolute bottom-2 end-2 w-8 h-8 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:bg-primary-800 active:scale-90"
                             aria-label="أضف للسلة"
                         >
@@ -595,12 +604,12 @@ function addToCart(product) {
             </nav>
         </div>
 
-        <!-- Add to Cart Modal -->
+        <!-- Product Detail Modal -->
         <AddToCartModal
-            :show="showCartModal"
+            :show="showProductDetail"
             :product="selectedProduct"
             @close="
-                showCartModal = false;
+                showProductDetail = false;
                 selectedProduct = null;
             "
         />
