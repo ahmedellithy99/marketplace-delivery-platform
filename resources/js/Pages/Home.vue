@@ -182,10 +182,10 @@ onMounted(() => {
                         </span>
                     </Link>
                     <Link
-                        href="/stores"
+                        href="/offers"
                         class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 border border-white/20 hover:border-white/40"
                     >
-                        استكشف المتاجر
+                        استكشف العروض
                     </Link>
                 </div>
 
