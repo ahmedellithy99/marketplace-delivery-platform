@@ -483,7 +483,7 @@ function addToCart(product) {
                         >
                         <button
                             @click.stop="addToCart(product)"
-                            class="absolute bottom-2 end-2 w-8 h-8 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:bg-primary-800 active:scale-90"
+                            class="absolute bottom-2 end-2 w-8 h-8 bg-primary-900 text-white rounded-lg flex items-center justify-center shadow-md transition-all duration-200 hover:bg-primary-800 active:scale-90"
                             aria-label="أضف للسلة"
                         >
                             <svg
