@@ -193,6 +193,12 @@ function placeOrder() {
                                         من: {{ item.product.store.name }}
                                     </p>
                                     <p
+                                        v-if="item.product?.description"
+                                        class="text-xs text-gray-500 mt-1 leading-relaxed"
+                                    >
+                                        {{ item.product.description }}
+                                    </p>
+                                    <p
                                         v-if="item.variant"
                                         class="text-xs text-gray-500 mt-0.5"
                                     >

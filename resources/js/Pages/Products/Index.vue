@@ -390,6 +390,12 @@ function addToCart(product) {
                         >
                             {{ product.store.name }}
                         </p>
+                        <p
+                            v-if="product.description"
+                            class="text-[10px] sm:text-xs text-gray-500 mt-1 line-clamp-2"
+                        >
+                            {{ product.description }}
+                        </p>
 
                         <!-- Price -->
                         <div class="mt-2 flex items-baseline gap-1">

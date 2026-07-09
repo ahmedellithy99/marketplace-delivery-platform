@@ -498,6 +498,12 @@ function addToCart(product) {
                         >
                             {{ product.name }}
                         </h3>
+                        <p
+                            v-if="product.description"
+                            class="text-[10px] sm:text-xs text-gray-500 mt-1 line-clamp-2"
+                        >
+                            {{ product.description }}
+                        </p>
                         <div class="mt-2 flex items-baseline gap-1">
                             <template v-if="product.pricing?.has_discount">
                                 <span

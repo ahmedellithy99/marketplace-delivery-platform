@@ -195,6 +195,12 @@ function discountPercentage(product) {
                                         >
                                             {{ product.store?.name || "" }}
                                         </p>
+                                        <p
+                                            v-if="product.description"
+                                            class="text-[10px] text-gray-400 mt-0.5 line-clamp-2"
+                                        >
+                                            {{ product.description }}
+                                        </p>
                                     </div>
                                 </div>
                             </td>
