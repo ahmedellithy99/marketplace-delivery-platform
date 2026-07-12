@@ -125,7 +125,7 @@ class CategoryService
      */
     protected function detectCircularHierarchy(Category $category, int $newParentId): void
     {
-        if ($category->id === $newParentId) {
+        if ((int) $category->id === $newParentId) {
             throw new CircularHierarchyException();
         }
 

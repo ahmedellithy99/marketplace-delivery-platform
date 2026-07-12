@@ -64,7 +64,7 @@ class CartController extends Controller
     {
         // Verify ownership (eager-load to avoid extra query on repeated access)
         $cartItem->loadMissing('cart');
-        abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
+        abort_unless((int) $cartItem->cart->user_id === (int) $request->user()->id, 403);
 
         try {
             $this->cartService->updateCartItem(
@@ -83,7 +83,7 @@ class CartController extends Controller
     {
         // Verify ownership
         $cartItem->loadMissing('cart');
-        abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
+        abort_unless((int) $cartItem->cart->user_id === (int) $request->user()->id, 403);
 
         $this->cartService->removeCartItem($cartItem);
 

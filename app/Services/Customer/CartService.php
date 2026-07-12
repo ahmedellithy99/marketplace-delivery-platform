@@ -51,8 +51,8 @@ class CartService
         $product = Product::findOrFail($productId);
         $variant = $variantId ? ProductVariant::findOrFail($variantId) : null;
 
-        // Validate variant belongs to this product
-        if ($variant && $variant->product_id !== $product->id) {
+        // Validate variant belongs to this product (loose comparison: DB returns string for FK, int for PK)
+        if ($variant && $variant->product_id != $product->id) {
             throw new \RuntimeException('هذا الخيار لا ينتمي إلى هذا المنتج.');
         }
 
