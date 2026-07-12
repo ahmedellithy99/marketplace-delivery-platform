@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, usePage, router } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
@@ -11,6 +11,16 @@ const cartSubtotal = computed(() => page.props.cart?.subtotal || 0);
 const mobileMenuOpen = ref(false);
 const userMenuOpen = ref(false);
 const notifOpen = ref(false);
+
+const flash = computed(() => page.props.flash || {});
+const showFlash = ref(false);
+
+watch(flash, (val) => {
+    if (val.success || val.error) {
+        showFlash.value = true;
+        setTimeout(() => { showFlash.value = false; }, 5000);
+    }
+}, { deep: true });
 
 defineProps({
     title: {
@@ -468,6 +478,28 @@ function handleNotifClick(notification) {
                         <span class="text-xs text-white/70">جنيه</span>
                     </div>
                 </Link>
+            </div>
+        </Transition>
+
+        <!-- Flash Messages -->
+        <Transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="translate-y-4 opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="translate-y-4 opacity-0"
+        >
+            <div
+                v-if="showFlash && (flash.success || flash.error)"
+                class="fixed top-4 inset-x-0 z-[100] px-4"
+            >
+                <div
+                    class="max-w-md mx-auto px-5 py-3 rounded-xl shadow-lg text-sm font-semibold text-center"
+                    :class="flash.success ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'"
+                >
+                    {{ flash.success || flash.error }}
+                </div>
             </div>
         </Transition>
     </div>

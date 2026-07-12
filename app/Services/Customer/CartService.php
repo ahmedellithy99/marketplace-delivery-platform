@@ -53,7 +53,7 @@ class CartService
 
         // Validate variant belongs to this product
         if ($variant && $variant->product_id !== $product->id) {
-            abort(422, 'Variant does not belong to this product.');
+            throw new \RuntimeException('هذا الخيار لا ينتمي إلى هذا المنتج.');
         }
 
         if (!$product->is_available) {

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Exceptions\ProductUnavailableException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\CartItemStoreRequest;
 use App\Http\Requests\Customer\CartItemUpdateRequest;
 use App\Models\CartItem;
 use App\Services\Customer\CartService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -39,12 +41,20 @@ class CartController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        $this->cartService->addCartItem(
-            $user,
-            $request->validated('product_id'),
-            $request->validated('variant_id'),
-            $request->validated('quantity')
-        );
+        try {
+            $this->cartService->addCartItem(
+                $user,
+                $request->validated('product_id'),
+                $request->validated('variant_id'),
+                $request->validated('quantity')
+            );
+        } catch (ModelNotFoundException) {
+            return redirect()->back()->with('error', 'المنتج أو الخيار غير متاح حالياً.');
+        } catch (ProductUnavailableException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
         return redirect()->back()
             ->with('success', 'تمت إضافة المنتج إلى السلة.');
@@ -56,10 +66,14 @@ class CartController extends Controller
         $cartItem->loadMissing('cart');
         abort_unless($cartItem->cart->user_id === $request->user()->id, 403);
 
-        $this->cartService->updateCartItem(
-            $cartItem,
-            $request->validated('quantity')
-        );
+        try {
+            $this->cartService->updateCartItem(
+                $cartItem,
+                $request->validated('quantity')
+            );
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
         return redirect()->back()
             ->with('success', 'تم تحديث الكمية.');

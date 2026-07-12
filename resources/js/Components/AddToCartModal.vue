@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+
+const page = usePage();
 
 const props = defineProps({
     show: { type: Boolean, default: false },
@@ -12,6 +14,17 @@ const emit = defineEmits(["close"]);
 const selectedVariantId = ref(null);
 const quantity = ref(1);
 const adding = ref(false);
+const cartError = ref("");
+
+watch(() => page.props.errors, (errors) => {
+    if (errors && Object.keys(errors).length > 0) {
+        const firstError = Object.values(errors)[0];
+        if (typeof firstError === "string") {
+            cartError.value = firstError;
+            setTimeout(() => { cartError.value = ""; }, 5000);
+        }
+    }
+}, { deep: true });
 
 const step = computed(() => Number(props.product?.quantity_step) || 0.25);
 const minQty = computed(() => Number(props.product?.min_quantity) || step.value);
@@ -91,6 +104,7 @@ function resetAndClose() {
     selectedVariantId.value = null;
     quantity.value = minQty.value || 1;
     adding.value = false;
+    cartError.value = "";
     emit("close");
 }
 
@@ -304,6 +318,13 @@ watch(() => props.show, (val) => {
                             </div>
                             <p class="text-xs text-gray-400 text-center mt-2">
                                 {{ formatPrice(unitEffectivePrice) }} جنيه / {{ unitLabel }}
+                            </p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div v-if="cartError" class="px-5 pb-2">
+                            <p class="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center">
+                                {{ cartError }}
                             </p>
                         </div>
 
