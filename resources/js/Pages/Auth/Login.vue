@@ -87,16 +87,24 @@ const submit = () => {
             </div>
 
             <!-- Remember Me -->
-            <div class="mb-6 flex items-center">
-                <input
-                    id="remember"
-                    v-model="form.remember"
-                    type="checkbox"
-                    class="h-4 w-4 text-primary-900 border-gray-300 rounded focus:ring-primary-900"
-                />
-                <label for="remember" class="ms-2 text-sm text-gray-600"
-                    >تذكرني</label
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <input
+                        id="remember"
+                        v-model="form.remember"
+                        type="checkbox"
+                        class="h-4 w-4 text-primary-900 border-gray-300 rounded focus:ring-primary-900"
+                    />
+                    <label for="remember" class="ms-2 text-sm text-gray-600"
+                        >تذكرني</label
+                    >
+                </div>
+                <Link
+                    href="/forgot-password"
+                    class="text-sm text-primary-900 hover:text-primary-700 font-medium"
                 >
+                    نسيت كلمة المرور؟
+                </Link>
             </div>
 
             <!-- Submit -->

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\ProductController;
@@ -20,6 +21,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Forgot password routes
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])->name('forgot-password');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendOtp']);
+    Route::get('/verify-otp', [ForgotPasswordController::class, 'showVerifyForm'])->name('verify-otp');
+    Route::post('/verify-otp', [ForgotPasswordController::class, 'verifyOtp']);
+    Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('reset-password');
+    Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 });
 
 Route::middleware('auth')->group(function () {
